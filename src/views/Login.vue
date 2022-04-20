@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { LockClosedIcon } from "@heroicons/vue/solid";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import "firebase/firestore";
@@ -75,18 +76,18 @@ async function login() {
       store.commit("setUid", {
         uid: doc.data().urlsuffix,
         role: doc.data().role,
-        exceptionalProducts: doc.data().exceptionalProducts,
       });
     });
-
+    console.log(store.state);
     router.push("/home");
   } else {
     alert("帳號密碼錯誤");
   }
 
   //取得所有產品資訊並存取
-  await getProducts();
+  // await getProducts();
   await getAllDownlines([store.state.uid]);
+  console.log(store.state);
 }
 
 async function getProducts() {
@@ -96,15 +97,16 @@ async function getProducts() {
     products[doc.id] = doc.data();
   });
 
-  Object.entries(store.state.exceptionalProducts).forEach(([key, value]) => {
-    products[key].exceptional = value;
-  });
+  // Object.entries(store.state.exceptionalProducts).forEach(([key, value]) => {
+  //   products[key].exceptional = value;
+  // });
 
   store.commit("setProducts", products);
 }
 
 //取得我下面所有的下線(所有的兒孫都算, 無論層數)
 async function getAllDownlines(suffixes: string[]) {
+  let children: string[] = [];
   for (let i = 0; i < suffixes.length; ++i) {
     let myQuery = query(
       collection(db, "members"),
@@ -113,8 +115,13 @@ async function getAllDownlines(suffixes: string[]) {
     var usersRef = await getDocs(myQuery);
     usersRef.forEach((doc) => {
       let downline = doc.data();
+      children.push(downline.urlsuffix);
       store.commit("setDownline", downline);
     });
+
+    if (children.length > 0) {
+      await getAllDownlines(children);
+    }
   }
 }
 </script>

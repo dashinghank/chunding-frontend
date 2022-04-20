@@ -1,10 +1,6 @@
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
 
-// interface IProductDefault {
-//   [key: string]: number;
-// }
-
 export default new Vuex.Store({
   state: {
     uid: "",
@@ -15,10 +11,9 @@ export default new Vuex.Store({
     downlines: {},
   },
   mutations: {
-    setUid(state, uid, role, exceptionalProducts) {
+    setUid(state, { uid = "", role = "" }) {
       state.uid = uid;
       state.role = role;
-      state.exceptionalProducts = exceptionalProducts;
     },
 
     setProducts(state, products) {
@@ -42,7 +37,6 @@ export default new Vuex.Store({
         exceptionalProducts: downline.exceptionalProducts,
       };
     },
-
-    plugins: [createPersistedState()],
   },
+  plugins: [createPersistedState()],
 });

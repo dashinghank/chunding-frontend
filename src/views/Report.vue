@@ -47,17 +47,15 @@ const orders = ref<IOrders>({});
 const myCommision = ref(0);
 
 onMounted(async () => {
-<<<<<<< HEAD
+  console.log("report");
+  console.log("store.state.uid", store.state.uid);
+
   const myOrdersQuery = query(
-=======
-  const myOrdersQuery = await query(
->>>>>>> 94bd7a4a8b46ec68885a91f61fc38979b46236a1
     collection(db, "orders"),
     where("kolSuffix", "==", store.state.uid),
     where("fullyPaid", "==", true)
   );
 
-  console.log("store.state.uid", store.state.uid);
   const ordersRef = await getDocs(myOrdersQuery);
   console.log(ordersRef.empty);
   if (!ordersRef.empty) {
