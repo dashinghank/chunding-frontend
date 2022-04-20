@@ -24,42 +24,16 @@ interface IProduct {
 interface IProducts {
   [key: string]: IProduct;
 }
-interface IProductsDefault {
+
+interface IProductDefault {
   [key: string]: number;
 }
-const productsDefault = ref<IProductsDefault>({});
+
 const products = ref<IProducts>({});
 
 onMounted(async () => {
   console.log("Hello", store.state.uid);
-  await getProducts();
-  console.log("productsDefault:", productsDefault.value);
-
-  const queryUser = query(
-    collection(db, "members"),
-    where("urlsuffix", "==", store.state.uid)
-  );
-
-  //帳號重複
-  const userRef = await getDocs(queryUser);
-  if (userRef.empty) {
-    return;
-  }
-  userRef.forEach((doc) => {
-    console.log("user data:", doc.id, doc.data());
-    store.state.exceptionalProducts = doc.data().exceptionalProducts;
-  });
-  console.log(store.state.exceptionalProducts);
 });
-async function getProducts() {
-  var productsRef = await getDocs(collection(getFirestore(), "products"));
-
-  productsRef.forEach((doc) => {
-    console.log("user data:", doc.id, doc.data());
-    products.value[doc.id] = doc.data() as IProduct;
-    productsDefault.value[doc.id] = doc.data().default;
-  });
-}
 </script>
 
 <template>

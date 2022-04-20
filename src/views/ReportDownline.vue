@@ -33,32 +33,39 @@ interface IOrder {
 interface IOrders {
   [key: string]: IOrder;
 }
+interface IDownlinesComissions {
+  [key: string]: number;
+}
 
 const orders = ref<IOrders>({});
 const downlinesOrders: any = ref({});
+
+const downlinesComissions = ref<IDownlinesComissions>({});
+interface IProductDefault {
+  [key: string]: number;
+}
+interface IProduct {
+  default: number;
+  handle: string;
+  price: string;
+  sku: string;
+  vid: string;
+}
 // const downlines = ref();
 onMounted(async () => {
   console.log("report in");
-
-  console.log("myId", store.state.uid);
+  // console.log("myId", store.state.uid);
   const downlinesQuery = await query(
     collection(db, "members"),
     where("parent", "==", store.state.uid)
   );
 
   const downlinesRef = await getDocs(downlinesQuery);
-  console.log("downlinesRef.empty:", downlinesRef.empty);
 
   if (!downlinesRef.empty) {
     console.log("找到下線了");
-    var downlines: any = [
-      {
-        urlsuffix: "",
-        nickname: "",
-      },
-    ];
+    var downlines: any = [];
     downlinesRef.forEach((doc) => {
-      console.log("user data:", doc.id, doc.data());
       downlines.push({
         urlsuffix: doc.data().urlsuffix,
         nickname: doc.data().nickname,
@@ -67,7 +74,10 @@ onMounted(async () => {
     console.log("downlines", downlines);
 
     for (let i = 0; i < downlines.length; i++) {
-      const downlineOrdersQuery = await query(
+      await getDownlinesProducts(downlines[i].urlsuffix);
+      console.log("downlinesProducts", store.state.downlinesProducts);
+
+      const downlineOrdersQuery = query(
         collection(db, "orders"),
         where("kolSuffix", "==", downlines[i].urlsuffix)
       );
@@ -77,17 +87,104 @@ onMounted(async () => {
       if (!ordersRef.empty) {
         var orders: any = {};
         ordersRef.forEach((doc) => {
-          console.log("user data:", doc.id, doc.data());
           orders[doc.id] = doc.data() as IOrder;
           console.log("現在訂單:", orders);
         });
 
-        downlinesOrders.value[downlines[i].nickname] = orders;
+        downlinesOrders.value[downlines[i].urlsuffix] = orders;
       }
     }
+    // downlinesComissions.value +=
+    //     store.state.products[key].price *
+    //     value.quantity *
+    //     store.state.products[key].default;
+
     console.log("downlinesOrders:", downlinesOrders.value);
+
+    // store.state.downlinesProducts[downlines[i].urlsuffix];
+    // Object.values(orders.value).forEach((order) => {
+    //   Object.entries(order.items).forEach(([key, value]) => {
+    //     myCommision.value +=
+    //       store.state.products[key].price *
+    //       value.quantity *
+    //       store.state.products[key].default;
+    //   });
+    // });
+
+    Object.entries(downlinesOrders.value).forEach(([key, value]) => {
+      console.log("key", key);
+      console.log("value", value);
+      var tempDownlinesComissions = 0;
+      Object.entries(value).forEach(([vKey, vValue]) => {
+        // console.log("vKey", vKey);
+        // console.log("vValue", vValue.items);
+
+        Object.entries(vValue.items).forEach(async ([iKey, iValue]) => {
+          // console.log("iKey", iKey);
+          // console.log("iValue", iValue);
+
+          tempDownlinesComissions +=
+            store.state.downlinesProducts[key][iKey].price *
+            iValue.quantity *
+            store.state.downlinesProducts[key][iKey].default;
+          downlinesComissions.value[key] = tempDownlinesComissions;
+          console.log(
+            "這次的單價",
+            store.state.downlinesProducts[key][iKey].price
+          );
+          console.log("這次的數量", iValue.quantity);
+          console.log(
+            "這次的%數",
+            store.state.downlinesProducts[key][iKey].default
+          );
+          console.log("這次的總收入", downlinesComissions.value);
+        });
+      });
+    });
   }
 });
+
+async function getDownlinesProducts(urlsuffix: string) {
+  console.log("getDownlinesProducts:", urlsuffix);
+  var productsRef = await getDocs(collection(getFirestore(), "products"));
+  var tProducts = {};
+  productsRef.forEach((doc) => {
+    // console.log("user data:", doc.id, doc.data());
+    tProducts[doc.id] = doc.data() as IProduct;
+  });
+  let setDownlinesProducts = {
+    ...store.state.downlinesProducts,
+    [urlsuffix]: tProducts,
+  };
+  store.state.downlinesProducts;
+  store.commit("setDownlinesProducts", setDownlinesProducts);
+
+  console.log("這是下陷商品", store.state.downlinesProducts);
+  const queryUser = query(
+    collection(db, "members"),
+    where("urlsuffix", "==", urlsuffix)
+  );
+
+  const userRef = await getDocs(queryUser);
+  if (userRef.empty) {
+    console.log("沒有找到使用者");
+    return;
+  }
+
+  userRef.forEach((doc) => {
+    console.log("測試:", doc.id, Object.keys(doc.data().exceptionalProducts));
+    for (const [key, value] of Object.entries(
+      doc.data().exceptionalProducts as IProductDefault
+    )) {
+      var data = {
+        urlsuffix: urlsuffix,
+        productId: key,
+        productDefault: value,
+      };
+      store.commit("setExceptionalProducts", data);
+    }
+  });
+}
 </script>
 
 <template>
@@ -100,7 +197,7 @@ onMounted(async () => {
         v-for="(downline, key, index) in downlinesOrders"
         :key="downline.id"
       >
-        <div>KOL:{{ key }}</div>
+        <div>KOL:{{ key }}:{{ downlinesComissions[key] }}</div>
         <div
           class="w-11/12 mx-auto rounded-md border-2 overflow-hidden my-4"
           v-for="order in downline"
