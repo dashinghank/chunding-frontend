@@ -2,11 +2,8 @@
 import {
   getFirestore,
   collection,
-  addDoc,
   getDocs,
   query,
-  updateDoc,
-  doc,
   where,
 } from "firebase/firestore";
 import { onMounted, ref } from "vue";

@@ -12,15 +12,19 @@ export default new Vuex.Store({
     exceptionalProducts: {},
     products: {},
     downlinesProducts: {},
+    downlines: {},
   },
   mutations: {
-    setUid(state, uid, role) {
+    setUid(state, uid, role, exceptionalProducts) {
       state.uid = uid;
       state.role = role;
+      state.exceptionalProducts = exceptionalProducts;
     },
+
     setProducts(state, products) {
       state.products = products;
     },
+
     setDownlinesProducts(state, downlinesProducts) {
       state.downlinesProducts = downlinesProducts;
     },
@@ -29,6 +33,16 @@ export default new Vuex.Store({
       state.downlinesProducts[data.urlsuffix][data.productId].default =
         data.productDefault;
     },
+
+    setDownline(state, downline) {
+      state.downlines[downline.urlsuffix] = {
+        urlsuffix: downline.urlsuffix,
+        nickname: downline.nickname,
+        depth: downline.depth,
+        exceptionalProducts: downline.exceptionalProducts,
+      };
+    },
+
+    plugins: [createPersistedState()],
   },
-  plugins: [createPersistedState()],
 });

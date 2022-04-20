@@ -21,7 +21,6 @@ interface IProducts {
 }
 
 const products = ref<IProducts>({});
-const selected = ref(1);
 
 onMounted(async () => {
   console.log("product in");
@@ -41,7 +40,7 @@ async function modifyProductDefult(key: string) {
   const docRef = doc(getFirestore(), `products/${key}`);
 
   await updateDoc(docRef, {
-    default: document.getElementById(key)?.value,
+    default: (document.getElementById(key) as HTMLInputElement).value,
   });
   await getProducts();
 }
@@ -59,8 +58,8 @@ async function modifyProductDefult(key: string) {
           </p> -->
         </div>
       </div>
-      <div class="mt-8 flex flex-col">
-        <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="flex flex-col mt-8">
+        <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div
             class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8"
           >
@@ -102,37 +101,37 @@ async function modifyProductDefult(key: string) {
                     </th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
+                <tbody class="bg-white divide-y divide-gray-200">
                   <tr v-for="(product, index) in products" :key="index">
                     <td
-                      class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6"
+                      class="py-2 pl-4 pr-3 text-sm text-gray-500 whitespace-nowrap sm:pl-6"
                     >
                       {{ product.handle }}
                     </td>
                     <td
-                      class="whitespace-nowrap px-2 py-2 text-sm font-medium text-gray-900"
+                      class="px-2 py-2 text-sm font-medium text-gray-900 whitespace-nowrap"
                     >
                       {{ product.sku }}
                     </td>
                     <td
-                      class="whitespace-nowrap px-2 py-2 text-sm font-medium text-gray-900"
+                      class="px-2 py-2 text-sm font-medium text-gray-900 whitespace-nowrap"
                     >
                       {{ product.default }}
                     </td>
                     <td
-                      class="whitespace-nowrap px-2 py-2 text-sm font-medium text-gray-900"
+                      class="px-2 py-2 text-sm font-medium text-gray-900 whitespace-nowrap"
                     >
                       {{ product.price }}
                     </td>
 
                     <td
-                      class="relative grid grid-cols-2 py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-6"
+                      class="relative grid grid-cols-2 py-2 pl-3 pr-4 text-sm font-medium text-right sm:pr-6"
                     >
                       <div class="p-3">
                         <select
                           :id="index.toString()"
                           name="location"
-                          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                          class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         >
                           <option
                             v-for="n in [
@@ -147,7 +146,7 @@ async function modifyProductDefult(key: string) {
                       <div class="w-full p-3">
                         <button
                           @click="modifyProductDefult(index.toString())"
-                          class="text-indigo-600 hover:text-indigo-900 w-full border-2 py-2 px-4 rounded-lg border-indigo-600"
+                          class="w-full px-4 py-2 text-indigo-600 border-2 border-indigo-600 rounded-lg hover:text-indigo-900"
                         >
                           <span>調整數據</span>
                         </button>
