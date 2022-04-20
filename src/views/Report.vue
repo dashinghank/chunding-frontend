@@ -36,8 +36,6 @@ interface IOrders {
 
 const orders = ref<IOrders>({});
 onMounted(async () => {
-  console.log("report in");
-  console.log(store.state.exceptionalProducts);
   const myOrdersQuery = await query(
     collection(db, "orders"),
     where("kolSuffix", "==", store.state.uid),
@@ -59,16 +57,16 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="w-full h-screen flex justify-center">
+  <div class="flex justify-center w-full h-screen">
     <div
       class="w-full max-w-[350px] sm:max-w-[750px] lg:max-w-[900px] 2xl:max-w-[1300px] mt-[10%]"
     >
       <div
-        class="w-11/12 mx-auto rounded-md border-2 overflow-hidden my-4"
+        class="w-11/12 mx-auto my-4 overflow-hidden border-2 rounded-md"
         v-for="order in orders"
         :key="order.id"
       >
-        <div class="w-full flex justify-between px-8 py-4 bg-gray-50">
+        <div class="flex justify-between w-full px-8 py-4 bg-gray-50">
           <div>客戶 {{ order.customer }}</div>
           <div>訂單編號 {{ order.name }}</div>
         </div>

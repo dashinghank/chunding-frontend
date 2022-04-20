@@ -49,7 +49,6 @@ onMounted(async () => {
     console.log("user data:", doc.id, doc.data());
     store.state.exceptionalProducts = doc.data().exceptionalProducts;
   });
-  console.log(store.state.exceptionalProducts);
 });
 async function getProducts() {
   var productsRef = await getDocs(collection(getFirestore(), "products"));

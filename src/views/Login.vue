@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { LockClosedIcon } from "@heroicons/vue/solid";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
 import { onMounted, ref } from "@vue/runtime-core";
@@ -12,34 +10,19 @@ import {
   addDoc,
   getDocs,
   query,
-  updateDoc,
-  doc,
   where,
 } from "firebase/firestore";
 
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
 import moment from "moment";
 import ShortUniqueId from "short-unique-id";
 const uid = new ShortUniqueId({ length: 10 });
-interface IUserInfo {
-  email: string;
-  password: string;
-}
 const router = useRouter();
 const store = useStore();
-const auth = getAuth();
 const email = ref("admin001@gmail.com");
 const password = ref("123456");
 const rememberme = ref();
 const db = getFirestore();
-store.commit("setUid", {
-  uid: "",
-  role: "",
-});
+
 onMounted(() => {
   localStorage.clear();
 
@@ -80,59 +63,59 @@ async function login() {
   }
   const queryUser = query(
     collection(db, "members"),
-    where("account", "==", email.value)
+    where("account", "==", email.value),
+    where("password", "==", password.value)
   );
 
-  const materialRef = await getDocs(queryUser);
-  console.log(materialRef.empty);
-  if (!materialRef.empty) {
-    materialRef.forEach((doc) => {
+  //取得使用者資訊並存取
+  const userRef = await getDocs(queryUser);
+  if (!userRef.empty) {
+    userRef.forEach((doc) => {
       console.log("user data:", doc.id, doc.data());
       store.commit("setUid", {
         uid: doc.data().urlsuffix,
         role: doc.data().role,
+        exceptionalProducts: doc.data().exceptionalProducts,
       });
     });
-    console.log(store.state.uid);
 
     router.push("/home");
   } else {
     alert("帳號密碼錯誤");
   }
 
-  // let userInfo = {
-  //   email: email.value,
-  //   password: password.value,
-  // };
-
-  // if (rememberme.value.checked) {
-  //   localStorage.setItem("userInfo", JSON.stringify(userInfo));
-  // }
+  //取得所有產品資訊並存取
+  await getProducts();
+  await getAllDownlines([store.state.uid]);
 }
-function logintest() {
-  signInWithEmailAndPassword(auth, email.value, password.value)
-    .then((userCredential: any) => {
-      const user = userCredential.user;
-      console.log("userInfo", user.uid);
 
-      let userInfo = {
-        email: email.value,
-        password: password.value,
-      };
-      store.commit("setUid", {
-        uid: user.uid,
-      });
+async function getProducts() {
+  var productsRef = await getDocs(collection(getFirestore(), "products"));
+  let products: any = {};
+  productsRef.forEach((doc) => {
+    products[doc.id] = doc.data();
+  });
 
-      if (rememberme.value.checked) {
-        localStorage.setItem("userInfo", JSON.stringify(userInfo));
-      }
-      router.push("/home");
-    })
-    .catch((error) => {
-      console.log(error);
-      // const errorCode = error.code;
-      // const errorMessage = error.message;
+  Object.entries(store.state.exceptionalProducts).forEach(([key, value]) => {
+    products[key].exceptional = value;
+  });
+
+  store.commit("setProducts", products);
+}
+
+//取得我下面所有的下線(所有的兒孫都算, 無論層數)
+async function getAllDownlines(suffixes: string[]) {
+  for (let i = 0; i < suffixes.length; ++i) {
+    let myQuery = query(
+      collection(db, "members"),
+      where("parent", "==", suffixes[i])
+    );
+    var usersRef = await getDocs(myQuery);
+    usersRef.forEach((doc) => {
+      let downline = doc.data();
+      store.commit("setDownline", downline);
     });
+  }
 }
 </script>
 
@@ -145,22 +128,22 @@ function logintest() {
     <body class="h-full">
     ```
   -->
-  <div class="h-screen w-full justify-center items-center">
+  <div class="items-center justify-center w-full h-screen">
     <div
-      class="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+      class="flex items-center justify-center min-h-full px-4 py-12 sm:px-6 lg:px-8"
     >
-      <div class="max-w-md w-full space-y-8">
+      <div class="w-full max-w-md space-y-8">
         <div>
           <img
-            class="mx-auto h-12 w-auto"
+            class="w-auto h-12 mx-auto"
             src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
             alt="Workflow"
           />
-          <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 class="mt-6 text-3xl font-extrabold text-center text-gray-900">
             登入，讓我們開始吧！
           </h2>
 
-          <!-- <p class="mt-2 text-center text-sm text-gray-600">
+          <!-- <p class="mt-2 text-sm text-center text-gray-600">
           Or
           {{ " " }}
           <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
@@ -170,7 +153,7 @@ function logintest() {
         </div>
         <form class="mt-8 space-y-6" action="#" method="POST">
           <input type="hidden" name="remember" value="true" />
-          <div class="rounded-md shadow-sm -space-y-px">
+          <div class="-space-y-px rounded-md shadow-sm">
             <div>
               <label for="email-address" class="sr-only">Email address</label>
               <input
@@ -179,7 +162,7 @@ function logintest() {
                 type="email"
                 autocomplete="email"
                 required=""
-                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                class="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="電子郵件"
                 v-model="email"
               />
@@ -192,7 +175,7 @@ function logintest() {
                 type="password"
                 autocomplete="current-password"
                 required=""
-                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                class="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="密碼"
                 v-model="password"
               />
@@ -206,9 +189,9 @@ function logintest() {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
               />
-              <label for="remember-me" class="ml-2 block text-sm text-gray-900">
+              <label for="remember-me" class="block ml-2 text-sm text-gray-900">
                 記住我的登入資訊
               </label>
             </div>
@@ -226,11 +209,11 @@ function logintest() {
         <div @click="login">
           <button
             type="submit"
-            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            class="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md group hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
               <LockClosedIcon
-                class="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
+                class="w-5 h-5 text-indigo-500 group-hover:text-indigo-400"
                 aria-hidden="true"
               />
             </span>
@@ -239,7 +222,7 @@ function logintest() {
         </div>
         <div @click="register">
           <button
-            class="relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            class="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
             註冊
           </button>
