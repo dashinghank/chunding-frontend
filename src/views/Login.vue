@@ -25,7 +25,8 @@ const rememberme = ref();
 const db = getFirestore();
 
 onMounted(() => {
-  localStorage.clear();
+  console.log("login");
+  console.log(store.state);
 
   // let userInfo: IUserInfo = {
   //   email: "",
@@ -58,6 +59,9 @@ function register() {
 
 async function login() {
   console.log("login");
+  store.commit("setClear");
+  localStorage.clear();
+  console.log(store.state);
   if (email.value == "" || password.value == "") {
     alert("請輸入帳號、密碼");
     return;

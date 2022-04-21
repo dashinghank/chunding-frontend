@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { onMounted } from "@vue/runtime-core";
 import { useStore } from "vuex";
-
 const store = useStore();
-
-onMounted(async () => {
-  console.log("Hello", store.state.uid);
-});
 </script>
-
 <template>
-  <div>Home</div>
+  <div class="flex justify-center items-center w-full h-screen">
+    <div>
+      <div>這是你的推廣網址:</div>
+      <div>
+        https://chyuinding.myshopify.com/?kolsuffix={{ store.state.uid }}
+      </div>
+    </div>
+  </div>
 </template>
 
 <style></style>

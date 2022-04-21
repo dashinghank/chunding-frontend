@@ -7,8 +7,8 @@ import {
   doc,
 } from "firebase/firestore";
 
+import { useStore } from "vuex";
 import { onMounted, ref } from "@vue/runtime-core";
-
 interface IProduct {
   default: number;
   handle: string;
@@ -19,21 +19,13 @@ interface IProduct {
 interface IProducts {
   [key: string]: IProduct;
 }
-
+const store = useStore();
 const products = ref<IProducts>({});
-
 onMounted(async () => {
   console.log("product in");
   await getProducts();
 });
 
-async function getProducts() {
-  var productsRef = await getDocs(collection(getFirestore(), "products"));
-  productsRef.forEach((doc) => {
-    console.log("user data:", doc.id, doc.data());
-    products.value[doc.id] = doc.data() as IProduct;
-  });
-}
 async function modifyProductDefult(key: string) {
   console.log("modifyProductDefult", key);
 
@@ -44,6 +36,14 @@ async function modifyProductDefult(key: string) {
   });
   await getProducts();
 }
+
+async function getProducts() {
+  var productsRef = await getDocs(collection(getFirestore(), "products"));
+
+  productsRef.forEach((doc) => {
+    products.value[doc.id] = doc.data() as IProduct;
+  });
+}
 </script>
 
 <template>
@@ -52,10 +52,6 @@ async function modifyProductDefult(key: string) {
       <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
           <h1 class="text-xl font-semibold text-gray-900">調整商品抽成%數</h1>
-          <!-- <p class="mt-2 text-sm text-gray-700">
-            A table of placeholder stock market data that does not make any
-            sense.
-          </p> -->
         </div>
       </div>
       <div class="flex flex-col mt-8">

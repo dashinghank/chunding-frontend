@@ -9,8 +9,37 @@ export default new Vuex.Store({
     products: {},
     downlinesProducts: {},
     downlines: {},
+    myOrders: {},
+    downlinesOrders: {},
+    myCommision: 0,
+    downlinesCommisions: 0,
   },
   mutations: {
+    setClear(state) {
+      state.uid = "";
+      state.role = "";
+      state.exceptionalProducts = {};
+      state.products = {};
+      state.downlinesProducts = {};
+      state.downlines = {};
+      state.myOrders = {};
+      state.downlinesOrders = {};
+      state.myCommision = 0;
+      state.downlinesCommisions = 0;
+    },
+    setDownlinesCommisions(state, downlinesCommisions) {
+      state.downlinesCommisions = downlinesCommisions;
+    },
+    setMyCommision(state, myCommision) {
+      state.myCommision = myCommision;
+    },
+    setMyOrders(state, myOrders) {
+      state.myOrders = myOrders;
+    },
+    setDownlinesOrders(state, downlinesOrders) {
+      state.downlinesOrders = downlinesOrders;
+    },
+
     setUid(state, { uid = "", role = "" }) {
       state.uid = uid;
       state.role = role;

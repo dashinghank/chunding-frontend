@@ -12,11 +12,7 @@ const routes = [
     name: "CreateDownline",
     component: () => import("@/views/CreateDownline.vue"),
   },
-  {
-    path: "/inforo",
-    name: "Inforo",
-    component: () => import("@/views/Inforo.vue"),
-  },
+
   {
     path: "/",
     name: "Login",

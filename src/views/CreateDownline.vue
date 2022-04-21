@@ -70,12 +70,8 @@ async function createDownline() {
     registerDatetime: registerDatetime,
     lastLoginDatetime: moment().valueOf(),
     urlsuffix: uid(),
-    exceptionalProducts: [
-      {
-        sku: 0.5,
-      },
-    ],
     role: "kol",
+    exceptionalProducts: {},
 
     // islocked
     // addOrderDatetime: moment().valueOf(),

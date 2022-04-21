@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { getAuth, signOut } from "firebase/auth";
+import SubscribeDB from "@/components/SubscribeDB.vue";
+
 import { useStore } from "vuex";
 import {
   Disclosure,
@@ -10,14 +11,14 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/vue";
-import { BellIcon, MenuIcon, XIcon } from "@heroicons/vue/outline";
+import { BellIcon, MenuIcon, XIcon, CogIcon } from "@heroicons/vue/outline";
 import { useRoute, useRouter } from "vue-router";
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
 
 const navigation = [
-  { name: "個人資訊", href: "/inforo" },
+  { name: "個人資訊", href: "/home" },
   { name: "個人業績", href: "/report" },
   { name: "建立下線", href: "/createDownline" },
   { name: "查看下線業績", href: "/reportDownline" },
@@ -26,25 +27,14 @@ const navigation = [
 ];
 function signout() {
   console.log("signout");
-  const auth = getAuth();
-  signOut(auth)
-    .then(() => {
-      store.commit("setUid", {
-        uid: "",
-        storeId: "",
-      });
-      console.log("Sign-out successful.");
-      router.push("/");
-    })
-    .catch((error) => {
-      console.log("發生錯誤:", error);
-      // An error happened.
-    });
+  store.commit("setClear");
+  localStorage.clear();
   router.push("/");
 }
 </script>
 <template>
   <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
+    <SubscribeDB />
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
       <div class="relative flex items-center justify-between h-16">
         <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -92,26 +82,14 @@ function signout() {
         <div
           class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
         >
-          <button
-            type="button"
-            class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
-          >
-            <span class="sr-only">View notifications</span>
-            <BellIcon class="h-6 w-6" aria-hidden="true" />
-          </button>
-
           <!-- Profile dropdown -->
           <Menu as="div" class="ml-3 relative">
             <div>
               <MenuButton
-                class="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+                class="bg-gray-800 text-gray-400 flex text-sm rounded-full focus:outline-none hover:text-white"
               >
                 <span class="sr-only">Open user menu</span>
-                <img
-                  class="h-8 w-8 rounded-full"
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                  alt=""
-                />
+                <CogIcon class="h-6 w-6" aria-hidden="true" />
               </MenuButton>
             </div>
             <transition
@@ -125,7 +103,7 @@ function signout() {
               <MenuItems
                 class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
               >
-                <MenuItem v-slot="{ active }">
+                <!-- <MenuItem v-slot="{ active }">
                   <a
                     href="#"
                     :class="[
@@ -144,7 +122,7 @@ function signout() {
                     ]"
                     >Settings</a
                   >
-                </MenuItem>
+                </MenuItem> -->
                 <MenuItem v-slot="{ active }">
                   <a
                     @click="signout"
@@ -170,12 +148,12 @@ function signout() {
           as="a"
           :href="item.href"
           :class="[
-            item.current
+            (item as any).current
               ? 'bg-gray-900 text-white'
               : 'text-gray-300 hover:bg-gray-700 hover:text-white',
             'block px-3 py-2 rounded-md text-base font-medium',
           ]"
-          :aria-current="item.current ? 'page' : undefined"
+          :aria-current="(item as any).current ? 'page' : undefined"
           >{{ item.name }}</DisclosureButton
         >
       </div>

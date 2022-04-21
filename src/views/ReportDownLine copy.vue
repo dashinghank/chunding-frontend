@@ -32,13 +32,12 @@ interface IOrders {
 }
 
 const orders = ref<IOrders>({});
-const downlinesOrders: any = ref();
 // const downlines = ref();
 onMounted(async () => {
   console.log("report in");
 
   console.log("myId", store.state.uid);
-  const downlinesQuery = await query(
+  const downlinesQuery = query(
     collection(db, "members"),
     where("parent", "==", store.state.uid)
   );
