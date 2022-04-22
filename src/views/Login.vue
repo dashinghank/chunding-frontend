@@ -77,9 +77,10 @@ async function login() {
   if (!userRef.empty) {
     userRef.forEach((doc) => {
       console.log("user data:", doc.id, doc.data());
-      store.commit("setUid", {
+      store.commit("setMyInfo", {
         uid: doc.data().urlsuffix,
         role: doc.data().role,
+        myProducts: doc.data().products,
       });
     });
     console.log(store.state);

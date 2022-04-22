@@ -45,14 +45,20 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  console.log(store.state);
+  // console.log(store.state);
   if (store.state.uid === "") {
     if (to.name !== "Login") {
+      console.log("第1入口");
       next({ name: "Login" });
     } else {
+      console.log("第2入口");
       next();
     }
+  } else if (to.name == "Login") {
+    console.log("已經登入還要去登入");
+    next({ name: "Home" });
   } else {
+    console.log("第三入口");
     next();
   }
 });

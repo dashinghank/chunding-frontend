@@ -19,6 +19,7 @@ export default new Vuex.Store({
       state.uid = "";
       state.role = "";
       state.exceptionalProducts = {};
+      state.myProducts = {};
       state.products = {};
       state.downlinesProducts = {};
       state.downlines = {};
@@ -27,6 +28,10 @@ export default new Vuex.Store({
       state.myCommision = 0;
       state.downlinesCommisions = 0;
     },
+    setProductsDefault(state, data) {
+      state.products[data.key].default = data.newDefault;
+    },
+
     setDownlinesCommisions(state, downlinesCommisions) {
       state.downlinesCommisions = downlinesCommisions;
     },
@@ -40,9 +45,10 @@ export default new Vuex.Store({
       state.downlinesOrders = downlinesOrders;
     },
 
-    setUid(state, { uid = "", role = "" }) {
+    setMyInfo(state, { uid = "", role = "", myProducts = "" }) {
       state.uid = uid;
       state.role = role;
+      state.myProducts = myProducts;
     },
 
     setProducts(state, products) {

@@ -31,10 +31,20 @@ async function modifyProductDefult(key: string) {
 
   const docRef = doc(getFirestore(), `products/${key}`);
 
-  await updateDoc(docRef, {
-    default: (document.getElementById(key) as HTMLInputElement).value,
-  });
-  await getProducts();
+  try {
+    await updateDoc(docRef, {
+      default: parseFloat(
+        (document.getElementById(key) as HTMLInputElement).value
+      ),
+    });
+    console.log(store.state.products);
+
+    store.commit("setProductsDefault", { key: key, newDefault: 0.7 });
+    await getProducts();
+    alert("修改成功");
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function getProducts() {

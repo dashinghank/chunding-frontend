@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import moment from "moment";
 import ShortUniqueId from "short-unique-id";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 
 const store = useStore();
@@ -20,6 +20,26 @@ const uid = new ShortUniqueId({ length: 10 });
 const account = ref("");
 const password = ref("");
 const nickname = ref("");
+var products: any = ref({});
+onMounted(() => {
+  console.log("createDownline in");
+  console.log(store.state.products);
+
+  Object.keys(store.state.products).forEach((key) => {
+    console.log(key, store.state.myProducts);
+
+    products.value[key] = {
+      percentage: store.state.products[key].default,
+      commision: Math.ceil(
+        store.state.products[key].default *
+          parseInt(store.state.myProducts[key].commision)
+      ),
+    };
+  });
+
+  console.log("productssss:", products.value);
+});
+
 async function createDownline() {
   console.log("createDownline");
   if (account.value == "" || password.value == "" || nickname.value == "") {
@@ -60,6 +80,7 @@ async function createDownline() {
   });
 
   console.log(parentData);
+
   await addDoc(collection(db, "members"), {
     account: account.value,
     password: password.value,
@@ -71,11 +92,12 @@ async function createDownline() {
     lastLoginDatetime: moment().valueOf(),
     urlsuffix: uid(),
     role: "kol",
-    exceptionalProducts: {},
+    products: products.value,
 
     // islocked
     // addOrderDatetime: moment().valueOf(),
   });
+  alert("建立成功");
 }
 </script>
 
