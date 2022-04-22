@@ -1,0 +1,64 @@
+{
+  "members": {
+    "Im04LfMEFXl4siKSs41U": {
+      "parent": "ULkt8AEkm4",
+      "role": "kol",
+      "islocked": false,
+      "urlsuffix": "gbzPMNlkpy",
+      "products": {
+        "gidshopifyProductVariant40053790965802": { "commision": 60, "percentage": 0.5 },
+        "gidshopifyProductVariant40053790998570": { "commision": 50, "percentage": 0.5 },
+        "gidshopifyProductVariant40054220783658": { "commision": 105, "percentage": 0.5 },
+        "gidshopifyProductVariant40048940384298": { "commision": 140, "percentage": 0.7 },
+        "gidshopifyProductVariant40053790933034": { "commision": 28, "percentage": 0.2 },
+        "gidshopifyProductVariant40054220816426": { "commision": 55, "percentage": 0.5 }
+      },
+      "password": "123456",
+      "depth": 1,
+      "lastLoginDatetime": 1650535438826,
+      "nickname": "No.1",
+      "registerDatetime": 1650535438200,
+      "account": "kol001"
+    },
+    "RPHvtdkc84xvjHgSSKjJ": {
+      "role": "admin",
+      "exceptionalProducts": {},
+      "islocked": false,
+      "urlsuffix": "ULkt8AEkm4",
+      "products": {
+        "gidshopifyProductVariant40053790965802": { "commision": 120, "percentage": 1 },
+        "gidshopifyProductVariant40053790998570": { "commision": 100, "percentage": 1 },
+        "gidshopifyProductVariant40054220783658": { "commision": 210, "percentage": 1 },
+        "gidshopifyProductVariant40048940384298": { "commision": 200, "percentage": 1 },
+        "gidshopifyProductVariant40053790933034": { "commision": 140, "percentage": 1 },
+        "gidshopifyProductVariant40054220816426": { "commision": 110, "percentage": 1 }
+      },
+      "password": "123456",
+      "depth": 0,
+      "lastLoginDatetime": 1650332571767,
+      "nickname": "admin001",
+      "registerDatetime": 1650332571767,
+      "account": "admin001@gmail.com"
+    },
+    "qSkLBMncDm1L1050Xdt6": {
+      "parent": "gbzPMNlkpy",
+      "role": "kol",
+      "islocked": false,
+      "urlsuffix": "NzLPmpY66Y",
+      "products": {
+        "gidshopifyProductVariant40053790965802": { "commision": 30, "percentage": 0.5 },
+        "gidshopifyProductVariant40053790998570": { "commision": 25, "percentage": 0.5 },
+        "gidshopifyProductVariant40054220783658": { "commision": 52.5, "percentage": 0.5 },
+        "gidshopifyProductVariant40048940384298": { "commision": 98, "percentage": 0.7 },
+        "gidshopifyProductVariant40053790933034": { "commision": 5.6000000000000005, "percentage": 0.2 },
+        "gidshopifyProductVariant40054220816426": { "commision": 27.5, "percentage": 0.5 }
+      },
+      "password": "123456",
+      "depth": 2,
+      "lastLoginDatetime": 1650535480128,
+      "nickname": "No.2",
+      "registerDatetime": 1650535479498,
+      "account": "kol002"
+    }
+  }
+}
