@@ -69,7 +69,6 @@ export default new Vuex.Store({
         urlsuffix: downline.urlsuffix,
         nickname: downline.nickname,
         depth: downline.depth,
-        exceptionalProducts: downline.exceptionalProducts,
       };
     },
   },

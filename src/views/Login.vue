@@ -16,6 +16,8 @@ import {
 
 import moment from "moment";
 import ShortUniqueId from "short-unique-id";
+import { getAllDownlines, getOrdersByDateRange } from "@/store/firebaseControl";
+
 const uid = new ShortUniqueId({ length: 10 });
 const router = useRouter();
 const store = useStore();
@@ -61,7 +63,7 @@ async function login() {
   console.log("login");
   store.commit("setClear");
   localStorage.clear();
-  console.log(store.state);
+  let userInfo: any = {};
   if (email.value == "" || password.value == "") {
     alert("請輸入帳號、密碼");
     return;
@@ -76,11 +78,13 @@ async function login() {
   const userRef = await getDocs(queryUser);
   if (!userRef.empty) {
     userRef.forEach((doc) => {
-      console.log("user data:", doc.id, doc.data());
+      userInfo = doc.data();
       store.commit("setMyInfo", {
-        uid: doc.data().urlsuffix,
-        role: doc.data().role,
-        myProducts: doc.data().products,
+        uid: userInfo.urlsuffix,
+        nickname: userInfo.nickname,
+        depth: userInfo.depth,
+        role: userInfo.role,
+        myProducts: userInfo.products,
       });
     });
     console.log(store.state);
@@ -91,43 +95,15 @@ async function login() {
 
   //取得所有產品資訊並存取
   // await getProducts();
-  await getAllDownlines([store.state.uid]);
-  console.log(store.state);
-}
-
-async function getProducts() {
-  var productsRef = await getDocs(collection(getFirestore(), "products"));
-  let products: any = {};
-  productsRef.forEach((doc) => {
-    products[doc.id] = doc.data();
-  });
-
-  // Object.entries(store.state.exceptionalProducts).forEach(([key, value]) => {
-  //   products[key].exceptional = value;
-  // });
-
-  store.commit("setProducts", products);
-}
-
-//取得我下面所有的下線(所有的兒孫都算, 無論層數)
-async function getAllDownlines(suffixes: string[]) {
-  let children: string[] = [];
-  for (let i = 0; i < suffixes.length; ++i) {
-    let myQuery = query(
-      collection(db, "members"),
-      where("parent", "==", suffixes[i])
-    );
-    var usersRef = await getDocs(myQuery);
-    usersRef.forEach((doc) => {
-      let downline = doc.data();
-      children.push(downline.urlsuffix);
-      store.commit("setDownline", downline);
-    });
-
-    if (children.length > 0) {
-      await getAllDownlines(children);
-    }
-  }
+  // await getAllDownlinesOld([store.state.uid]);
+  console.log("======================");
+  console.log(
+    await getOrdersByDateRange(
+      ["QbQ4TJzOkB", "Lw9aQD5ksT"],
+      1650348536000,
+      1650348536002
+    )
+  );
 }
 </script>
 
