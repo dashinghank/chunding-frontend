@@ -4,8 +4,6 @@ import {
   addDoc,
   collection,
   getDocs,
-  updateDoc,
-  doc,
   query,
   where,
 } from "firebase/firestore";
@@ -23,19 +21,6 @@ const nickname = ref("");
 var products: any = ref({});
 onMounted(() => {
   console.log("createDownline in");
-  console.log(store.state.products);
-
-  Object.keys(store.state.products).forEach((key) => {
-    console.log(key, store.state.myProducts);
-
-    products.value[key] = {
-      percentage: store.state.products[key].default,
-      commision: Math.ceil(
-        store.state.products[key].default *
-          parseInt(store.state.myProducts[key].commision)
-      ),
-    };
-  });
 
   console.log("productssss:", products.value);
 });
@@ -69,7 +54,7 @@ async function createDownline() {
 
   const queryParent = query(
     collection(db, "members"),
-    where("urlsuffix", "==", store.state.uid)
+    where("urlsuffix", "==", store.state.userInfo.uid)
   );
   const parentRef = await getDocs(queryParent);
 
@@ -92,7 +77,7 @@ async function createDownline() {
     lastLoginDatetime: moment().valueOf(),
     urlsuffix: uid(),
     role: "kol",
-    products: products.value,
+    products: store.state.allProducts,
 
     // islocked
     // addOrderDatetime: moment().valueOf(),

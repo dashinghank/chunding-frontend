@@ -16,7 +16,11 @@ import {
 
 import moment from "moment";
 import ShortUniqueId from "short-unique-id";
-import { getAllDownlines, getOrdersByDateRange } from "@/store/firebaseControl";
+import {
+  getOrdersByDateRange,
+  getAllProducts,
+  getAllDownlines,
+} from "@/store/firebaseControl";
 
 const uid = new ShortUniqueId({ length: 10 });
 const router = useRouter();
@@ -79,15 +83,31 @@ async function login() {
   if (!userRef.empty) {
     userRef.forEach((doc) => {
       userInfo = doc.data();
-      store.commit("setMyInfo", {
-        uid: userInfo.urlsuffix,
+      store.commit("setUserInfo", {
+        docId: doc.id,
         nickname: userInfo.nickname,
+        uid: userInfo.urlsuffix,
         depth: userInfo.depth,
         role: userInfo.role,
-        myProducts: userInfo.products,
+        products: userInfo.products,
       });
     });
-    console.log(store.state);
+
+    var allProducts = await getAllProducts();
+    store.commit("setAllProducts", allProducts);
+
+    var downlines: any = await getAllDownlines(
+      [{ urlsuffix: store.state.userInfo.uid }],
+      1
+    );
+    console.log("downlines:", downlines);
+    if (downlines.length > 0) {
+      downlines.forEach((downline: any) => {
+        store.commit("setDownlines", downline);
+      });
+    }
+    console.log("vuex:", store.state);
+
     router.push("/home");
   } else {
     alert("帳號密碼錯誤");

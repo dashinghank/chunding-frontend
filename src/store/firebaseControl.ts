@@ -26,7 +26,9 @@ const db = getFirestore();
 
 //======================管理者操作==========================
 //取得下面層數的下線,depth=-1代表全部
+// [{urlsuffix:"MY_UID"}] 取自己的下線
 export async function getAllDownlines(downline: any[], depth: number) {
+  console.log(downline, depth);
   if (depth > 0) depth--;
   let children: any[] = [];
   for (let i = 0; i < downline.length; ++i) {
@@ -36,7 +38,7 @@ export async function getAllDownlines(downline: any[], depth: number) {
     );
     var usersRef = await getDocs(myQuery);
     usersRef.forEach((doc) => {
-      let downline = doc.data();
+      let downline = { docId: doc.id, ...doc.data() };
       children.push(downline);
     });
 
@@ -70,11 +72,10 @@ export async function getOrdersByDateRange(
   let myQuery = query(
     collection(db, "orders"),
     where("kolSuffix", "in", urlsuffixs),
-    where("createdAt", ">=", startDate),
-    where("createdAt", "<=", endDate)
-    // where("updatedAt", ">=", startDate),
-    // where("updatedAt", "<=", endDate)
+    where("updatedAt", ">=", startDate),
+    where("updatedAt", "<=", endDate)
   );
+
   let tempOrders: any[] = [];
   var ordersRef = await getDocs(myQuery);
   ordersRef.forEach((doc) => {

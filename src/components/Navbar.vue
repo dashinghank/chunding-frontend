@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import SubscribeDB from "@/components/SubscribeDB.vue";
-
 import { useStore } from "vuex";
 import {
   Disclosure,
@@ -11,7 +9,7 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/vue";
-import { BellIcon, MenuIcon, XIcon, CogIcon } from "@heroicons/vue/outline";
+import { MenuIcon, XIcon, CogIcon } from "@heroicons/vue/outline";
 import { useRoute, useRouter } from "vue-router";
 import { onMounted } from "vue";
 const route = useRoute();
@@ -34,7 +32,7 @@ const navigation =
         { name: "查看下線業績", href: "/reportDownline" },
       ];
 onMounted(() => {
-  console.log(store.state.role);
+  console.log("現在登入者權限:", store.state.userInfo.role);
 });
 function signout() {
   console.log("signout");
@@ -45,7 +43,6 @@ function signout() {
 </script>
 <template>
   <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
-    <SubscribeDB />
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
       <div class="relative flex items-center justify-between h-16">
         <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">

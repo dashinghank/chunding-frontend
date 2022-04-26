@@ -3,73 +3,46 @@ import createPersistedState from "vuex-persistedstate";
 
 export default new Vuex.Store({
   state: {
-    uid: "",
-    role: "",
-    exceptionalProducts: {},
-    products: {},
-    downlinesProducts: {},
+    userInfo: {
+      uid: "",
+      role: "",
+      docId: "",
+      products: {},
+    },
+    allProducts: {},
     downlines: {},
-    myOrders: {},
-    downlinesOrders: {},
-    myCommision: 0,
-    downlinesCommisions: 0,
   },
   mutations: {
     setClear(state) {
-      state.uid = "";
-      state.role = "";
-      state.exceptionalProducts = {};
-      state.myProducts = {};
-      state.products = {};
-      state.downlinesProducts = {};
+      state.userInfo = {
+        uid: "",
+        role: "",
+        docId: "",
+        products: {},
+      };
       state.downlines = {};
-      state.myOrders = {};
-      state.downlinesOrders = {};
-      state.myCommision = 0;
-      state.downlinesCommisions = 0;
-    },
-    setProductsDefault(state, data) {
-      state.products[data.key].default = data.newDefault;
+      state.allProducts = {};
     },
 
-    setDownlinesCommisions(state, downlinesCommisions) {
-      state.downlinesCommisions = downlinesCommisions;
-    },
-    setMyCommision(state, myCommision) {
-      state.myCommision = myCommision;
-    },
-    setMyOrders(state, myOrders) {
-      state.myOrders = myOrders;
-    },
-    setDownlinesOrders(state, downlinesOrders) {
-      state.downlinesOrders = downlinesOrders;
+    setAllProducts(state, allProducts) {
+      state.allProducts = allProducts;
     },
 
-    setMyInfo(state, { uid = "", role = "", myProducts = "" }) {
-      state.uid = uid;
-      state.role = role;
-      state.myProducts = myProducts;
-    },
-
-    setProducts(state, products) {
-      state.products = products;
-    },
-
-    setDownlinesProducts(state, downlinesProducts) {
-      state.downlinesProducts = downlinesProducts;
-    },
-
-    setExceptionalProducts(state, data) {
-      state.downlinesProducts[data.urlsuffix][data.productId].default =
-        data.productDefault;
-    },
-
-    setDownline(state, downline) {
+    setDownlines(state, downline) {
       state.downlines[downline.urlsuffix] = {
+        docId: downline.docId,
         urlsuffix: downline.urlsuffix,
         nickname: downline.nickname,
         depth: downline.depth,
+        products: downline.products,
       };
+    },
+
+    setUserInfo(state, userInfo) {
+      state.userInfo.docId = userInfo.docId;
+      state.userInfo.uid = userInfo.uid;
+      state.userInfo.role = userInfo.role;
+      state.userInfo.products = userInfo.products;
     },
   },
   plugins: [createPersistedState()],

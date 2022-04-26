@@ -46,7 +46,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   // console.log(store.state);
-  if (store.state.uid === "") {
+  if (store.state.userInfo.uid === "") {
     if (to.name !== "Login") {
       console.log("第1入口");
       next({ name: "Login" });
