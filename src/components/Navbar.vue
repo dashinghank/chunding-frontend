@@ -18,16 +18,16 @@ const store = useStore();
 const navigation =
   store.state.role == "admin"
     ? [
-        { name: "個人資訊", href: "/home" },
-        { name: "個人業績", href: "/report" },
+        // { name: "個人資訊", href: "/home" },
+        { name: "個人資訊", href: "/report" },
         { name: "建立下線", href: "/createDownline" },
         { name: "查看下線業績", href: "/reportDownline" },
         { name: "管理者頁面", href: "/supervisorPage" },
         { name: "商品調整頁", href: "/products" },
       ]
     : [
-        { name: "個人資訊", href: "/home" },
-        { name: "個人業績", href: "/report" },
+        // { name: "個人資訊", href: "/home" },
+        { name: "個人資訊", href: "/report" },
         { name: "建立下線", href: "/createDownline" },
         { name: "查看下線業績", href: "/reportDownline" },
       ];

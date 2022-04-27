@@ -2,11 +2,11 @@ import { createWebHistory, createRouter } from "vue-router";
 import store from "../store";
 
 const routes = [
-  {
-    path: "/home",
-    name: "Home",
-    component: () => import("@/views/Home.vue"),
-  },
+  // {
+  //   path: "/home",
+  //   name: "Home",
+  //   component: () => import("@/views/Home.vue"),
+  // },
   {
     path: "/createDownline",
     name: "CreateDownline",

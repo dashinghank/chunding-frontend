@@ -27,9 +27,31 @@ onMounted(async () => {
       tempOrders.push({ ...d, nickname: store.state.downlines[key].nickname });
     });
   });
-  console.log(tempOrders);
   orders.value = tempOrders;
+  console.log("downlines:", store.state.downlines);
+  console.log("orders.value:", orders.value);
+  (orders.value as any).forEach((d, i) => {
+    console.log(d.kolSuffix);
+    var downlineCommision = 0;
+    var myCommision = 0;
 
+    Object.entries(d.items).forEach(([key, value]) => {
+      console.log(
+        "store.state.userInfo.products[key].commision:",
+        store.state.downlines[d.kolSuffix].products[key].commision
+      );
+      downlineCommision +=
+        store.state.downlines[d.kolSuffix].products[key].commision *
+        (value as any).quantity;
+
+      myCommision +=
+        store.state.userInfo.products[key].commision * (value as any).quantity;
+    });
+
+    console.log("downlineCommision:", downlineCommision);
+    (orders.value as any)[i]["downlineCommision"] = downlineCommision;
+    (orders.value as any)[i]["myCommision"] = myCommision - downlineCommision;
+  });
   //   var tempCommision = 0;
   //   Object.entries(order.items).forEach(([key, value]) => {
   //     tempCommision +=
@@ -107,7 +129,13 @@ onMounted(async () => {
                         scope="col"
                         class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                       >
-                        訂單抽成
+                        下線訂單抽成
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      >
+                        我的訂單抽成
                       </th>
                       <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                         <span class="sr-only">Edit</span>
@@ -144,7 +172,12 @@ onMounted(async () => {
                       <td
                         class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
                       >
-                        {{ (order as any).commision }}
+                        {{ (order as any).downlineCommision }}
+                      </td>
+                      <td
+                        class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                      >
+                        {{ (order as any).myCommision }}
                       </td>
                     </tr>
                   </tbody>

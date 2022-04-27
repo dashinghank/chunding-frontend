@@ -21,6 +21,19 @@ const nickname = ref("");
 var products: any = ref({});
 onMounted(() => {
   console.log("createDownline in");
+  console.log(store.state.allProducts);
+
+  Object.keys(store.state.allProducts).forEach((key) => {
+    console.log(key, store.state.userInfo.products);
+
+    products.value[key] = {
+      percentage: store.state.allProducts[key].default,
+      commision: Math.ceil(
+        store.state.allProducts[key].default *
+          parseInt(store.state.userInfo.products[key].commision)
+      ),
+    };
+  });
 
   console.log("productssss:", products.value);
 });
@@ -77,7 +90,7 @@ async function createDownline() {
     lastLoginDatetime: moment().valueOf(),
     urlsuffix: uid(),
     role: "kol",
-    products: store.state.allProducts,
+    products: products.value,
 
     // islocked
     // addOrderDatetime: moment().valueOf(),

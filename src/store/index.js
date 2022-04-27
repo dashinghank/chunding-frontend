@@ -44,6 +44,11 @@ export default new Vuex.Store({
       state.userInfo.role = userInfo.role;
       state.userInfo.products = userInfo.products;
     },
+
+    setDownlineProduct(state, data) {
+      state.downlines[data.urlsuffix].products[data.productId].percentage =
+        data.percentage;
+    },
   },
   plugins: [createPersistedState()],
 });
