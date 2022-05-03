@@ -63,15 +63,18 @@ export async function getAllProducts() {
   return products;
 }
 
-//取得目前db中所有產品
+//取得目前db中所有訂單
 export async function getOrdersByDateRange(
   urlsuffixs: string[],
   startDate: number,
   endDate: number
 ) {
+  console.log("urlsuffixsaaaa", urlsuffixs);
+  console.log("startDate", startDate);
+  console.log("endDate", endDate);
   let myQuery = query(
     collection(db, "orders"),
-    where("kolSuffix", "in", urlsuffixs),
+    where("urlsuffix", "in", urlsuffixs),
     where("updatedAt", ">=", startDate),
     where("updatedAt", "<=", endDate)
   );
@@ -80,15 +83,16 @@ export async function getOrdersByDateRange(
   var ordersRef = await getDocs(myQuery);
   ordersRef.forEach((doc) => {
     let order = doc.data();
+    console.log("order", order);
     tempOrders.push(order);
   });
 
   let orders: any = {};
   for (let i = 0; i < tempOrders.length; ++i) {
-    if (orders[tempOrders[i].kolSuffix] == undefined) {
-      orders[tempOrders[i].kolSuffix] = [];
+    if (orders[tempOrders[i].urlsuffix] == undefined) {
+      orders[tempOrders[i].urlsuffix] = [];
     }
-    orders[tempOrders[i].kolSuffix].push(tempOrders[i]);
+    orders[tempOrders[i].urlsuffix].push(tempOrders[i]);
   }
 
   return orders;

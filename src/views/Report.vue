@@ -3,88 +3,120 @@ import { onMounted, ref } from "vue";
 import { getOrdersByDateRange, getAllDownlines } from "@/store/firebaseControl";
 import { useStore } from "vuex";
 import moment from "moment";
-import {
-  getFirestore,
-  collection,
-  // addDoc,
-  getDocs,
-  getDoc,
-  query,
-  where,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
+import { getFirestore, updateDoc, doc, getDoc } from "firebase/firestore";
 const db = getFirestore();
 
 const store = useStore();
 const selectedDownline = ref();
 const selectedProduct = ref();
 const selectedPercentage = ref();
+const period = ref();
 const orders = ref({});
 
 onMounted(async () => {
   console.log("report");
-  var startDate = moment("2022/03/26", "YYYY/MM/DD").valueOf();
-  var endDate = moment().valueOf();
-  // console.log(moment().valueOf());
-  // console.log(moment(1650038400000).format("YYYY/MM/DD HH:mm:ss"));
-  orders.value = await getOrdersByDateRange(
-    [store.state.userInfo.uid],
-    startDate,
-    endDate
-  );
-  if (Object.keys(orders.value as any).length > 0) {
-    console.log("allproducts:", store.state.userInfo.products);
-    console.log("store.state.userInfo.uid:", store.state.userInfo.uid);
-    console.log("orders.value:", orders.value);
-    console.log(
-      "orders.value:",
-      (orders.value as any)[store.state.userInfo.uid]
-    );
-    (orders.value as any)[store.state.userInfo.uid].forEach(
-      (order: any, i: any) => {
-        var tempCommision = 0;
-        Object.entries(order.items).forEach(([key, value]) => {
-          console.log(
-            "總抽成:",
-            store.state.userInfo.products[key].commision *
-              (value as any).quantity
-          );
-
-          tempCommision +=
-            store.state.userInfo.products[key].commision *
-            (value as any).quantity;
-          console.log("key:", key);
-          console.log("value:", value);
-        });
-
-        (orders.value as any)[store.state.userInfo.uid][i]["commision"] =
-          tempCommision;
-        console.log("tempCommision:", tempCommision);
-      }
-    );
-  }
 });
+
+async function orderQuery() {
+  console.log("orderQuery");
+  console.log(period.value.value);
+  var date = new Date();
+  if (period.value.value == 1) {
+    let startDate = moment(
+      `${date.getFullYear()}/${date.getMonth() + 1}/1`,
+      "YYYY/MM/DD"
+    ).valueOf();
+
+    console.log(startDate);
+    let endDate = moment().valueOf();
+    console.log(store.state.userInfo.uid);
+    orders.value = await getOrdersByDateRange(
+      [store.state.userInfo.uid],
+      startDate,
+      endDate
+    );
+    console.log("orders.value", orders.value);
+    if (Object.keys(orders.value as any).length < 1) {
+      alert("查無資料");
+    }
+  } else {
+    console.log("查詢上月");
+    let startDate = moment(
+      `${date.getFullYear()}/${date.getMonth()}/1`,
+      "YYYY/MM/DD"
+    ).valueOf();
+
+    let endDate = moment(getLastMonthAndDay(), "YYYY/MM/DD").valueOf();
+    console.log(endDate);
+    orders.value = await getOrdersByDateRange(
+      [store.state.userInfo.uid],
+      startDate,
+      endDate
+    );
+
+    console.log("orders.value:", orders.value);
+    if (Object.keys(orders.value as any).length < 1) {
+      alert("查無資料");
+    }
+  }
+}
+
+function getLastMonthAndDay() {
+  var nowDate = new Date();
+  var year = nowDate.getFullYear();
+  var month = nowDate.getMonth();
+  if (month == 0) {
+    month = 12;
+    year = year - 1;
+  }
+  var lastDay = new Date(year, month, 0);
+  var yyyyMmDd = year + "/" + month + "/" + lastDay.getDate();
+  return yyyyMmDd;
+}
 
 async function modifyProductCommision() {
   console.log("modifyProductCommision");
+  // console.log(selectedProduct.value.value);
+  // console.log(selectedPercentage.value.value);
   console.log(selectedDownline.value.value);
-  console.log(selectedProduct.value.value);
-  console.log(selectedPercentage.value.value);
+  console.log(store.state.userInfo.docId);
 
-  store.commit("setDownlineProduct", {
-    urlsuffix: selectedDownline.value.value,
-    productId: selectedProduct.value.value,
-    percentage: selectedPercentage.value.value,
-  });
+  const docRef = doc(getFirestore(), `members/${store.state.userInfo.docId}`);
+  const docSnapshot = await getDoc(docRef);
+  let myData: any = docSnapshot.data();
 
-  const docRef = doc(
-    getFirestore(),
-    `members/${store.state.downlines[selectedDownline.value.value].docId}`
-  );
+  // console.log("old", myData.downlines);
+  // console.log(Object.keys(myData.downlines).length);
+
+  if (Object.keys(myData.downlines).length > 0) {
+    if (Object.keys(myData.downlines).includes(selectedDownline.value.value)) {
+      console.log("有這個下線");
+      if (
+        Object.keys(myData.downlines[selectedDownline.value.value]).includes(
+          selectedProduct.value.value
+        )
+      ) {
+        myData.downlines[selectedDownline.value.value][
+          selectedProduct.value.value
+        ] = parseFloat(selectedPercentage.value.value);
+      } else {
+        myData.downlines[selectedDownline.value.value][
+          selectedProduct.value.value
+        ] = parseFloat(selectedPercentage.value.value);
+      }
+    } else {
+      console.log("myData.downlines:", myData.downlines);
+      myData.downlines[selectedDownline.value.value] = {
+        [selectedProduct.value.value]: parseFloat(
+          selectedPercentage.value.value
+        ),
+      };
+    }
+  }
+  // console.log("new", myData.downlines);
 
   await updateDoc(docRef, {
-    products: store.state.downlines[selectedDownline.value.value].products,
+    downlines: myData.downlines,
   });
 }
 </script>
@@ -95,11 +127,13 @@ async function modifyProductCommision() {
       <div>
         <div>這是你的推廣網址:</div>
         <div>
-          https://chyuinding.myshopify.com/?kolsuffix={{ store.state.uid }}
+          https://chyuinding.myshopify.com/?kolsuffix={{
+            store.state.userInfo.uid
+          }}
         </div>
       </div>
 
-      <div>
+      <div v-if="Object.keys(store.state.downlines).length > 0">
         <div>調整商品的抽成:</div>
         <div class="p-2">
           <label class="block text-sm font-medium text-gray-700"
@@ -174,9 +208,22 @@ async function modifyProductCommision() {
           </div>
 
           <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+            <div>
+              <label class="block text-sm font-medium text-gray-700"
+                >選擇要查詢的日期</label
+              >
+              <select
+                ref="period"
+                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              >
+                <option :value="0">上個月業績</option>
+                <option :value="1" selected>這個月業績</option>
+              </select>
+            </div>
             <button
               type="button"
               class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
+              @click="orderQuery"
             >
               查詢
             </button>
@@ -256,7 +303,7 @@ async function modifyProductCommision() {
                       <td
                         class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
                       >
-                        {{ order.commision }}
+                        {{ order.selfCommission }}
                       </td>
                     </tr>
                   </tbody>

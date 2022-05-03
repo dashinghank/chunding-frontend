@@ -4,10 +4,10 @@ import createPersistedState from "vuex-persistedstate";
 export default new Vuex.Store({
   state: {
     userInfo: {
-      uid: "",
-      role: "",
-      docId: "",
       products: {},
+      docId: "",
+      role: "",
+      uid: "",
     },
     allProducts: {},
     downlines: {},
@@ -15,13 +15,13 @@ export default new Vuex.Store({
   mutations: {
     setClear(state) {
       state.userInfo = {
-        uid: "",
-        role: "",
-        docId: "",
         products: {},
+        docId: "",
+        role: "",
+        uid: "",
       };
-      state.downlines = {};
       state.allProducts = {};
+      state.downlines = {};
     },
 
     setAllProducts(state, allProducts) {
@@ -46,6 +46,8 @@ export default new Vuex.Store({
     },
 
     setDownlineProduct(state, data) {
+      state.downlines[data.urlsuffix].products[data.productId].commision =
+        data.commision;
       state.downlines[data.urlsuffix].products[data.productId].percentage =
         data.percentage;
     },

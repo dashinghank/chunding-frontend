@@ -11,7 +11,7 @@ import moment from "moment";
 import ShortUniqueId from "short-unique-id";
 import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
-
+import { getAllDownlines } from "@/store/firebaseControl";
 const store = useStore();
 var db = getFirestore();
 const uid = new ShortUniqueId({ length: 10 });
@@ -22,20 +22,6 @@ var products: any = ref({});
 onMounted(() => {
   console.log("createDownline in");
   console.log(store.state.allProducts);
-
-  Object.keys(store.state.allProducts).forEach((key) => {
-    console.log(key, store.state.userInfo.products);
-
-    products.value[key] = {
-      percentage: store.state.allProducts[key].default,
-      commision: Math.ceil(
-        store.state.allProducts[key].default *
-          parseInt(store.state.userInfo.products[key].commision)
-      ),
-    };
-  });
-
-  console.log("productssss:", products.value);
 });
 
 async function createDownline() {
@@ -95,6 +81,20 @@ async function createDownline() {
     // islocked
     // addOrderDatetime: moment().valueOf(),
   });
+
+  var downlines: any = await getAllDownlines(
+    [{ urlsuffix: store.state.userInfo.uid }],
+    store.state.userInfo.role == "admin" ? -1 : 1
+  );
+
+  console.log("downlines:", downlines);
+  if (downlines.length > 0) {
+    downlines.forEach((downline: any) => {
+      store.commit("setDownlines", downline);
+    });
+  }
+
+  console.log("vuex:", store.state);
   alert("建立成功");
 }
 </script>

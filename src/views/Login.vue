@@ -98,17 +98,19 @@ async function login() {
 
     var downlines: any = await getAllDownlines(
       [{ urlsuffix: store.state.userInfo.uid }],
-      1
+      store.state.userInfo.role == "admin" ? -1 : 1
     );
+
     console.log("downlines:", downlines);
     if (downlines.length > 0) {
       downlines.forEach((downline: any) => {
         store.commit("setDownlines", downline);
       });
     }
+
     console.log("vuex:", store.state);
 
-    router.push("/home");
+    router.push("/report");
   } else {
     alert("帳號密碼錯誤");
   }
