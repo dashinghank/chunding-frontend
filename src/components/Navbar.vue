@@ -23,12 +23,14 @@ const navigation =
         { name: "建立下線", href: "/createDownline" },
         { name: "調整下線", href: "/ConfigureDownline" },
         { name: "商品調整頁", href: "/products" },
+        { name: "訂單頁面", href: "/report" },
       ]
     : [
         // { name: "個人資訊", href: "/home" },
         { name: "個人資訊", href: "/report" },
         { name: "建立下線", href: "/createDownline" },
         { name: "查看下線業績", href: "/reportDownline" },
+        { name: "訂單頁面", href: "/report" },
       ];
 onMounted(() => {
   console.log("現在登入者權限:", store.state.userInfo.role);

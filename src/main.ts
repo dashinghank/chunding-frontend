@@ -5,6 +5,7 @@ import router from "./router";
 import store from "@/store";
 import { initializeApp } from "firebase/app";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
+
 const firebaseConfig = {
   apiKey: "AIzaSyCjsZH1rviLKTHvI3TWfHAl7s2uoaOYg3E",
   authDomain: "chunding-6e2aa.firebaseapp.com",
@@ -20,7 +21,6 @@ if (import.meta.env.DEV) {
   connectFirestoreEmulator(db, "localhost", 8080);
 }
 const app = createApp(App);
-
 app.use(store);
 app.use(router);
 app.mount("#app");
