@@ -25,7 +25,7 @@ import {
 const uid = new ShortUniqueId({ length: 10 });
 const router = useRouter();
 const store = useStore();
-const email = ref("admin001@gmail.com");
+const email = ref("admin001");
 const password = ref("123456");
 const rememberme = ref();
 const db = getFirestore();
@@ -33,35 +33,23 @@ const db = getFirestore();
 onMounted(() => {
   console.log("login");
   console.log(store.state);
-
-  // let userInfo: IUserInfo = {
-  //   email: "",
-  //   password: "",
-  // };
-  // let userInfoStr = localStorage.getItem("userInfo") ?? "";
-  // if (userInfoStr != "") {
-  //   userInfo = JSON.parse(userInfoStr);
-  //   email.value = userInfo.email;
-  //   password.value = userInfo.password;
-  //   console.log(userInfo);
-  // }
 });
 
-function register() {
-  let registerDatetime = moment().valueOf();
+// function register() {
+//   let registerDatetime = moment().valueOf();
 
-  addDoc(collection(db, "members"), {
-    account: "admin001@gmail.com",
-    password: "123456",
-    nickname: "admin001",
-    depth: 0,
-    islocked: false,
-    role: "admin",
-    urlsuffix: uid(),
-    registerDatetime: registerDatetime,
-    lastLoginDatetime: moment().valueOf(),
-  });
-}
+//   addDoc(collection(db, "members"), {
+//     account: "admin001",
+//     password: "123456",
+//     nickname: "admin001",
+//     depth: 0,
+//     islocked: false,
+//     role: "admin",
+//     urlsuffix: uid(),
+//     registerDatetime: registerDatetime,
+//     lastLoginDatetime: moment().valueOf(),
+//   });
+// }
 
 async function login() {
   console.log("login");
@@ -85,11 +73,14 @@ async function login() {
       userInfo = doc.data();
       store.commit("setUserInfo", {
         docId: doc.id,
+        ancestors: userInfo.ancestors,
         nickname: userInfo.nickname,
-        uid: userInfo.urlsuffix,
+        urlsuffix: userInfo.urlsuffix,
+        commissionPercentage: userInfo.commissionPercentage,
+        registerDatetime: userInfo.registerDatetime,
         depth: userInfo.depth,
+        parent: userInfo.parent,
         role: userInfo.role,
-        products: userInfo.products,
       });
     });
 
@@ -97,8 +88,8 @@ async function login() {
     store.commit("setAllProducts", allProducts);
 
     var downlines: any = await getAllDownlines(
-      [{ urlsuffix: store.state.userInfo.uid }],
-      store.state.userInfo.role == "admin" ? -1 : 1
+      [{ urlsuffix: store.state.userInfo.urlsuffix }],
+      store.state.userInfo.role == "admin" ? -1 : 2
     );
 
     console.log("downlines:", downlines);

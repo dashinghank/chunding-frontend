@@ -8,62 +8,45 @@ import {
 } from "firebase/firestore";
 
 import { useStore } from "vuex";
-import { onMounted, ref } from "@vue/runtime-core";
-interface IProduct {
-  default: number;
-  handle: string;
-  price: string;
-  sku: string;
-  vid: string;
-}
-interface IProducts {
-  [key: string]: IProduct;
-}
+import { onMounted, ref, Ref } from "@vue/runtime-core";
+
 const store = useStore();
-const products = ref<IProducts>({});
-onMounted(async () => {
-  console.log("product in");
-  await getProducts();
+const allProducts: Ref<any> = ref({});
+
+onMounted(() => {
+  allProducts.value = store.state.allProducts;
 });
 
-async function modifyProductDefult(key: string) {
-  console.log("modifyProductDefult", key);
+function updateProductMax(e: any) {
+  console.log((parseInt(e.target.value) / 100).toFixed(2));
+  store.state.allProducts[e.target.id].max = parseFloat(
+    (parseInt(e.target.value) / 100).toFixed(2)
+  );
 
-  const docRef = doc(getFirestore(), `products/${key}`);
+  store.commit("setAllProducts", allProducts);
 
-  try {
-    await updateDoc(docRef, {
-      default: parseFloat(
-        (document.getElementById(key) as HTMLInputElement).value
-      ),
-    });
-    console.log(store.state.products);
-
-    store.commit("setProductsDefault", { key: key, newDefault: 0.7 });
-    await getProducts();
-    alert("修改成功");
-  } catch (error) {
-    console.log(error);
-  }
+  console.log(store.state.allProducts[e.target.id]);
 }
 
-async function getProducts() {
-  var productsRef = await getDocs(collection(getFirestore(), "products"));
+async function setProductMaxToDb() {
+  let promises: any[] = [];
 
-  productsRef.forEach((doc) => {
-    products.value[doc.id] = doc.data() as IProduct;
-  });
+  for (let key in store.state.allProducts) {
+    let docRef = doc(getFirestore(), `members/${key}`);
+    promises.push(
+      updateDoc(docRef, {
+        max: store.state.allProducts[key].max,
+      })
+    );
+  }
+
+  await Promise.all(promises);
 }
 </script>
 
 <template>
-  <div class="mt-[10%] flex gap-10 justify-center flex-wrap">
+  <div class="mt-[10vh] container mx-auto">
     <div class="px-4 sm:px-6 lg:px-8">
-      <div class="sm:flex sm:items-center">
-        <div class="sm:flex-auto">
-          <h1 class="text-xl font-semibold text-gray-900">調整商品抽成%數</h1>
-        </div>
-      </div>
       <div class="flex flex-col mt-8">
         <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div
@@ -77,85 +60,65 @@ async function getProducts() {
                   <tr>
                     <th
                       scope="col"
-                      class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                      class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
                     >
-                      商品名稱
+                      產品名稱
                     </th>
                     <th
                       scope="col"
-                      class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                     >
-                      sku
+                      產品價格
                     </th>
                     <th
                       scope="col"
-                      class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                     >
-                      抽成
+                      產品分潤金額
                     </th>
                     <th
                       scope="col"
-                      class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900"
                     >
-                      價格
+                      產品分潤%數
                     </th>
-                    <th
-                      scope="col"
-                      class="relative whitespace-nowrap py-3.5 pl-3 pr-4 sm:pr-6"
-                    >
-                      <span>設定%數</span>
+                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                      <span class="sr-only">Edit</span>
                     </th>
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                  <tr v-for="(product, index) in products" :key="index">
+                  <tr v-for="(item, key, index) in allProducts" :key="key">
                     <td
-                      class="py-2 pl-4 pr-3 text-sm text-gray-500 whitespace-nowrap sm:pl-6"
+                      class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                     >
-                      {{ product.handle }}
+                      {{ allProducts[key].displayName }}
                     </td>
                     <td
-                      class="px-2 py-2 text-sm font-medium text-gray-900 whitespace-nowrap"
+                      class="px-3 py-4 text-sm text-center text-gray-500 whitespace-nowrap"
                     >
-                      {{ product.sku }}
+                      {{ allProducts[key].price }}
                     </td>
                     <td
-                      class="px-2 py-2 text-sm font-medium text-gray-900 whitespace-nowrap"
+                      class="px-3 py-4 text-sm text-center text-gray-500 whitespace-nowrap"
                     >
-                      {{ product.default }}
+                      {{
+                        Math.ceil(allProducts[key].price * allProducts[key].max)
+                      }}
                     </td>
                     <td
-                      class="px-2 py-2 text-sm font-medium text-gray-900 whitespace-nowrap"
+                      class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap"
                     >
-                      {{ product.price }}
-                    </td>
-
-                    <td
-                      class="relative grid grid-cols-2 py-2 pl-3 pr-4 text-sm font-medium text-right sm:pr-6"
-                    >
-                      <div class="p-3">
-                        <select
-                          :id="index.toString()"
-                          name="location"
-                          class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        >
-                          <option
-                            v-for="n in [
-                              0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
-                            ]"
-                            :key="n"
-                          >
-                            {{ n }}
-                          </option>
-                        </select>
-                      </div>
-                      <div class="w-full p-3">
-                        <button
-                          @click="modifyProductDefult(index.toString())"
-                          class="w-full px-4 py-2 text-indigo-600 border-2 border-indigo-600 rounded-lg hover:text-indigo-900"
-                        >
-                          <span>調整數據</span>
-                        </button>
+                      <div class="flex gap-5">
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          :id="key.toString()"
+                          @change="updateProductMax"
+                          :value="allProducts[key].max * 100"
+                        />
+                        <div>{{ Math.ceil(allProducts[key].max * 100) }} %</div>
                       </div>
                     </td>
                   </tr>
@@ -165,6 +128,15 @@ async function getProducts() {
           </div>
         </div>
       </div>
+    </div>
+    <div>
+      <button
+        type="button"
+        @click="setProductMaxToDb"
+        class="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        更新
+      </button>
     </div>
   </div>
 </template>

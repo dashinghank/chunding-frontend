@@ -20,7 +20,7 @@ async function orderQuery() {
   console.log("orderQuery");
 
   let allDownlines: any = await getAllDownlines(
-    [{ urlsuffix: store.state.userInfo.uid }],
+    [{ urlsuffix: store.state.userInfo.urlsuffix }],
     1
   );
   let urlsuffixs = allDownlines.map((item) => item.urlsuffix);
@@ -110,12 +110,12 @@ function getLastMonthAndDay() {
 </script>
 
 <template>
-  <div class="flex justify-center w-full h-screen items-center">
+  <div class="flex items-center justify-center w-full h-screen">
     <div>
       <div>下線數量:{{ Object.keys(store.state.downlines).length }}</div>
 
       <div
-        class="px-4 sm:px-6 lg:px-8 mt-5"
+        class="px-4 mt-5 sm:px-6 lg:px-8"
         v-if="Object.keys(store.state.downlines).length > 0"
       >
         <div class="sm:flex sm:items-center">
@@ -129,7 +129,7 @@ function getLastMonthAndDay() {
               >
               <select
                 ref="period"
-                class="p-2 mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                class="block w-full p-2 py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
                 <option :value="0">上個月業績</option>
                 <option :value="1" selected>這個月業績</option>
@@ -138,14 +138,14 @@ function getLastMonthAndDay() {
             <button
               type="button"
               @click="orderQuery"
-              class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
+              class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
             >
               查詢
             </button>
           </div>
         </div>
-        <div class="mt-8 flex flex-col">
-          <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="flex flex-col mt-8">
+          <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div
               class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8"
             >
@@ -196,35 +196,35 @@ function getLastMonthAndDay() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-gray-200 bg-white">
+                  <tbody class="bg-white divide-y divide-gray-200">
                     <tr v-for="(order, index) in orders" :key="index">
                       <td
-                        class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6"
+                        class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                       >
                         {{ (order as any).name }}
                       </td>
                       <td
-                        class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6"
+                        class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                       >
                         {{ (order as any).customer }}
                       </td>
                       <td
-                        class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6"
+                        class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                       >
                         {{ moment((order as any).createdAt).format('YYYY/MM/DD') }}
                       </td>
                       <td
-                        class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6"
+                        class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                       >
                         {{ parseInt((order as any).amount) }}
                       </td>
                       <td
-                        class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6"
+                        class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                       >
                         {{ parseInt((order as any).selfCommission) }}
                       </td>
                       <td
-                        class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6"
+                        class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                       >
                         {{ parseInt((order as any).parentCommission) }}
                       </td>
