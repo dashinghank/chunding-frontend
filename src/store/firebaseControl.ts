@@ -69,9 +69,9 @@ export async function getOrdersByDateRange(
   startDate: number,
   endDate: number
 ) {
-  console.log("urlsuffixsaaaa", urlsuffixs);
-  console.log("startDate", startDate);
-  console.log("endDate", endDate);
+  console.log("urlsuffix:", urlsuffixs);
+  console.log("startDate:", startDate);
+  console.log("endDate:", endDate);
   let myQuery = query(
     collection(db, "orders"),
     where("urlsuffix", "in", urlsuffixs),

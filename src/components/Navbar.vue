@@ -41,33 +41,35 @@ function signout() {
 </script>
 <template>
   <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
-    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+    <div class="px-2 mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div class="relative flex items-center justify-between h-16">
         <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
           <!-- Mobile menu button-->
           <DisclosureButton
-            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+            class="inline-flex items-center justify-center p-2 text-gray-400 rounded-md hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
           >
             <span class="sr-only">Open main menu</span>
-            <MenuIcon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
-            <XIcon v-else class="block h-6 w-6" aria-hidden="true" />
+            <MenuIcon v-if="!open" class="block w-6 h-6" aria-hidden="true" />
+            <XIcon v-else class="block w-6 h-6" aria-hidden="true" />
           </DisclosureButton>
         </div>
         <div
-          class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start"
+          class="flex items-center justify-center flex-1 sm:items-stretch sm:justify-start"
         >
-          <div class="flex-shrink-0 flex items-center">
-            <img
-              class="block lg:hidden h-8 w-auto"
-              src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg"
-              alt="Workflow"
-            />
-            <img
-              class="hidden lg:block h-8 w-auto"
-              src="https://tailwindui.com/img/logos/workflow-logo-indigo-500-mark-white-text.svg"
-              alt="Workflow"
-            />
-          </div>
+          <router-link to="/home">
+            <div class="flex items-center flex-shrink-0">
+              <img
+                class="block w-auto h-8 lg:hidden"
+                src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg"
+                alt="Workflow"
+              />
+              <img
+                class="hidden w-auto h-8 lg:block"
+                src="https://tailwindui.com/img/logos/workflow-logo-indigo-500-mark-white-text.svg"
+                alt="Workflow"
+              />
+            </div>
+          </router-link>
           <div class="hidden sm:block sm:ml-6">
             <div class="flex space-x-4">
               <router-link
@@ -77,7 +79,7 @@ function signout() {
                     ? 'bg-gray-900 text-white'
                     : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                 ]"
-                class="px-3 py-2 rounded-md text-sm font-medium"
+                class="px-3 py-2 text-sm font-medium rounded-md"
                 :key="item.name"
                 :to="item.href"
                 >{{ item.name }}</router-link
@@ -89,25 +91,25 @@ function signout() {
           class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
         >
           <!-- Profile dropdown -->
-          <Menu as="div" class="ml-3 relative">
+          <Menu as="div" class="relative ml-3">
             <div>
               <MenuButton
-                class="bg-gray-800 text-gray-400 flex text-sm rounded-full focus:outline-none hover:text-white"
+                class="flex text-sm text-gray-400 bg-gray-800 rounded-full focus:outline-none hover:text-white"
               >
                 <span class="sr-only">Open user menu</span>
-                <CogIcon class="h-6 w-6" aria-hidden="true" />
+                <CogIcon class="w-6 h-6" aria-hidden="true" />
               </MenuButton>
             </div>
             <transition
-              enter-active-class="transition ease-out duration-100"
-              enter-from-class="transform opacity-0 scale-95"
-              enter-to-class="transform opacity-100 scale-100"
-              leave-active-class="transition ease-in duration-75"
-              leave-from-class="transform opacity-100 scale-100"
-              leave-to-class="transform opacity-0 scale-95"
+              enter-active-class="transition duration-100 ease-out"
+              enter-from-class="transform scale-95 opacity-0"
+              enter-to-class="transform scale-100 opacity-100"
+              leave-active-class="transition duration-75 ease-in"
+              leave-from-class="transform scale-100 opacity-100"
+              leave-to-class="transform scale-95 opacity-0"
             >
               <MenuItems
-                class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                class="absolute right-0 w-48 py-1 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
               >
                 <!-- <MenuItem v-slot="{ active }">
                   <a

@@ -29,9 +29,9 @@ async function orderQuery() {
 
     console.log(startDate);
     let endDate = moment().valueOf();
-    console.log(store.state.userInfo.uid);
+    console.log(store.state.userInfo.urlsuffix);
     orders.value = await getOrdersByDateRange(
-      [store.state.userInfo.uid],
+      [store.state.userInfo.urlsuffix],
       startDate,
       endDate
     );
@@ -49,7 +49,7 @@ async function orderQuery() {
     let endDate = moment(getLastMonthAndDay(), "YYYY/MM/DD").valueOf();
     console.log(endDate);
     orders.value = await getOrdersByDateRange(
-      [store.state.userInfo.uid],
+      [store.state.userInfo.urlsuffix],
       startDate,
       endDate
     );
@@ -122,13 +122,13 @@ async function modifyProductCommision() {
 </script>
 
 <template>
-  <div class="flex justify-center w-full h-screen items-center">
+  <div class="flex mt-[10vh] container mx-auto">
     <div>
       <div>
         <div>這是你的推廣網址:</div>
         <div>
           https://chyuinding.myshopify.com/?kolsuffix={{
-            store.state.userInfo.uid
+            store.state.userInfo.urlsuffix
           }}
         </div>
       </div>
@@ -141,7 +141,7 @@ async function modifyProductCommision() {
           >
           <select
             ref="selectedDownline"
-            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             <option selected disabled>選擇要調整的KOL</option>
             <option
@@ -159,7 +159,7 @@ async function modifyProductCommision() {
           >
           <select
             ref="selectedProduct"
-            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             <option selected disabled>選擇要調整的商品</option>
             <option
@@ -175,7 +175,7 @@ async function modifyProductCommision() {
           <label class="block text-sm font-medium text-gray-700">選擇%數</label>
           <select
             ref="selectedPercentage"
-            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             <option selected disabled>選擇要調整的趴數</option>
             <option
@@ -191,7 +191,7 @@ async function modifyProductCommision() {
         <div class="p-2">
           <button
             type="button"
-            class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
+            class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
             @click="modifyProductCommision"
           >
             調整
@@ -201,7 +201,7 @@ async function modifyProductCommision() {
       <div>下線數量:{{ Object.keys(store.state.downlines).length }}</div>
       <div>上次訂單更新時間:</div>
 
-      <div class="px-4 sm:px-6 lg:px-8 mt-10">
+      <div class="px-4 mt-10 sm:px-6 lg:px-8">
         <div class="sm:flex sm:items-center min-w-[350px] sm:min-w-[880px]">
           <div class="sm:flex-auto">
             <h1 class="text-xl font-semibold text-gray-900">訂單資訊</h1>
@@ -214,7 +214,7 @@ async function modifyProductCommision() {
               >
               <select
                 ref="period"
-                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
                 <option :value="0">上個月業績</option>
                 <option :value="1" selected>這個月業績</option>
@@ -222,15 +222,15 @@ async function modifyProductCommision() {
             </div>
             <button
               type="button"
-              class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
+              class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
               @click="orderQuery"
             >
               查詢
             </button>
           </div>
         </div>
-        <div class="mt-8 flex flex-col">
-          <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="flex flex-col mt-8">
+          <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div
               class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8"
             >
@@ -275,33 +275,35 @@ async function modifyProductCommision() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-gray-200 bg-white">
+                  <tbody class="bg-white divide-y divide-gray-200">
                     <tr
-                      v-for="(order, index) in orders[store.state.userInfo.uid]"
+                      v-for="(order, index) in orders[
+                        store.state.userInfo.urlsuffix
+                      ]"
                       :key="index"
                     >
                       <td
-                        class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6"
+                        class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                       >
                         {{ order.name }}
                       </td>
                       <td
-                        class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                        class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap"
                       >
                         {{ order.customer }}
                       </td>
                       <td
-                        class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                        class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap"
                       >
                         {{ moment(order.createdAt).format("YYYY/MM/DD") }}
                       </td>
                       <td
-                        class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                        class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap"
                       >
                         {{ parseInt(order.amount) }}
                       </td>
                       <td
-                        class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                        class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap"
                       >
                         {{ order.selfCommission }}
                       </td>

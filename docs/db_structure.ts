@@ -7,12 +7,8 @@ interface logs {
 
 interface products {
   [documentId: string]: {
-    default: number;
     handle: string;
     price: number;
-    exceptionProducts: {
-      [urlsuffix: string]: number;
-    };
   };
 }
 
@@ -23,15 +19,13 @@ interface members {
     nickname: string;
     depth: number;
     islocked: boolean;
-    parent: string;
+    ancestors: string[]; //urlsuffixs
     registerDatetime: number;
     lastLoginDatetime: number;
     urlsuffix: string;
     role: string;
-    downlines: {
-      [urlsuffix: string]: {
-        [productDocId: string]: number;
-      };
+    products: {
+      [productDocId: string]: number;
     };
   };
 }
@@ -46,6 +40,9 @@ interface orders {
     fullyPaid: boolean;
     items: {
       [productDocId: string]: {
+        commissions: {
+          [urlsuffix: string]: number;
+        };
         quantity: number;
         sku: string;
         title: string;

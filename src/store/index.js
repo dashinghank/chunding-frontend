@@ -4,10 +4,15 @@ import createPersistedState from "vuex-persistedstate";
 export default new Vuex.Store({
   state: {
     userInfo: {
-      products: {},
       docId: "",
+      nickname: "",
+      urlsuffix: "",
+      commissionPercentage: 0,
+      registerDatetime: 0,
+      depth: -1,
+      parent: "",
+      ancestors: [],
       role: "",
-      uid: "",
     },
     allProducts: {},
     downlines: {},
@@ -15,16 +20,22 @@ export default new Vuex.Store({
   mutations: {
     setClear(state) {
       state.userInfo = {
-        products: {},
         docId: "",
+        nickname: "",
+        urlsuffix: "",
+        commissionPercentage: 0,
+        registerDatetime: 0,
+        depth: -1,
+        ancestors: [],
+        parent: "",
         role: "",
-        uid: "",
       };
       state.allProducts = {};
       state.downlines = {};
     },
 
     setAllProducts(state, allProducts) {
+      console.log(allProducts);
       state.allProducts = allProducts;
     },
 
@@ -34,22 +45,23 @@ export default new Vuex.Store({
         urlsuffix: downline.urlsuffix,
         nickname: downline.nickname,
         depth: downline.depth,
-        products: downline.products,
+        parent: downline.parent,
+        ancestors: downline.ancestors,
+        commissionPercentage: downline.commissionPercentage,
       };
     },
 
     setUserInfo(state, userInfo) {
       state.userInfo.docId = userInfo.docId;
-      state.userInfo.uid = userInfo.uid;
+      state.userInfo.urlsuffix = userInfo.urlsuffix;
       state.userInfo.role = userInfo.role;
-      state.userInfo.products = userInfo.products;
-    },
-
-    setDownlineProduct(state, data) {
-      state.downlines[data.urlsuffix].products[data.productId].commision =
-        data.commision;
-      state.downlines[data.urlsuffix].products[data.productId].percentage =
-        data.percentage;
+      state.userInfo.nickname = userInfo.nickname;
+      state.userInfo.commissionPercentage = userInfo.commissionPercentage;
+      state.userInfo.registerDatetime = userInfo.registerDatetime;
+      state.userInfo.depth = userInfo.depth;
+      state.userInfo.ancestors = userInfo.ancestors;
+      state.userInfo.parent = userInfo.parent;
+      state.userInfo.role = userInfo.role;
     },
   },
   plugins: [createPersistedState()],

@@ -1,13 +1,24 @@
 <script setup lang="ts">
+import { onMounted } from "vue";
 import { useStore } from "vuex";
 const store = useStore();
+
+onMounted(() => {
+  console.log(store.state);
+});
 </script>
 <template>
-  <div class="flex justify-center items-center w-full h-screen">
+  <div class="container flex mx-auto mt-20">
     <div>
       <div>這是你的推廣網址:</div>
-      <div>
-        https://chyuinding.myshopify.com/?kolsuffix={{ store.state.uid }}
+      <div class="bg-gray-200">
+        https://chyuinding.myshopify.com/?kolsuffix={{
+          store.state.userInfo.urlsuffix
+        }}
+      </div>
+      <div class="mt-5">
+        <label>身分:</label>
+        <div>{{ store.state.userInfo.role }}</div>
       </div>
     </div>
   </div>

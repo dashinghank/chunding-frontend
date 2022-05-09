@@ -2,11 +2,11 @@ import { createWebHistory, createRouter } from "vue-router";
 import store from "../store";
 
 const routes = [
-  // {
-  //   path: "/home",
-  //   name: "Home",
-  //   component: () => import("@/views/Home.vue"),
-  // },
+  {
+    path: "/home",
+    name: "Home",
+    component: () => import("@/views/Home.vue"),
+  },
   {
     path: "/createDownline",
     name: "CreateDownline",
@@ -46,7 +46,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   // console.log(store.state);
-  if (store.state.userInfo.uid === "") {
+  if (store.state.userInfo.urlsuffix === "") {
     if (to.name !== "Login") {
       console.log("第1入口");
       next({ name: "Login" });
@@ -55,7 +55,7 @@ router.beforeEach((to, from, next) => {
       next();
     }
   } else if (to.name == "Login") {
-    console.log("已經登入還要去登入");
+    console.log("已登入並且有使用者資料");
     next({ name: "Home" });
   } else {
     console.log("第三入口");

@@ -11,7 +11,10 @@ const db = getFirestore();
 </script>
 
 <template>
-  <Navbar class="absolute top-0 w-full" v-if="store.state.userInfo.uid != ''" />
+  <Navbar
+    class="absolute top-0 w-full"
+    v-if="store.state.userInfo.urlsuffix != ''"
+  />
   <router-view />
 </template>
 
