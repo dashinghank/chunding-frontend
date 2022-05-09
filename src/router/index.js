@@ -18,16 +18,7 @@ const routes = [
     name: "Login",
     component: () => import("@/views/Login.vue"),
   },
-  {
-    path: "/report",
-    name: "Report",
-    component: () => import("@/views/Report.vue"),
-  },
-  {
-    path: "/reportDownline",
-    name: "ReportDownline",
-    component: () => import("@/views/ReportDownline.vue"),
-  },
+
   {
     path: "/supervisorPage",
     name: "SupervisorPage",
@@ -37,6 +28,12 @@ const routes = [
     path: "/products",
     name: "Products",
     component: () => import("@/views/Products.vue"),
+  },
+
+  {
+    path: "/configureDownline",
+    name: "ConfigureDownline",
+    component: () => import("@/views/ConfigureDownline.vue"),
   },
 ];
 const router = createRouter({

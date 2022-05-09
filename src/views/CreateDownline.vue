@@ -64,6 +64,7 @@ async function createDownline() {
     alert("新增失敗");
     return;
   }
+  store.state.downlines[newDownline.urlsuffix] = newDownline;
 }
 
 async function checkDuplicateAccount() {
@@ -137,13 +138,13 @@ function hasEmptyInput() {
                     <label
                       for="nickname"
                       class="block text-sm font-medium text-gray-700"
-                      >產品分成</label
+                      >產品分潤</label
                     >
                     <label
                       for="nickname"
                       class="block text-sm font-medium text-red-500"
                     >
-                      - 可給予下線的最高分成為
+                      - 可分配產品%數:
                       {{
                         store.state.userInfo.commissionPercentage * 100
                       }}%</label

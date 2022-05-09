@@ -31,6 +31,9 @@ const downlineSelectRef = ref();
 // ===== canvas refs =====
 const doughnutCanvas = ref();
 
+// ===== example refs =====
+const exampleSuffixs = ref();
+
 onMounted(async () => {
   if (Object.values(allMembersRef.value).length == 0) {
     var allMemebersSnapshot: any = await getDocs(collection(db, "members"));
@@ -99,6 +102,13 @@ function onDownlineChange(suffix: string) {
   let ancestorsNicknames = member.ancestors.map((ancestor: string) => {
     return allMembersRef.value[ancestor].nickname;
   });
+
+  exampleSuffixs.value = member.ancestors.map((ancestor: string) => {
+    return allMembersRef.value[ancestor].urlsuffix;
+  });
+
+  exampleSuffixs.value.push(member.urlsuffix);
+
   getDoughnut(
     doughnutCanvas.value,
     [...ancestorsNicknames, member.nickname],
@@ -158,7 +168,7 @@ function clearAllInputs() {
 </script>
 
 <template>
-  <div class="mt-[12.5vh] container mx-auto">
+  <div class="my-[12.5vh] container mx-auto">
     <div class="w-1/4">
       <label for="location" class="block text-sm font-medium text-gray-700"
         >選擇上線</label
@@ -347,6 +357,17 @@ function clearAllInputs() {
                 <div class="max-w-[300px]">
                   <canvas ref="doughnutCanvas"></canvas>
                 </div>
+                <div>範例:</div>
+                <div>產品售價: 2000元 &nbsp;&nbsp; 產品最高分潤金額:1000元</div>
+                <template
+                  v-for="(suffix, index) in exampleSuffixs"
+                  :key="index"
+                >
+                  <div class="grid w-64 grid-cols-2">
+                    <div>{{ allMembersRef[suffix].nickname }}:</div>
+                    <div>{{ commissionFormulaRef[index] * 1000 }}元</div>
+                  </div>
+                </template>
               </div>
             </div>
           </div>

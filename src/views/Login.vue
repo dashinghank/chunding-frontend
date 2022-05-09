@@ -8,21 +8,21 @@ import { onMounted, ref } from "@vue/runtime-core";
 import {
   getFirestore,
   collection,
-  addDoc,
+  // addDoc,
   getDocs,
   query,
   where,
 } from "firebase/firestore";
 
-import moment from "moment";
-import ShortUniqueId from "short-unique-id";
+// import moment from "moment";
+// import ShortUniqueId from "short-unique-id";
 import {
   getOrdersByDateRange,
   getAllProducts,
   getAllDownlines,
 } from "@/store/firebaseControl";
 
-const uid = new ShortUniqueId({ length: 10 });
+// const uid = new ShortUniqueId({ length: 10 });
 const router = useRouter();
 const store = useStore();
 const email = ref("admin001");
@@ -221,7 +221,7 @@ async function login() {
             登入
           </button>
         </div>
-        <div @click="register">
+        <div>
           <button
             class="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >

@@ -21,6 +21,7 @@ const navigation =
         // { name: "個人資訊", href: "/home" },
         { name: "管理者頁面", href: "/supervisorPage" },
         { name: "建立下線", href: "/createDownline" },
+        { name: "調整下線", href: "/ConfigureDownline" },
         { name: "商品調整頁", href: "/products" },
       ]
     : [
@@ -156,12 +157,12 @@ function signout() {
           as="a"
           :href="item.href"
           :class="[
-            (item as any).current
+            item.current
               ? 'bg-gray-900 text-white'
               : 'text-gray-300 hover:bg-gray-700 hover:text-white',
             'block px-3 py-2 rounded-md text-base font-medium',
           ]"
-          :aria-current="(item as any).current ? 'page' : undefined"
+          :aria-current="item.current ? 'page' : undefined"
           >{{ item.name }}</DisclosureButton
         >
       </div>
