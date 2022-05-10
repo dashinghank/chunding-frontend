@@ -4,7 +4,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import "firebase/firestore";
 import "firebase/auth";
-import { onMounted, ref } from "@vue/runtime-core";
+import { onMounted, ref, Ref, inject } from "@vue/runtime-core";
 import {
   getFirestore,
   collection,
@@ -27,6 +27,7 @@ const router = useRouter();
 const store = useStore();
 const email = ref("admin001");
 const password = ref("123456");
+const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
 const rememberme = ref();
 const db = getFirestore();
 
@@ -53,6 +54,8 @@ onMounted(() => {
 
 async function login() {
   console.log("login");
+
+  isShowMask.value = true;
   store.commit("setClear");
   localStorage.clear();
   let userInfo: any = {};
@@ -99,9 +102,9 @@ async function login() {
       });
     }
 
-    console.log("vuex:", store.state);
-
-    router.push("/report");
+    // console.log("vuex:", store.state);
+    isShowMask.value = false;
+    router.push("/home");
   } else {
     alert("帳號密碼錯誤");
   }

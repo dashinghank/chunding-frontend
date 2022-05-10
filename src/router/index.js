@@ -35,6 +35,11 @@ const routes = [
     name: "ConfigureDownline",
     component: () => import("@/views/ConfigureDownline.vue"),
   },
+  {
+    path: "/report",
+    name: "Report",
+    component: () => import("@/views/Report.vue"),
+  },
 ];
 const router = createRouter({
   history: createWebHistory(),

@@ -1,52 +1,94 @@
-<script setup lang="ts">
-import { ref } from 'vue'
+<script setup>
+import { ref } from "vue";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  TransitionChild,
+  TransitionRoot,
+} from "@headlessui/vue";
+import { CheckIcon } from "@heroicons/vue/outline";
 
-defineProps<{ msg: string }>()
-
-const count = ref(0)
+const open = ref(true);
 </script>
 
+<!-- This example requires Tailwind CSS v2.0+ -->
 <template>
-  <h1>{{ msg }}</h1>
+  <TransitionRoot as="template" :show="open">
+    <Dialog as="div" class="relative z-10" @close="open = false">
+      <TransitionChild
+        as="template"
+        enter="ease-out duration-300"
+        enter-from="opacity-0"
+        enter-to="opacity-100"
+        leave="ease-in duration-200"
+        leave-from="opacity-100"
+        leave-to="opacity-0"
+      >
+        <div
+          class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+        />
+      </TransitionChild>
 
-  <p>
-    Recommended IDE setup:
-    <a href="https://code.visualstudio.com/" target="_blank">VSCode</a>
-    +
-    <a href="https://github.com/johnsoncodehk/volar" target="_blank">Volar</a>
-  </p>
-
-  <p>See <code>README.md</code> for more information.</p>
-
-  <p>
-    <a href="https://vitejs.dev/guide/features.html" target="_blank">
-      Vite Docs
-    </a>
-    |
-    <a href="https://v3.vuejs.org/" target="_blank">Vue 3 Docs</a>
-  </p>
-
-  <button type="button" @click="count++">count is: {{ count }}</button>
-  <p>
-    Edit
-    <code>components/HelloWorld.vue</code> to test hot module replacement.
-  </p>
+      <div class="fixed inset-0 z-10 overflow-y-auto">
+        <div
+          class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0"
+        >
+          <!-- This element is to trick the browser into centering the modal contents. -->
+          <span
+            class="hidden sm:inline-block sm:align-middle sm:h-screen"
+            aria-hidden="true"
+            >&#8203;</span
+          >
+          <TransitionChild
+            as="template"
+            enter="ease-out duration-300"
+            enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            enter-to="opacity-100 translate-y-0 sm:scale-100"
+            leave="ease-in duration-200"
+            leave-from="opacity-100 translate-y-0 sm:scale-100"
+            leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          >
+            <DialogPanel
+              class="relative inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6"
+            >
+              <div>
+                <div
+                  class="flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-full"
+                >
+                  <CheckIcon
+                    class="w-6 h-6 text-green-600"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div class="mt-3 text-center sm:mt-5">
+                  <DialogTitle
+                    as="h3"
+                    class="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Payment successful
+                  </DialogTitle>
+                  <div class="mt-2">
+                    <p class="text-sm text-gray-500">
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                      Consequatur amet labore.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-5 sm:mt-6">
+                <button
+                  type="button"
+                  class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+                  @click="open = false"
+                >
+                  Go back to dashboard
+                </button>
+              </div>
+            </DialogPanel>
+          </TransitionChild>
+        </div>
+      </div>
+    </Dialog>
+  </TransitionRoot>
 </template>
-
-<style scoped>
-a {
-  color: #42b983;
-}
-
-label {
-  margin: 0 0.5em;
-  font-weight: bold;
-}
-
-code {
-  background-color: #eee;
-  padding: 2px 4px;
-  border-radius: 4px;
-  color: #304455;
-}
-</style>
