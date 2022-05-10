@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, provide } from "vue";
 import { getOrdersByDateRange } from "@/store/firebaseControl";
 import { useStore } from "vuex";
 import moment from "moment";
 import { getFirestore, updateDoc, doc, getDoc } from "firebase/firestore";
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
-
+import DownlinesOrderCommissionModal from "@/components/DownlinesOrderCommissionModal.vue";
 const startDate: any = ref(
   new Date(
     parseInt(moment().format("YYYY")),
@@ -14,6 +14,8 @@ const startDate: any = ref(
     1
   )
 );
+const dsIsOpen = ref(false);
+provide("dsIsOpen", dsIsOpen);
 const endDate: any = ref(new Date());
 const db = getFirestore();
 const store = useStore();
@@ -24,6 +26,11 @@ onMounted(async () => {
   console.log("store:", store.state.downlines);
   console.log(store.state.userInfo.role);
 });
+function checkDownlineCommission() {
+  console.log("test", dsIsOpen.value);
+
+  dsIsOpen.value = !dsIsOpen.value;
+}
 
 async function queryOrder() {
   console.log("queryOrder");
@@ -45,6 +52,24 @@ async function queryOrder() {
     orders.value = [...orders.value, ...o];
   });
 
+  if (store.state.userInfo.role == "admin") {
+    orders.value.forEach((o: any, i: number) => {
+      let commissionMax: number = 0;
+      let orderItems = Object.values(o.items);
+      let totalProfit = 0;
+      orderItems.forEach((item: any) => {
+        commissionMax += item.max;
+      });
+      console.log("max:", commissionMax);
+      totalProfit =
+        parseInt(o.amount) -
+        commissionMax +
+        o.totalCommissions[store.state.userInfo.urlsuffix];
+      console.log("訂單盈餘:", totalProfit);
+      orders.value[i]["totalProfit"] = totalProfit;
+    });
+  }
+
   if (orders.value.length < 1) {
     alert("查無訂單");
   }
@@ -54,6 +79,7 @@ async function queryOrder() {
 
 <template>
   <div class="flex items-center justify-center w-full h-screen p-5">
+    <DownlinesOrderCommissionModal />
     <div>
       <div>report{{ store.state.userInfo.urlsuffix }}</div>
       <div class="flex gap-12">
@@ -107,7 +133,7 @@ async function queryOrder() {
         <button
           @click="queryOrder"
           type="button"
-          class="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          class="self-center h-fit inline-flex items-center px-5 py-3 text-sm font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           查詢
         </button>
@@ -151,6 +177,25 @@ async function queryOrder() {
                       >
                         訂單金額
                       </th>
+                      <th
+                        scope="col"
+                        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      >
+                        我的抽成
+                      </th>
+                      <th
+                        v-if="store.state.userInfo.role == 'admin'"
+                        scope="col"
+                        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      >
+                        訂單盈餘
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      >
+                        下線抽成
+                      </th>
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200">
@@ -169,6 +214,26 @@ async function queryOrder() {
                         class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                       >
                         {{ order.amount }}
+                      </td>
+
+                      <td
+                        class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
+                      >
+                        {{
+                          order.totalCommissions[store.state.userInfo.urlsuffix]
+                        }}
+                      </td>
+                      <td
+                        v-if="store.state.userInfo.role == 'admin'"
+                        class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
+                      >
+                        {{ order.totalProfit }}
+                      </td>
+                      <td
+                        @click="checkDownlineCommission(order.id)"
+                        class="cursor-pointer py-4 pl-4 pr-3 text-sm font-medium text-blue-500 whitespace-nowrap sm:pl-6"
+                      >
+                        點擊查看詳細
                       </td>
                     </tr>
                   </tbody>
