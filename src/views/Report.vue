@@ -7,6 +7,9 @@ import { getFirestore, updateDoc, doc, getDoc } from "firebase/firestore";
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import DownlinesOrderCommissionModal from "@/components/DownlinesOrderCommissionModal.vue";
+import { Chart, registerables } from "chart.js";
+Chart.register(...registerables);
+
 const startDate: any = ref(
   new Date(
     parseInt(moment().format("YYYY")),
@@ -15,7 +18,9 @@ const startDate: any = ref(
   )
 );
 const dsIsOpen = ref(false);
+const commissionDetail = ref({});
 provide("dsIsOpen", dsIsOpen);
+provide("commissionDetail", commissionDetail);
 const endDate: any = ref(new Date());
 const db = getFirestore();
 const store = useStore();
@@ -24,10 +29,13 @@ const orders: any = ref([]);
 onMounted(async () => {
   console.log("report");
   console.log("store:", store.state.downlines);
-  console.log(store.state.userInfo.role);
+
+  console.log(moment(1646064000000).format("YYYY-MM-DD"));
 });
-function checkDownlineCommission() {
-  console.log("test", dsIsOpen.value);
+function checkDownlineCommission(order: any) {
+  console.log("order:", order);
+
+  commissionDetail.value = order.totalCommissions;
 
   dsIsOpen.value = !dsIsOpen.value;
 }
@@ -41,11 +49,15 @@ async function queryOrder() {
   orders.value = [];
   const targets = queryOrderTarget.value.value.split(",");
   console.log("targets:", targets);
+  console.log("startDate:", moment(startDate.value).valueOf());
+  console.log("endDate:", moment(endDate.value).valueOf());
+
   let tempOrders = await getOrdersByDateRange(
     targets,
     moment(startDate.value).valueOf(),
     moment(endDate.value).valueOf()
   );
+  console.log(tempOrders);
   tempOrders = Object.values(tempOrders);
   console.log(tempOrders);
   tempOrders.forEach((o: any) => {
@@ -58,9 +70,11 @@ async function queryOrder() {
       let orderItems = Object.values(o.items);
       let totalProfit = 0;
       orderItems.forEach((item: any) => {
-        commissionMax += item.max;
+        commissionMax += item.price * item.max;
       });
       console.log("max:", commissionMax);
+      console.log("mine:", o.totalCommissions[store.state.userInfo.urlsuffix]);
+
       totalProfit =
         parseInt(o.amount) -
         commissionMax +
@@ -208,7 +222,7 @@ async function queryOrder() {
                       <td
                         class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                       >
-                        {{ order.urlsuffix }}
+                        {{ store.state.downlines[order.urlsuffix].nickname }}
                       </td>
                       <td
                         class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
@@ -230,7 +244,7 @@ async function queryOrder() {
                         {{ order.totalProfit }}
                       </td>
                       <td
-                        @click="checkDownlineCommission(order.id)"
+                        @click="checkDownlineCommission(order)"
                         class="cursor-pointer py-4 pl-4 pr-3 text-sm font-medium text-blue-500 whitespace-nowrap sm:pl-6"
                       >
                         點擊查看詳細

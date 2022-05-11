@@ -68,6 +68,7 @@ export async function getOrdersByDateRange(
   startDate: number,
   endDate: number
 ) {
+  console.log(urlsuffixs, startDate, endDate);
   let myQuery = query(
     collection(db, "orders"),
     where("urlsuffix", "in", urlsuffixs),
@@ -77,6 +78,9 @@ export async function getOrdersByDateRange(
 
   let tempOrders: any[] = [];
   var ordersRef = await getDocs(myQuery);
+
+  console.log(ordersRef.empty);
+
   ordersRef.forEach((doc) => {
     let order = doc.data();
     tempOrders.push(order);

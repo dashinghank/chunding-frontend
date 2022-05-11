@@ -4,7 +4,7 @@ import "./css/index.css";
 import router from "./router";
 import store from "@/store";
 import { initializeApp } from "firebase/app";
-// import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
+import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCjsZH1rviLKTHvI3TWfHAl7s2uoaOYg3E",
@@ -16,10 +16,10 @@ const firebaseConfig = {
 };
 initializeApp(firebaseConfig);
 
-// if (import.meta.env.DEV) {
-//   const db = getFirestore();
-//   connectFirestoreEmulator(db, "localhost", 8080);
-// }
+if (import.meta.env.DEV) {
+  const db = getFirestore();
+  connectFirestoreEmulator(db, "localhost", 8080);
+}
 const app = createApp(App);
 app.use(store);
 app.use(router);
