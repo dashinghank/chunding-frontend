@@ -5,6 +5,7 @@ import { useStore } from "vuex";
 import moment from "moment";
 import { getFirestore, updateDoc, doc, getDoc } from "firebase/firestore";
 import Datepicker from "@vuepic/vue-datepicker";
+import axios from "axios";
 import "@vuepic/vue-datepicker/dist/main.css";
 import DownlinesOrderCommissionModal from "@/components/DownlinesOrderCommissionModal.vue";
 const startDate: any = ref(
@@ -21,11 +22,9 @@ const db = getFirestore();
 const store = useStore();
 const queryOrderTarget: any = ref();
 const orders: any = ref([]);
-onMounted(async () => {
-  console.log("report");
-  console.log("store:", store.state.downlines);
-  console.log(store.state.userInfo.role);
-});
+// onMounted(async () => {
+
+// });
 function checkDownlineCommission() {
   console.log("test", dsIsOpen.value);
 
@@ -41,7 +40,7 @@ async function queryOrder() {
   orders.value = [];
   const targets = queryOrderTarget.value.value.split(",");
   console.log("targets:", targets);
-  let tempOrders = await getOrdersByDateRange(
+  let tempOrders: any = await getOrdersByDateRange(
     targets,
     moment(startDate.value).valueOf(),
     moment(endDate.value).valueOf()
@@ -133,7 +132,7 @@ async function queryOrder() {
         <button
           @click="queryOrder"
           type="button"
-          class="self-center h-fit inline-flex items-center px-5 py-3 text-sm font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          class="inline-flex items-center self-center px-5 py-3 text-sm font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm h-fit hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           查詢
         </button>
@@ -231,7 +230,7 @@ async function queryOrder() {
                       </td>
                       <td
                         @click="checkDownlineCommission(order.id)"
-                        class="cursor-pointer py-4 pl-4 pr-3 text-sm font-medium text-blue-500 whitespace-nowrap sm:pl-6"
+                        class="py-4 pl-4 pr-3 text-sm font-medium text-blue-500 cursor-pointer whitespace-nowrap sm:pl-6"
                       >
                         點擊查看詳細
                       </td>

@@ -1,5 +1,6 @@
 import "firebase/firestore";
 import "firebase/auth";
+import axios from "axios";
 
 import {
   getFirestore,
@@ -68,19 +69,15 @@ export async function getOrdersByDateRange(
   startDate: number,
   endDate: number
 ) {
-  let myQuery = query(
-    collection(db, "orders"),
-    where("urlsuffix", "in", urlsuffixs),
-    where("updatedAt", ">=", startDate),
-    where("updatedAt", "<=", endDate)
+  let res: any = await axios.post(
+    "https://shopify-api-nine.vercel.app/api/getOrders",
+    {
+      urlsuffixs,
+      startDate,
+      endDate,
+    }
   );
-
-  let tempOrders: any[] = [];
-  var ordersRef = await getDocs(myQuery);
-  ordersRef.forEach((doc) => {
-    let order = doc.data();
-    tempOrders.push(order);
-  });
+  let tempOrders = res.data;
 
   let orders: any = {};
   for (let i = 0; i < tempOrders.length; ++i) {
