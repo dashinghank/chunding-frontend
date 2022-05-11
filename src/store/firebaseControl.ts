@@ -28,7 +28,6 @@ const db = getFirestore();
 //取得下面層數的下線,depth=-1代表全部
 // [{urlsuffix:"MY_UID"}] 取自己的下線
 export async function getAllDownlines(downline: any[], depth: number) {
-  console.log(downline, depth);
   if (depth > 0) depth--;
   let children: any[] = [];
   for (let i = 0; i < downline.length; ++i) {
@@ -69,9 +68,6 @@ export async function getOrdersByDateRange(
   startDate: number,
   endDate: number
 ) {
-  console.log("urlsuffix:", urlsuffixs);
-  console.log("startDate:", startDate);
-  console.log("endDate:", endDate);
   let myQuery = query(
     collection(db, "orders"),
     where("urlsuffix", "in", urlsuffixs),
@@ -83,7 +79,6 @@ export async function getOrdersByDateRange(
   var ordersRef = await getDocs(myQuery);
   ordersRef.forEach((doc) => {
     let order = doc.data();
-    console.log("order", order);
     tempOrders.push(order);
   });
 

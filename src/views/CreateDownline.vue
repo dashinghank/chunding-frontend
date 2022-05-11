@@ -7,11 +7,15 @@ import {
   query,
   where,
 } from "firebase/firestore";
-
+import {
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
+} from "@heroicons/vue/solid";
 import ShortUniqueId from "short-unique-id";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, Ref, inject } from "vue";
 import { useStore } from "vuex";
 import moment from "moment";
+
 const store = useStore();
 var db = getFirestore();
 const uid = new ShortUniqueId({ length: 10 });
@@ -21,6 +25,9 @@ const account = ref("");
 const password = ref("");
 const nickname = ref("");
 const commissionPercentage = ref(0);
+
+//==== data ref ====
+var isShowMask = inject("isShowMask") as Ref<boolean>;
 
 onMounted(() => {
   console.log(store.state);
@@ -59,11 +66,15 @@ async function createDownline() {
   };
 
   try {
+    isShowMask.value = true;
     await addDoc(collection(db, "members"), newDownline);
   } catch (e) {
     alert("新增失敗");
     return;
   }
+
+  alert("新增成功");
+  isShowMask.value = false;
   store.state.downlines[newDownline.urlsuffix] = newDownline;
 }
 
@@ -81,6 +92,10 @@ function hasEmptyInput() {
   if (password.value == "") return true;
   if (nickname.value == "") return true;
   return false;
+}
+
+function changeCommissionPercentage(e: any) {
+  commissionPercentage.value = parseInt(e.target.value);
 }
 </script>
 
@@ -150,12 +165,31 @@ function hasEmptyInput() {
                       }}%</label
                     >
                   </div>
-                  <div class="flex gap-5">
+                  <div class="flex items-center gap-5 mt-5">
+                    <ChevronDoubleLeftIcon
+                      class="w-5 h-5"
+                      @click="
+                        commissionPercentage =
+                          commissionPercentage - 1 < 0
+                            ? (commissionPercentage = 0)
+                            : commissionPercentage - 1
+                      "
+                    />
                     <input
                       type="range"
                       :max="store.state.userInfo.commissionPercentage * 100"
-                      v-model="commissionPercentage"
-                      class="block w-3/4 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      @input="changeCommissionPercentage"
+                      class="block w-1/2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                    <ChevronDoubleRightIcon
+                      class="w-5 h-5"
+                      @click="
+                        commissionPercentage =
+                          commissionPercentage + 1 >
+                          store.state.userInfo.commissionPercentage * 100
+                            ? store.state.userInfo.commissionPercentage * 100
+                            : commissionPercentage + 1
+                      "
                     />
                     <div>{{ commissionPercentage }} %</div>
                   </div>

@@ -1,5 +1,6 @@
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
+import moment from "moment";
 
 export default new Vuex.Store({
   state: {
@@ -16,6 +17,7 @@ export default new Vuex.Store({
     },
     allProducts: {},
     downlines: {},
+    lastLoginDatetime: 0,
   },
   mutations: {
     setClear(state) {
@@ -32,10 +34,10 @@ export default new Vuex.Store({
       };
       state.allProducts = {};
       state.downlines = {};
+      state.lastLoginDatetime = 0;
     },
 
     setAllProducts(state, allProducts) {
-      console.log(allProducts);
       state.allProducts = allProducts;
     },
 
@@ -62,6 +64,7 @@ export default new Vuex.Store({
       state.userInfo.ancestors = userInfo.ancestors;
       state.userInfo.parent = userInfo.parent;
       state.userInfo.role = userInfo.role;
+      state.lastLoginDatetime = moment().valueOf();
     },
   },
   plugins: [createPersistedState()],

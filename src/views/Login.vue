@@ -4,59 +4,31 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import "firebase/firestore";
 import "firebase/auth";
-import { onMounted, ref, Ref, inject } from "@vue/runtime-core";
+import { ref, Ref, inject, onMounted } from "vue";
 import {
   getFirestore,
   collection,
-  // addDoc,
   getDocs,
   query,
   where,
 } from "firebase/firestore";
 
-// import moment from "moment";
-// import ShortUniqueId from "short-unique-id";
-import {
-  getOrdersByDateRange,
-  getAllProducts,
-  getAllDownlines,
-} from "@/store/firebaseControl";
+import { getAllProducts, getAllDownlines } from "@/store/firebaseControl";
 
-// const uid = new ShortUniqueId({ length: 10 });
 const router = useRouter();
 const store = useStore();
 const email = ref("admin001");
 const password = ref("123456");
 const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
-const rememberme = ref();
 const db = getFirestore();
-
 onMounted(() => {
-  console.log("login");
-  console.log(store.state);
+  store.commit("setClear");
 });
-
-// function register() {
-//   let registerDatetime = moment().valueOf();
-
-//   addDoc(collection(db, "members"), {
-//     account: "admin001",
-//     password: "123456",
-//     nickname: "admin001",
-//     depth: 0,
-//     islocked: false,
-//     role: "admin",
-//     urlsuffix: uid(),
-//     registerDatetime: registerDatetime,
-//     lastLoginDatetime: moment().valueOf(),
-//   });
-// }
-
 async function login() {
   console.log("login");
 
   isShowMask.value = true;
-  store.commit("setClear");
+
   localStorage.clear();
   let userInfo: any = {};
   if (email.value == "" || password.value == "") {
@@ -95,7 +67,6 @@ async function login() {
       store.state.userInfo.role == "admin" ? -1 : 2
     );
 
-    console.log("downlines:", downlines);
     if (downlines.length > 0) {
       downlines.forEach((downline: any) => {
         store.commit("setDownlines", downline);
@@ -108,18 +79,6 @@ async function login() {
   } else {
     alert("帳號密碼錯誤");
   }
-
-  //取得所有產品資訊並存取
-  // await getProducts();
-  // await getAllDownlinesOld([store.state.uid]);
-  console.log("======================");
-  console.log(
-    await getOrdersByDateRange(
-      ["QbQ4TJzOkB", "Lw9aQD5ksT"],
-      1650348536000,
-      1650348536002
-    )
-  );
 }
 </script>
 
@@ -144,7 +103,7 @@ async function login() {
             alt="Workflow"
           />
           <h2 class="mt-6 text-3xl font-extrabold text-center text-gray-900">
-            登入，讓我們開始吧！
+            登入頁面
           </h2>
 
           <!-- <p class="mt-2 text-sm text-center text-gray-600">
@@ -185,30 +144,6 @@ async function login() {
               />
             </div>
           </div>
-
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <input
-                ref="rememberme"
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-              />
-              <label for="remember-me" class="block ml-2 text-sm text-gray-900">
-                記住我的登入資訊
-              </label>
-            </div>
-
-            <div class="text-sm">
-              <a
-                href="#"
-                class="font-medium text-indigo-600 hover:text-indigo-500"
-              >
-                忘記密碼?
-              </a>
-            </div>
-          </div>
         </form>
         <div @click="login">
           <button
@@ -222,13 +157,6 @@ async function login() {
               />
             </span>
             登入
-          </button>
-        </div>
-        <div>
-          <button
-            class="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            註冊
           </button>
         </div>
       </div>

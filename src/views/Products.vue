@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { getFirestore, updateDoc, doc } from "firebase/firestore";
+import {
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
+} from "@heroicons/vue/solid";
 
 import { useStore } from "vuex";
 import { onMounted, ref, Ref } from "@vue/runtime-core";
@@ -12,14 +16,11 @@ onMounted(() => {
 });
 
 function updateProductMax(e: any) {
-  console.log((parseInt(e.target.value) / 100).toFixed(2));
   store.state.allProducts[e.target.id].max = parseFloat(
     (parseInt(e.target.value) / 100).toFixed(2)
   );
 
   store.commit("setAllProducts", allProducts);
-
-  console.log(store.state.allProducts[e.target.id]);
 }
 
 async function setProductMaxToDb() {
@@ -41,6 +42,26 @@ async function setProductMaxToDb() {
     console.log(e);
     alert("設定失敗");
   }
+}
+
+function clickLeft(key: string) {
+  let tempMax: number = store.state.allProducts[key].max;
+  tempMax -= 0.01;
+  if (tempMax < 0) {
+    tempMax = 0;
+  }
+
+  store.state.allProducts[key].max = tempMax;
+}
+
+function clickRight(key: string) {
+  let tempMax: number = store.state.allProducts[key].max;
+  tempMax += 0.01;
+  if (tempMax > 1) {
+    tempMax = 1;
+  }
+
+  store.state.allProducts[key].max = tempMax;
 }
 </script>
 
@@ -92,37 +113,54 @@ async function setProductMaxToDb() {
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                  <tr v-for="(item, key, index) in allProducts" :key="index">
+                  <tr
+                    v-for="(item, key, index) in store.state.allProducts"
+                    :key="index"
+                  >
                     <td
                       class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                     >
-                      {{ allProducts[key].displayName }}
+                      {{ store.state.allProducts[key].displayName }}
                     </td>
                     <td
                       class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap"
                     >
-                      {{ allProducts[key].price }}
+                      {{ store.state.allProducts[key].price }}
                     </td>
-                    <td
-                      class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap"
-                    >
+                    <td class="py-4 text-sm text-gray-500 whitespace-nowrap">
                       {{
-                        Math.ceil(allProducts[key].price * allProducts[key].max)
+                        Math.ceil(
+                          store.state.allProducts[key].price *
+                            store.state.allProducts[key].max
+                        )
                       }}
                     </td>
                     <td
                       class="flex justify-center px-3 py-4 text-sm text-gray-500"
                     >
                       <div class="flex gap-5">
+                        <ChevronDoubleLeftIcon
+                          class="w-4 h-4"
+                          @click="clickLeft(key.toString())"
+                        />
                         <input
                           type="range"
                           min="0"
                           max="100"
                           :id="key.toString()"
-                          @change="updateProductMax"
-                          :value="allProducts[key].max * 100"
+                          @input="updateProductMax"
+                          :value="store.state.allProducts[key].max * 100"
                         />
-                        <div>{{ Math.ceil(allProducts[key].max * 100) }} %</div>
+                        <ChevronDoubleRightIcon
+                          class="w-4 h-4"
+                          @click="clickRight(key.toString())"
+                        />
+                        <div class="ml-5">
+                          {{
+                            Math.ceil(store.state.allProducts[key].max * 100)
+                          }}
+                          %
+                        </div>
                       </div>
                     </td>
                   </tr>

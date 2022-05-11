@@ -32,14 +32,18 @@ const navigation =
         { name: "查看下線業績", href: "/reportDownline" },
         { name: "訂單頁面", href: "/report" },
       ];
-onMounted(() => {
-  console.log("現在登入者權限:", store.state.userInfo.role);
-});
+
 function signout() {
   console.log("signout");
   store.commit("setClear");
   localStorage.clear();
   router.push("/");
+}
+
+function showStore() {
+  console.log("==== show store ====");
+  console.log(store.state);
+  console.log("==== show store end ====");
 }
 </script>
 <template>
@@ -114,26 +118,6 @@ function signout() {
               <MenuItems
                 class="absolute right-0 w-48 py-1 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
               >
-                <!-- <MenuItem v-slot="{ active }">
-                  <a
-                    href="#"
-                    :class="[
-                      active ? 'bg-gray-100' : '',
-                      'block px-4 py-2 text-sm text-gray-700',
-                    ]"
-                    >Your Profile</a
-                  >
-                </MenuItem>
-                <MenuItem v-slot="{ active }">
-                  <a
-                    href="#"
-                    :class="[
-                      active ? 'bg-gray-100' : '',
-                      'block px-4 py-2 text-sm text-gray-700',
-                    ]"
-                    >Settings</a
-                  >
-                </MenuItem> -->
                 <MenuItem v-slot="{ active }">
                   <a
                     @click="signout"
@@ -142,6 +126,16 @@ function signout() {
                       'block px-4 py-2 text-sm text-gray-700',
                     ]"
                     >登出</a
+                  >
+                </MenuItem>
+                <MenuItem v-slot="{ active }">
+                  <a
+                    @click="showStore"
+                    :class="[
+                      active ? 'bg-gray-100' : '',
+                      'block px-4 py-2 text-sm text-gray-700',
+                    ]"
+                    >DEBUG</a
                   >
                 </MenuItem>
               </MenuItems>

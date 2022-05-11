@@ -1,3 +1,4 @@
+import moment from "moment";
 import { createWebHistory, createRouter } from "vue-router";
 import store from "../store";
 
@@ -47,22 +48,23 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  // console.log(store.state);
-  if (store.state.userInfo.urlsuffix === "") {
-    if (to.name !== "Login") {
-      console.log("第1入口");
-      next({ name: "Login" });
-    } else {
-      console.log("第2入口");
-      next();
-    }
-  } else if (to.name == "Login") {
-    console.log("已登入並且有使用者資料");
-    next({ name: "Home" });
-  } else {
-    console.log("第三入口");
-    next();
+  //檢查登入過期
+  //超過三天後，自動登出
+  if (
+    moment().valueOf() - store.state.lastLoginDatetime >
+    1000 * 60 * 60 * 24 * 3
+  ) {
+    store.commit("setClear");
   }
+
+  if (store.state.userInfo.urlsuffix == "") {
+    if (to.name != "Login") next({ name: "Login" });
+    else next();
+
+    return;
+  }
+
+  next();
 });
 
 export default router;
