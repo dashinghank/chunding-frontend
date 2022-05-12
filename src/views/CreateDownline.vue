@@ -6,6 +6,8 @@ import {
   getDocs,
   query,
   where,
+  updateDoc,
+  doc,
 } from "firebase/firestore";
 import {
   ChevronDoubleLeftIcon,
@@ -29,9 +31,22 @@ const commissionPercentage = ref(0);
 //==== data ref ====
 var isShowMask = inject("isShowMask") as Ref<boolean>;
 
-onMounted(() => {
+onMounted(async () => {
   console.log(store.state);
+  await addVerified();
 });
+
+async function addVerified() {
+  console.log("member");
+  let memberQuery = query(collection(db, "members"));
+  let memberDocs = await getDocs(memberQuery);
+  memberDocs.forEach(async (d) => {
+    console.log(d.id);
+    updateDoc(doc(db, `members/${d.id}`), {
+      isVerified: true,
+    }).then(() => console.log("新增成功"));
+  });
+}
 
 async function createDownline() {
   if (await checkDuplicateAccount()) {
@@ -75,7 +90,8 @@ async function createDownline() {
 
   alert("新增成功");
   isShowMask.value = false;
-  store.state.downlines[newDownline.urlsuffix] = newDownline;
+  store.commit("setDownlines", newDownline);
+  // store.state.downlines[newDownline.urlsuffix] = newDownline;
 }
 
 async function checkDuplicateAccount() {
@@ -178,6 +194,7 @@ function changeCommissionPercentage(e: any) {
                     <input
                       type="range"
                       :max="store.state.userInfo.commissionPercentage * 100"
+                      value="0"
                       @input="changeCommissionPercentage"
                       class="block w-1/2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />

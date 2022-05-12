@@ -21,15 +21,14 @@ const navigation =
         // { name: "個人資訊", href: "/home" },
         { name: "管理者頁面", href: "/supervisorPage" },
         { name: "建立下線", href: "/createDownline" },
-        { name: "調整下線", href: "/ConfigureDownline" },
+        // { name: "調整下線", href: "/ConfigureDownline" },
         { name: "商品調整頁", href: "/products" },
         { name: "訂單頁面", href: "/report" },
       ]
     : [
         // { name: "個人資訊", href: "/home" },
-        { name: "個人資訊", href: "/report" },
         { name: "建立下線", href: "/createDownline" },
-        { name: "查看下線業績", href: "/reportDownline" },
+        { name: "調整下線", href: "/ConfigureDownline" },
         { name: "訂單頁面", href: "/report" },
       ];
 
@@ -153,12 +152,12 @@ function showStore() {
           as="a"
           :href="item.href"
           :class="[
-            item.current
+            (item as any).current
               ? 'bg-gray-900 text-white'
               : 'text-gray-300 hover:bg-gray-700 hover:text-white',
             'block px-3 py-2 rounded-md text-base font-medium',
           ]"
-          :aria-current="item.current ? 'page' : undefined"
+          :aria-current="(item as any).current ? 'page' : undefined"
           >{{ item.name }}</DisclosureButton
         >
       </div>

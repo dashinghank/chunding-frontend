@@ -30,6 +30,11 @@ onMounted(() => {
 });
 
 function queryDownline() {
+  console.log(selectDownlineRef.value.value);
+  if (selectDownlineRef.value.value == "none") {
+    alert("尚未選擇");
+    return;
+  }
   currentSelectSuffix.value = selectDownlineRef.value.value;
   let currentDownline = store.state.downlines[currentSelectSuffix.value];
   nicknameRef.value = currentDownline.nickname;

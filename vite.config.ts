@@ -11,7 +11,7 @@ export default defineConfig({
       "@": pathSrc,
     },
   },
-  base: process.env.NODE_ENV === "production" ? "dist" : "",
+  base: process.env.NODE_ENV === "production" ? "" : "",
   css: {
     preprocessorOptions: {
       scss: { additionalData: `@import "${pathSrc}/scss/variables";` },

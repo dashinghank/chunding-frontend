@@ -74,11 +74,11 @@ async function login() {
     }
 
     // console.log("vuex:", store.state);
-    isShowMask.value = false;
     router.push("/home");
   } else {
     alert("帳號密碼錯誤");
   }
+  isShowMask.value = false;
 }
 </script>
 

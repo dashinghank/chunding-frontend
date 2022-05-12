@@ -6,33 +6,22 @@ import { useStore } from "vuex";
 import {
   Dialog,
   DialogPanel,
-  DialogTitle,
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import _ from "lodash";
 
-import { CheckIcon } from "@heroicons/vue/outline";
 import { inject } from "vue";
-import tr from "date-fns/esm/locale/tr/index.js";
 Chart.register(...registerables);
 const store = useStore();
 
-const doughnutCanvas = ref();
-const commissionDetail = inject<Ref<any>>("commissionDetail");
-const open = inject<Ref<boolean>>("dsIsOpen");
+const commissionDetail = inject("commissionDetail") as Ref<any>;
+const open = inject("dsIsOpen") as Ref<boolean>;
+const allMembers = inject("allMembers") as Ref<any>;
 onMounted(() => {
   console.log("donwlineCOM in");
   console.log(store.state.downlines);
+  console.log(allMembers.value);
 });
-
-function isSelf(key: any) {
-  if (key == store.state.userInfo.urlsuffix) {
-    return true;
-  } else {
-    return false;
-  }
-}
 </script>
 <template>
   <TransitionRoot as="template" :show="open">
@@ -74,12 +63,16 @@ function isSelf(key: any) {
               class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6"
             >
               <div v-for="(com, key, index) in commissionDetail" :key="index">
-                <div class="p-1" v-if="isSelf(key)">
-                  {{ store.state.userInfo.nickname }}:{{ com }}
-                </div>
-                <div class="p-1" v-if="!isSelf(key)">
-                  {{ store.state.downlines[key].nickname }}:{{ com }}
-                </div>
+                <div class="p-1">{{ allMembers[key].nickname }}:{{ com }}</div>
+              </div>
+              <div class="mt-5 sm:mt-6">
+                <button
+                  type="button"
+                  class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+                  @click="open = false"
+                >
+                  關閉
+                </button>
               </div>
             </DialogPanel>
           </TransitionChild>

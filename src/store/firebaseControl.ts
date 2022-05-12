@@ -1,5 +1,6 @@
 import "firebase/firestore";
 import "firebase/auth";
+import axios from "axios";
 
 import {
   getFirestore,
@@ -22,12 +23,12 @@ interface IProduct {
 }
 
 // const uid = new ShortUniqueId({ length: 10 });
-const db = getFirestore();
 
 //======================管理者操作==========================
 //取得下面層數的下線,depth=-1代表全部
 // [{urlsuffix:"MY_UID"}] 取自己的下線
 export async function getAllDownlines(downline: any[], depth: number) {
+  let db = getFirestore();
   if (depth > 0) depth--;
   let children: any[] = [];
   for (let i = 0; i < downline.length; ++i) {
@@ -46,13 +47,15 @@ export async function getAllDownlines(downline: any[], depth: number) {
       result = (await getAllDownlines(children, depth)) as any[];
       children = [...children, ...result];
     }
-    return children;
   }
+  return children;
 }
 
 //======================通用操作==========================
 //取得目前db中所有產品
 export async function getAllProducts() {
+  let db = getFirestore();
+
   var productsRef = await getDocs(collection(db, "products"));
   var products: any = {};
   productsRef.forEach((doc) => {
@@ -68,23 +71,15 @@ export async function getOrdersByDateRange(
   startDate: number,
   endDate: number
 ) {
-  console.log(urlsuffixs, startDate, endDate);
-  let myQuery = query(
-    collection(db, "orders"),
-    where("urlsuffix", "in", urlsuffixs),
-    where("updatedAt", ">=", startDate),
-    where("updatedAt", "<=", endDate)
+  let res: any = await axios.post(
+    "https://shopify-api-nine.vercel.app/api/getOrders",
+    {
+      urlsuffixs,
+      startDate,
+      endDate,
+    }
   );
-
-  let tempOrders: any[] = [];
-  var ordersRef = await getDocs(myQuery);
-
-  console.log(ordersRef.empty);
-
-  ordersRef.forEach((doc) => {
-    let order = doc.data();
-    tempOrders.push(order);
-  });
+  let tempOrders = res.data;
 
   let orders: any = {};
   for (let i = 0; i < tempOrders.length; ++i) {

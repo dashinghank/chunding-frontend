@@ -8,9 +8,11 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore";
+import { useStore } from "vuex";
 
 // ===== db refs =====
 var db = getFirestore();
+const store = useStore();
 const allMembersRef: Ref<any> = ref({});
 const currentSuffix: Ref<string> = ref("");
 //分成公式, 詳細列出每家可分成的%數
@@ -117,8 +119,10 @@ function onDownlineChange(suffix: string) {
 
   console.log("commissionFormulaRef", commissionFormulaRef.value);
   //取得目前會員可取得最大分成, 即自己父親的分成
-  maxCommissionRef.value =
-    allMembersRef.value[member.parent].commissionPercentage * 100;
+  if (store.state.userInfo.urlsuffix != currentSuffix.value) {
+    maxCommissionRef.value =
+      allMembersRef.value[member.parent].commissionPercentage * 100;
+  }
 
   //取得目前選擇下線給予下下線的最高分成
   minCommissionRef.value =
@@ -273,11 +277,11 @@ function clearAllInputs() {
                 <input
                   type="range"
                   :min="minCommissionRef"
-                  :max="maxCommissionRef"
+                  :max="100"
                   class="w-[200px]"
                   v-if="role == 'admin'"
                   disabled
-                  v-model="commissionPercentage"
+                  :value="100"
                 />
 
                 <input
