@@ -42,9 +42,6 @@ async function addVerified() {
   let memberDocs = await getDocs(memberQuery);
   memberDocs.forEach(async (d) => {
     console.log(d.id);
-    updateDoc(doc(db, `members/${d.id}`), {
-      isVerified: true,
-    }).then(() => console.log("新增成功"));
   });
 }
 
@@ -69,6 +66,10 @@ async function createDownline() {
     ),
     depth: store.state.userInfo.depth + 1,
     islocked: false,
+    isVerified: false,
+    kolname: "",
+    lineid: "",
+    phonenumber: "",
     lastloginDatetime: currentDatetime,
     registerDatetime: currentDatetime,
     role: "kol",
@@ -112,6 +113,17 @@ function hasEmptyInput() {
 
 function changeCommissionPercentage(e: any) {
   commissionPercentage.value = parseInt(e.target.value);
+}
+function safeRound(v, n) {
+  if (v % 1 !== 0) {
+    v = parseFloat(v.toPrecision(15));
+  }
+  var t = Math.pow(10, n);
+  var nv = v * t;
+  if (nv % 1 !== 0) {
+    nv = parseFloat(nv.toPrecision(15));
+  }
+  return Math.round(nv) / t;
 }
 </script>
 
@@ -177,7 +189,9 @@ function changeCommissionPercentage(e: any) {
                     >
                       - 可分配產品%數:
                       {{
-                        store.state.userInfo.commissionPercentage * 100
+                        Math.round(
+                          store.state.userInfo.commissionPercentage * 100
+                        ) / 1
                       }}%</label
                     >
                   </div>

@@ -24,6 +24,7 @@ const navigation =
         // { name: "調整下線", href: "/ConfigureDownline" },
         { name: "商品調整頁", href: "/products" },
         { name: "訂單頁面", href: "/report" },
+        { name: "驗證KOL", href: "/veriflyKol" },
       ]
     : [
         // { name: "個人資訊", href: "/home" },

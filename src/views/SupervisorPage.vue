@@ -7,6 +7,8 @@ import {
   getDocs,
   updateDoc,
   doc,
+  where,
+  query,
 } from "firebase/firestore";
 import { useStore } from "vuex";
 
@@ -38,7 +40,9 @@ const exampleSuffixs = ref();
 
 onMounted(async () => {
   if (Object.values(allMembersRef.value).length == 0) {
-    var allMemebersSnapshot: any = await getDocs(collection(db, "members"));
+    var allMemebersSnapshot: any = await getDocs(
+      query(collection(db, "members"), where("isVerified", "==", true))
+    );
     allMemebersSnapshot.forEach((member: any) => {
       allMembersRef.value[member.data().urlsuffix] = {
         id: member.id,

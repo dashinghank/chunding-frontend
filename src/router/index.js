@@ -41,6 +41,12 @@ const routes = [
     name: "Report",
     component: () => import("@/views/Report.vue"),
   },
+
+  {
+    path: "/veriflyKol",
+    name: "VeriflyKol",
+    component: () => import("@/views/VeriflyKol.vue"),
+  },
 ];
 const router = createRouter({
   history: createWebHistory(),

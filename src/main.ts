@@ -15,11 +15,12 @@ const firebaseConfig = {
   appId: "1:381013076282:web:18c6b06f5fc6a4d5668803",
 };
 initializeApp(firebaseConfig);
-
-if (import.meta.env.DEV) {
-  const db = getFirestore();
-  connectFirestoreEmulator(db, "localhost", 8080);
-}
+// if (import.meta.env.DEV) {
+//   const db = getFirestore();
+//   connectFirestoreEmulator(db, "localhost", 8080);
+// } else {
+//   console.log = function () {};
+// }
 const app = createApp(App);
 app.use(store);
 app.use(router);

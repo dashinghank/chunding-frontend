@@ -9,7 +9,11 @@ import {
   getDocs,
   query,
   where,
+  onSnapshot,
+  getDoc,
+  doc,
 } from "firebase/firestore";
+import store from ".";
 
 // import moment from "moment";
 // import ShortUniqueId from "short-unique-id";
@@ -55,12 +59,25 @@ export async function getAllDownlines(downline: any[], depth: number) {
 //取得目前db中所有產品
 export async function getAllProducts() {
   let db = getFirestore();
-
-  var productsRef = await getDocs(collection(db, "products"));
   var products: any = {};
-  productsRef.forEach((doc) => {
-    products[doc.id] = doc.data() as IProduct;
-  });
+
+  let currentSystems = store.state.systems;
+  let remotesystemsProducts = (
+    await getDoc(doc(db, "systems", "products"))
+  ).data() as any;
+  if (currentSystems.products == remotesystemsProducts.lastUpdateDatetime) {
+    console.log("產品狀態為最新");
+    products = store.state.allProducts;
+  } else {
+    console.log("更新產品");
+    var productsRef = await getDocs(collection(db, "products"));
+    productsRef.forEach((doc) => {
+      products[doc.id] = doc.data() as IProduct;
+    });
+
+    currentSystems.products = remotesystemsProducts.lastUpdateDatetime;
+    store.commit("setSystems", currentSystems);
+  }
 
   return products;
 }

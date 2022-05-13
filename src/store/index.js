@@ -14,10 +14,16 @@ export default new Vuex.Store({
       parent: "",
       ancestors: [],
       role: "",
+      qrCodeUrl: "",
     },
     allProducts: {},
     downlines: {},
     lastLoginDatetime: 0,
+    systems: {
+      products: 0,
+      orders: 0,
+      members: 0,
+    },
   },
   mutations: {
     setClear(state) {
@@ -31,6 +37,7 @@ export default new Vuex.Store({
         ancestors: [],
         parent: "",
         role: "",
+        qrCodeUrl: "",
       };
       state.allProducts = {};
       state.downlines = {};
@@ -40,7 +47,9 @@ export default new Vuex.Store({
     setAllProducts(state, allProducts) {
       state.allProducts = allProducts;
     },
-
+    setSystems(state, systems) {
+      state.systems = systems;
+    },
     setDownlines(state, downline) {
       state.downlines[downline.urlsuffix] = {
         docId: downline.docId,
@@ -64,6 +73,7 @@ export default new Vuex.Store({
       state.userInfo.ancestors = userInfo.ancestors;
       state.userInfo.parent = userInfo.parent;
       state.userInfo.role = userInfo.role;
+      state.userInfo.qrCodeUrl = userInfo.qrCodeUrl;
       state.lastLoginDatetime = moment().valueOf();
     },
   },

@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import QRCode from "qrcode";
 import { LockClosedIcon } from "@heroicons/vue/solid";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import "firebase/firestore";
 import "firebase/auth";
-import { ref, Ref, inject, onMounted } from "vue";
+import { ref, Ref, inject, onMounted, provide } from "vue";
 import {
   getFirestore,
   collection,
@@ -12,18 +13,25 @@ import {
   query,
   where,
 } from "firebase/firestore";
-
+import NotVerified from "@/components/NotVerified.vue";
 import { getAllProducts, getAllDownlines } from "@/store/firebaseControl";
-
+const nvIsOpen = ref(false);
+provide("nvIsOpen", nvIsOpen);
+const myMemberDocId: any = ref({});
+provide("myMemberDocId", myMemberDocId);
 const router = useRouter();
 const store = useStore();
-const email = ref("admin001");
+const email = ref("ggg001");
 const password = ref("123456");
 const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
 const db = getFirestore();
-onMounted(() => {
+
+onMounted(async () => {
   store.commit("setClear");
+  console.log("login in");
+  console.log(store.state);
 });
+
 async function login() {
   console.log("login");
 
@@ -35,50 +43,88 @@ async function login() {
     alert("請輸入帳號、密碼");
     return;
   }
-  const queryUser = query(
+
+  const queryIsVerified = query(
     collection(db, "members"),
+    where("isVerified", "==", false),
     where("account", "==", email.value),
     where("password", "==", password.value)
   );
-
-  //取得使用者資訊並存取
-  const userRef = await getDocs(queryUser);
-  if (!userRef.empty) {
-    userRef.forEach((doc) => {
-      userInfo = doc.data();
-      store.commit("setUserInfo", {
-        docId: doc.id,
-        ancestors: userInfo.ancestors,
-        nickname: userInfo.nickname,
-        urlsuffix: userInfo.urlsuffix,
-        commissionPercentage: userInfo.commissionPercentage,
-        registerDatetime: userInfo.registerDatetime,
-        depth: userInfo.depth,
-        parent: userInfo.parent,
-        role: userInfo.role,
-      });
+  //檢查是否為開通
+  const isVerifiedRef = await getDocs(queryIsVerified);
+  if (!isVerifiedRef.empty) {
+    console.log("帳號未開通");
+    isVerifiedRef.forEach((doc) => {
+      myMemberDocId.value[doc.id] = doc.data();
     });
+    // alert("帳號未開通");
 
-    var allProducts = await getAllProducts();
-    store.commit("setAllProducts", allProducts);
-
-    var downlines: any = await getAllDownlines(
-      [{ urlsuffix: store.state.userInfo.urlsuffix }],
-      store.state.userInfo.role == "admin" ? -1 : 2
+    if ((Object.values(myMemberDocId.value) as any)[0].lineid == "") {
+      nvIsOpen.value = true;
+    } else {
+      console.log("veriflyData is exist");
+      alert("管理員審核中 請耐心等待");
+    }
+  } else {
+    const queryUser = query(
+      collection(db, "members"),
+      where("isVerified", "==", true),
+      where("account", "==", email.value),
+      where("password", "==", password.value)
     );
 
-    if (downlines.length > 0) {
-      downlines.forEach((downline: any) => {
-        store.commit("setDownlines", downline);
-      });
-    }
+    //取得使用者資訊並存取
+    const userRef = await getDocs(queryUser);
+    if (!userRef.empty) {
+      userRef.forEach(async (doc) => {
+        userInfo = doc.data();
+        let tempQrcode = await QRCode.toDataURL(
+          `https://chyuinding.myshopify.com/?kolsuffix=${userInfo.urlsuffix}`
+        );
 
-    // console.log("vuex:", store.state);
-    router.push("/home");
-  } else {
-    alert("帳號密碼錯誤");
+        store.commit("setUserInfo", {
+          docId: doc.id,
+          ancestors: userInfo.ancestors,
+          nickname: userInfo.nickname,
+          urlsuffix: userInfo.urlsuffix,
+          commissionPercentage: userInfo.commissionPercentage,
+          registerDatetime: userInfo.registerDatetime,
+          depth: userInfo.depth,
+          parent: userInfo.parent,
+          role: userInfo.role,
+          qrCodeUrl: tempQrcode,
+        });
+      });
+
+      var allProducts = await getAllProducts();
+      store.commit("setAllProducts", allProducts);
+
+      var downlines: any = await getAllDownlines(
+        [{ urlsuffix: store.state.userInfo.urlsuffix }],
+        store.state.userInfo.role == "admin" ? -1 : 2
+      );
+
+      if (downlines.length > 0) {
+        downlines.forEach((downline: any) => {
+          store.commit("setDownlines", downline);
+        });
+      }
+
+      // console.log("vuex:", store.state);
+      router.push("/home");
+    } else {
+      alert("帳號密碼錯誤");
+    }
   }
   isShowMask.value = false;
+}
+
+async function generateQR(text: any) {
+  try {
+    console.log(await QRCode.toDataURL(text));
+  } catch (err) {
+    console.error(err);
+  }
 }
 </script>
 
@@ -92,6 +138,7 @@ async function login() {
     ```
   -->
   <div class="items-center justify-center w-full h-screen">
+    <NotVerified />
     <div
       class="flex items-center justify-center min-h-full px-4 py-12 sm:px-6 lg:px-8"
     >

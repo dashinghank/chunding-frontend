@@ -19,6 +19,7 @@
     "flag-waiter": "^1.0.5",
     "lodash": "^4.17.21",
     "moment": "^2.29.2",
+    "qrcode": "^1.5.0",
     "short-unique-id": "^4.4.4",
     "vue": "^3.2.25",
     "vue-router": "^4.0.13",

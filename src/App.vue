@@ -5,21 +5,22 @@ import { useStore } from "vuex";
 import { onMounted, provide, ref } from "vue";
 import { getAllProducts, getAllDownlines } from "@/store/firebaseControl";
 import { useRouter, useRoute } from "vue-router";
-
 const store = useStore();
 const route = useRoute();
 const isShowMask = ref(false);
 provide("isShowMask", isShowMask);
-
+const qrCodeUrl = ref("");
+provide("qrCodeUrl", qrCodeUrl);
+const shorterUrl = ref("");
+provide("shorterUrl", shorterUrl);
 onMounted(async () => {
   try {
     isShowMask.value = true;
-
     await fetch("https://shopify-api-nine.vercel.app/api/updateAllOrders");
-
     if (store.state.userInfo.urlsuffix != "" && route.name != "Login") {
       var allProducts = await getAllProducts();
       store.commit("setAllProducts", allProducts);
+
       var downlines: any = await getAllDownlines(
         [{ urlsuffix: store.state.userInfo.urlsuffix }],
         store.state.userInfo.role == "admin" ? -1 : 2
@@ -30,7 +31,6 @@ onMounted(async () => {
         });
       }
     }
-
     isShowMask.value = false;
   } catch (e) {
     console.log(e);
