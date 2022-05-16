@@ -14,14 +14,22 @@ var db = getFirestore();
 const allNotVerifiedMember: Ref<any> = ref({});
 const name = ref("");
 const line = ref("");
+const insta = ref("");
 const phonenumber = ref("");
 const selectedUrlsuffix = ref("");
+const visAgentProduct = ref(false);
+const visInGroup = ref(false);
+
 onMounted(async () => {
   await getAllNotVerifiedMember();
 });
 function onKolChange(e: any) {
   name.value = allNotVerifiedMember.value[e.target.value].kolname;
   line.value = allNotVerifiedMember.value[e.target.value].lineid;
+  insta.value = allNotVerifiedMember.value[e.target.value].instaId;
+  visAgentProduct.value =
+    allNotVerifiedMember.value[e.target.value].isAgentProduct;
+  visInGroup.value = allNotVerifiedMember.value[e.target.value].isInGroup;
   phonenumber.value = allNotVerifiedMember.value[e.target.value].phonenumber;
   selectedUrlsuffix.value = e.target.value;
 }
@@ -85,6 +93,20 @@ async function verifly() {
     </div>
     <div class="w-72">
       <div class="py-3">
+        <label for="vInstaId" class="block text-sm font-medium text-gray-700"
+          >Instagram ID</label
+        >
+        <div class="mt-1">
+          <input
+            type="text"
+            name="vInstaId"
+            id="vInstaId"
+            v-model="insta"
+            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+          />
+        </div>
+      </div>
+      <div class="py-3">
         <label for="vLineId" class="block text-sm font-medium text-gray-700"
           >Line Id</label
         >
@@ -127,6 +149,46 @@ async function verifly() {
             class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
           />
         </div>
+      </div>
+      <div class="py-3">
+        <fieldset class="space-y-5">
+          <div class="relative flex items-start">
+            <div class="flex items-center h-5">
+              <input
+                disabled
+                id="visInGroup"
+                aria-describedby="comments-description"
+                name="visInGroup"
+                type="checkbox"
+                :checked="visInGroup"
+                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+              />
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="visInGroup" class="font-medium text-gray-700"
+                >是否進入代理群
+              </label>
+            </div>
+          </div>
+          <div class="relative flex items-start">
+            <div class="flex items-center h-5">
+              <input
+                disabled
+                id="visAgentProduct"
+                aria-describedby="candidates-description"
+                name="visAgentProduct"
+                type="checkbox"
+                :checked="visAgentProduct"
+                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+              />
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="isAgentProduct" class="font-medium text-gray-700"
+                >目前有無經營公司產品</label
+              >
+            </div>
+          </div>
+        </fieldset>
       </div>
     </div>
     <div class="mt-4">

@@ -47,6 +47,11 @@ const routes = [
     name: "VeriflyKol",
     component: () => import("@/views/VeriflyKol.vue"),
   },
+  {
+    path: "/customerService",
+    name: "CustomerService",
+    component: () => import("@/views/CustomerService.vue"),
+  },
 ];
 const router = createRouter({
   history: createWebHistory(),

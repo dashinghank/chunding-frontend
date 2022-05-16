@@ -18,12 +18,16 @@ import {
 } from "@headlessui/vue";
 
 import { inject } from "vue";
+import { tryStatement } from "@babel/types";
 Chart.register(...registerables);
 const store = useStore();
 const db = getFirestore();
 const phonenumber = ref();
 const lineid = ref();
 const kolname = ref();
+const instaId = ref();
+const isInGroup = ref();
+const isAgentProduct = ref();
 const myMemberDocId = inject("myMemberDocId") as any;
 const open = inject("nvIsOpen") as Ref<boolean>;
 onMounted(() => {
@@ -44,13 +48,21 @@ async function setKolVeriflyData() {
     alert("請填寫完整資料");
     return;
   }
-  await updateDoc(doc(db, `members/${Object.keys(myMemberDocId.value)[0]}`), {
-    lineid: lineid.value.value,
-    phonenumber: phonenumber.value.value,
-    kolname: kolname.value.value,
-  });
-  open.value = false;
-  alert("送出資料成功");
+  try {
+    await updateDoc(doc(db, `members/${Object.keys(myMemberDocId.value)[0]}`), {
+      instaId: instaId.value.value,
+      lineid: lineid.value.value,
+      phonenumber: phonenumber.value.value,
+      kolname: kolname.value.value,
+      isAgentProduct: isAgentProduct.value.checked,
+      isInGroup: isInGroup.value.checked,
+    });
+    open.value = false;
+    alert("送出資料成功");
+  } catch (error) {
+    console.log("error:", error);
+    alert("送出資料失敗");
+  }
 }
 </script>
 <template>
@@ -93,7 +105,24 @@ async function setKolVeriflyData() {
               class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6"
             >
               <div>
-                <div>請提供詳細資訊給管理者驗證</div>
+                <div>填寫資料以取得代理授權</div>
+                <div class="py-3">
+                  <label
+                    for="instaid"
+                    class="block text-sm font-medium text-gray-700"
+                    >Instagram ID</label
+                  >
+                  <div class="mt-1">
+                    <input
+                      ref="instaId"
+                      type="text"
+                      name="instaid"
+                      id="instaid"
+                      class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                      placeholder="輸入Instagram ID"
+                    />
+                  </div>
+                </div>
                 <div class="py-3">
                   <label
                     for="lineid"
@@ -144,6 +173,46 @@ async function setKolVeriflyData() {
                       placeholder="輸入姓名"
                     />
                   </div>
+                </div>
+                <div class="py-3">
+                  <fieldset class="space-y-5">
+                    <div class="relative flex items-start">
+                      <div class="flex items-center h-5">
+                        <input
+                          ref="isInGroup"
+                          id="isInGroup"
+                          aria-describedby="comments-description"
+                          name="isInGroup"
+                          type="checkbox"
+                          class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                        />
+                      </div>
+                      <div class="ml-3 text-sm">
+                        <label for="isInGroup" class="font-medium text-gray-700"
+                          >是否進入代理群
+                        </label>
+                      </div>
+                    </div>
+                    <div class="relative flex items-start">
+                      <div class="flex items-center h-5">
+                        <input
+                          ref="isAgentProduct"
+                          id="isAgentProduct"
+                          aria-describedby="candidates-description"
+                          name="isAgentProduct"
+                          type="checkbox"
+                          class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                        />
+                      </div>
+                      <div class="ml-3 text-sm">
+                        <label
+                          for="isAgentProduct"
+                          class="font-medium text-gray-700"
+                          >目前有無經營公司產品</label
+                        >
+                      </div>
+                    </div>
+                  </fieldset>
                 </div>
               </div>
               <div class="mt-5 sm:mt-6">

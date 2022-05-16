@@ -48,7 +48,7 @@ function showStore() {
 </script>
 <template>
   <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
-    <div class="px-2 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <div class="px-2 mx-auto sm:pl-6 lg:pl-8">
       <div class="relative flex items-center justify-between h-16">
         <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
           <!-- Mobile menu button-->
@@ -95,6 +95,12 @@ function showStore() {
           </div>
         </div>
         <div
+          class="text-white border border-white py-2 px-4 cursor-pointer rounded-lg"
+          t
+        >
+          <router-link to="/customerService">聯絡客服</router-link>
+        </div>
+        <div
           class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
         >
           <!-- Profile dropdown -->
@@ -131,6 +137,7 @@ function showStore() {
                 <MenuItem v-slot="{ active }">
                   <a
                     @click="showStore"
+                    class="hidden"
                     :class="[
                       active ? 'bg-gray-100' : '',
                       'block px-4 py-2 text-sm text-gray-700',

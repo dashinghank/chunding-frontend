@@ -190,8 +190,8 @@ function safeRound(v, n) {
                       - 可分配產品%數:
                       {{
                         Math.round(
-                          store.state.userInfo.commissionPercentage * 100
-                        ) / 1
+                          store.state.userInfo.commissionPercentage * 10000
+                        ) / 100
                       }}%</label
                     >
                   </div>
@@ -218,7 +218,10 @@ function safeRound(v, n) {
                         commissionPercentage =
                           commissionPercentage + 1 >
                           store.state.userInfo.commissionPercentage * 100
-                            ? store.state.userInfo.commissionPercentage * 100
+                            ? Math.round(
+                                store.state.userInfo.commissionPercentage *
+                                  10000
+                              ) / 100
                             : commissionPercentage + 1
                       "
                     />

@@ -54,11 +54,11 @@ async function login() {
   const isVerifiedRef = await getDocs(queryIsVerified);
   if (!isVerifiedRef.empty) {
     console.log("帳號未開通");
+    console.log("myMemberDocId.value:", myMemberDocId.value);
     isVerifiedRef.forEach((doc) => {
       myMemberDocId.value[doc.id] = doc.data();
     });
     // alert("帳號未開通");
-
     if ((Object.values(myMemberDocId.value) as any)[0].lineid == "") {
       nvIsOpen.value = true;
     } else {
