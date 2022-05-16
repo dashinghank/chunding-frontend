@@ -173,6 +173,19 @@ function clearAllInputs() {
   role.value = "";
   depth.value = -1;
 }
+
+function onCommissionPercentageChange(e: any) {
+  if (parseInt(e.target.value) > maxCommissionRef.value) {
+    console.log("over");
+    commissionPercentage.value = maxCommissionRef.value;
+  } else if (parseInt(e.target.value) < minCommissionRef.value) {
+    commissionPercentage.value = minCommissionRef.value;
+  } else {
+    commissionPercentage.value = parseInt(e.target.value);
+  }
+
+  e.target.value = commissionPercentage.value;
+}
 </script>
 
 <template>
@@ -268,35 +281,27 @@ function clearAllInputs() {
         <div class="mt-5">
           <div>
             <div class="max-w-[500px]">
-              <label
-                class="block text-sm font-medium text-gray-700"
-                v-if="role == 'admin'"
-                >上線給予此會員的產品分成%數 (管理者無上線)</label
+              <label class="block text-sm font-medium text-gray-700"
+                >可給予最高分成: {{ maxCommissionRef }}%</label
               >
-              <label v-else class="block text-sm font-medium text-gray-700"
-                >上線給予此會員的產品分成: {{ commissionPercentage }}%</label
+              <label class="block text-sm font-medium text-gray-700"
+                >可給予最低分成: {{ minCommissionRef }}%</label
+              >
+              <label class="block text-sm font-medium text-gray-700"
+                >上線目前給予此會員的產品分成:
+                {{
+                  currentSuffix != ""
+                    ? allMembersRef[currentSuffix].commissionPercentage * 100
+                    : ""
+                }}%</label
               >
 
               <div class="flex gap-2 mt-1">
                 <input
-                  type="range"
-                  :min="minCommissionRef"
-                  :max="100"
-                  class="w-[200px]"
-                  v-if="role == 'admin'"
-                  disabled
-                  :value="100"
+                  type="number"
+                  class="w-[200px] block border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  @change="onCommissionPercentageChange"
                 />
-
-                <input
-                  type="range"
-                  :min="minCommissionRef"
-                  :max="maxCommissionRef"
-                  class="w-[200px]"
-                  v-else
-                  v-model="commissionPercentage"
-                />
-                <div>{{ commissionPercentage }} %</div>
               </div>
               <label
                 class="block text-sm font-medium text-red-600"

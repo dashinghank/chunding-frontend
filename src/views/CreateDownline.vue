@@ -73,7 +73,7 @@ async function createDownline() {
     lastloginDatetime: currentDatetime,
     registerDatetime: currentDatetime,
     role: "kol",
-    urlsuffix: uid(),
+    urlsuffix: account.value,
     ancestors:
       store.state.userInfo.ancestors.length == 0
         ? [store.state.userInfo.urlsuffix]
