@@ -73,7 +73,7 @@ async function createDownline() {
     lastloginDatetime: currentDatetime,
     registerDatetime: currentDatetime,
     role: "kol",
-    urlsuffix: uid(),
+    urlsuffix: account.value,
     ancestors:
       store.state.userInfo.ancestors.length == 0
         ? [store.state.userInfo.urlsuffix]
@@ -113,17 +113,6 @@ function hasEmptyInput() {
 
 function changeCommissionPercentage(e: any) {
   commissionPercentage.value = parseInt(e.target.value);
-}
-function safeRound(v, n) {
-  if (v % 1 !== 0) {
-    v = parseFloat(v.toPrecision(15));
-  }
-  var t = Math.pow(10, n);
-  var nv = v * t;
-  if (nv % 1 !== 0) {
-    nv = parseFloat(nv.toPrecision(15));
-  }
-  return Math.round(nv) / t;
 }
 </script>
 

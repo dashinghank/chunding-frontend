@@ -21,8 +21,8 @@ const myMemberDocId: any = ref({});
 provide("myMemberDocId", myMemberDocId);
 const router = useRouter();
 const store = useStore();
-const email = ref("ggg001");
-const password = ref("123456");
+const email = ref("");
+const password = ref("");
 const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
 const db = getFirestore();
 

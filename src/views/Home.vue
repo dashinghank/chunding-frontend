@@ -38,7 +38,7 @@ async function updatePassword() {
     <div>
       <div class="font-bold text-xl">這是你的推廣網址:</div>
       <div class="bg-gray-200">
-        https://chyuinding.myshopify.com/?k={{ store.state.userInfo.urlsuffix }}
+        https://cz8888.tw/?k={{ store.state.userInfo.urlsuffix }}
       </div>
       <div class="mt-12">
         <label class="font-bold text-xl">暱稱:</label>

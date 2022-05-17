@@ -12,6 +12,7 @@ import {
 import { MenuIcon, XIcon, CogIcon } from "@heroicons/vue/outline";
 import { useRoute, useRouter } from "vue-router";
 import { onMounted } from "vue";
+import Carousel from "./Carousel.vue";
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
@@ -47,128 +48,131 @@ function showStore() {
 }
 </script>
 <template>
-  <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
-    <div class="px-2 mx-auto sm:pl-6 lg:pl-8">
-      <div class="relative flex items-center justify-between h-16">
-        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-          <!-- Mobile menu button-->
-          <DisclosureButton
-            class="inline-flex items-center justify-center p-2 text-gray-400 rounded-md hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+  <div>
+    <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
+      <!-- <Carousel /> -->
+      <div class="px-2 mx-auto sm:px-6 lg:px-8">
+        <div class="relative flex items-center justify-between h-16">
+          <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+            <!-- Mobile menu button-->
+            <DisclosureButton
+              class="inline-flex items-center justify-center p-2 text-gray-400 rounded-md hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+            >
+              <span class="sr-only">Open main menu</span>
+              <MenuIcon v-if="!open" class="block w-6 h-6" aria-hidden="true" />
+              <XIcon v-else class="block w-6 h-6" aria-hidden="true" />
+            </DisclosureButton>
+          </div>
+          <div
+            class="flex items-center justify-center flex-1 sm:items-stretch sm:justify-start"
           >
-            <span class="sr-only">Open main menu</span>
-            <MenuIcon v-if="!open" class="block w-6 h-6" aria-hidden="true" />
-            <XIcon v-else class="block w-6 h-6" aria-hidden="true" />
-          </DisclosureButton>
-        </div>
-        <div
-          class="flex items-center justify-center flex-1 sm:items-stretch sm:justify-start"
-        >
-          <router-link to="/home">
-            <div class="flex items-center flex-shrink-0">
-              <img
-                class="block w-auto h-8 lg:hidden"
-                src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg"
-                alt="Workflow"
-              />
-              <img
-                class="hidden w-auto h-8 lg:block"
-                src="https://tailwindui.com/img/logos/workflow-logo-indigo-500-mark-white-text.svg"
-                alt="Workflow"
-              />
-            </div>
-          </router-link>
-          <div class="hidden sm:block sm:ml-6">
-            <div class="flex space-x-4">
-              <router-link
-                v-for="item in navigation"
-                :class="[
-                  route.path == item.href
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                ]"
-                class="px-3 py-2 text-sm font-medium rounded-md"
-                :key="item.name"
-                :to="item.href"
-                >{{ item.name }}</router-link
-              >
+            <router-link to="/home">
+              <div class="flex items-center flex-shrink-0">
+                <img
+                  class="block w-auto h-8 lg:hidden"
+                  src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg"
+                  alt="Workflow"
+                />
+                <img
+                  class="hidden w-auto h-8 lg:block"
+                  src="https://tailwindui.com/img/logos/workflow-logo-indigo-500-mark-white-text.svg"
+                  alt="Workflow"
+                />
+              </div>
+            </router-link>
+            <div class="hidden sm:block sm:ml-6">
+              <div class="flex space-x-4">
+                <router-link
+                  v-for="item in navigation"
+                  :class="[
+                    route.path == item.href
+                      ? 'bg-gray-900 text-white'
+                      : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                  ]"
+                  class="px-3 py-2 text-sm font-medium rounded-md"
+                  :key="item.name"
+                  :to="item.href"
+                  >{{ item.name }}</router-link
+                >
+              </div>
             </div>
           </div>
-        </div>
-        <div
-          class="text-white border border-white py-2 px-4 cursor-pointer rounded-lg"
-          t
-        >
-          <router-link to="/customerService">聯絡客服</router-link>
-        </div>
-        <div
-          class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
-        >
-          <!-- Profile dropdown -->
-          <Menu as="div" class="relative ml-3">
-            <div>
-              <MenuButton
-                class="flex text-sm text-gray-400 bg-gray-800 rounded-full focus:outline-none hover:text-white"
+          <div
+            class="text-white border hidden border-white py-2 px-4 cursor-pointer rounded-lg"
+            t
+          >
+            <router-link to="/customerService">聯絡客服</router-link>
+          </div>
+          <div
+            class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
+          >
+            <!-- Profile dropdown -->
+            <Menu as="div" class="relative ml-3">
+              <div>
+                <MenuButton
+                  class="flex text-sm text-gray-400 bg-gray-800 rounded-full focus:outline-none hover:text-white"
+                >
+                  <span class="sr-only">Open user menu</span>
+                  <CogIcon class="w-6 h-6" aria-hidden="true" />
+                </MenuButton>
+              </div>
+
+              <transition
+                enter-active-class="transition duration-100 ease-out"
+                enter-from-class="transform scale-95 opacity-0"
+                enter-to-class="transform scale-100 opacity-100"
+                leave-active-class="transition duration-75 ease-in"
+                leave-from-class="transform scale-100 opacity-100"
+                leave-to-class="transform scale-95 opacity-0"
               >
-                <span class="sr-only">Open user menu</span>
-                <CogIcon class="w-6 h-6" aria-hidden="true" />
-              </MenuButton>
-            </div>
-            <transition
-              enter-active-class="transition duration-100 ease-out"
-              enter-from-class="transform scale-95 opacity-0"
-              enter-to-class="transform scale-100 opacity-100"
-              leave-active-class="transition duration-75 ease-in"
-              leave-from-class="transform scale-100 opacity-100"
-              leave-to-class="transform scale-95 opacity-0"
-            >
-              <MenuItems
-                class="absolute right-0 w-48 py-1 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-              >
-                <MenuItem v-slot="{ active }">
-                  <a
-                    @click="signout"
-                    :class="[
-                      active ? 'bg-gray-100' : '',
-                      'block px-4 py-2 text-sm text-gray-700',
-                    ]"
-                    >登出</a
-                  >
-                </MenuItem>
-                <MenuItem v-slot="{ active }">
-                  <a
-                    @click="showStore"
-                    class="hidden"
-                    :class="[
-                      active ? 'bg-gray-100' : '',
-                      'block px-4 py-2 text-sm text-gray-700',
-                    ]"
-                    >DEBUG</a
-                  >
-                </MenuItem>
-              </MenuItems>
-            </transition>
-          </Menu>
+                <MenuItems
+                  class="absolute right-0 w-48 py-1 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                >
+                  <MenuItem v-slot="{ active }">
+                    <a
+                      @click="signout"
+                      :class="[
+                        active ? 'bg-gray-100' : '',
+                        'block px-4 py-2 text-sm text-gray-700',
+                      ]"
+                      >登出</a
+                    >
+                  </MenuItem>
+                  <MenuItem v-slot="{ active }">
+                    <a
+                      @click="showStore"
+                      :class="[
+                        active ? 'bg-gray-100' : '',
+                        'block px-4 py-2 text-sm text-gray-700',
+                      ]"
+                      >DEBUG</a
+                    >
+                  </MenuItem>
+                </MenuItems>
+              </transition>
+            </Menu>
+          </div>
         </div>
       </div>
-    </div>
 
-    <DisclosurePanel class="sm:hidden">
-      <div class="px-2 pt-2 pb-3 space-y-1">
-        <DisclosureButton
-          v-for="item in navigation"
-          :key="item.name"
-          as="a"
-          :href="item.href"
-          :class="[
+      <DisclosurePanel class="sm:hidden">
+        <div class="px-2 pt-2 pb-3 space-y-1">
+          <DisclosureButton
+            v-for="item in navigation"
+            :key="item.name"
+            as="a"
+            :href="item.href"
+            :class="[
             (item as any).current
               ? 'bg-gray-900 text-white'
               : 'text-gray-300 hover:bg-gray-700 hover:text-white',
             'block px-3 py-2 rounded-md text-base font-medium',
           ]"
-          :aria-current="(item as any).current ? 'page' : undefined"
-          >{{ item.name }}</DisclosureButton
-        >
-      </div>
-    </DisclosurePanel>
-  </Disclosure>
+            :aria-current="(item as any).current ? 'page' : undefined"
+            >{{ item.name }}</DisclosureButton
+          >
+        </div>
+      </DisclosurePanel>
+    </Disclosure>
+  </div>
 </template>
