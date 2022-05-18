@@ -39,6 +39,7 @@ export default new Vuex.Store({
         role: "",
         qrCodeUrl: "",
       };
+      state.systems = {};
       state.allProducts = {};
       state.downlines = {};
       state.lastLoginDatetime = 0;
@@ -50,7 +51,7 @@ export default new Vuex.Store({
     setSystems(state, systems) {
       state.systems = systems;
     },
-    setDownlines(state, downline) {
+    setDownline(state, downline) {
       state.downlines[downline.urlsuffix] = {
         docId: downline.docId,
         urlsuffix: downline.urlsuffix,

@@ -6,17 +6,19 @@ import {
 } from "@heroicons/vue/solid";
 
 import { useStore } from "vuex";
-import { onMounted, ref, Ref } from "@vue/runtime-core";
+import { inject, onMounted, ref, Ref } from "@vue/runtime-core";
 
+const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
 const store = useStore();
 const allProducts: Ref<any> = ref({});
 
 onMounted(() => {
+  console.log("store.state.allProducts:", store.state.allProducts);
   allProducts.value = store.state.allProducts;
 });
 
 function updateProductMax(e: any) {
-  store.state.allProducts[e.target.id].max = parseFloat(
+  allProducts.value[e.target.id].max = parseFloat(
     (parseInt(e.target.value) / 100).toFixed(2)
   );
 
@@ -24,13 +26,14 @@ function updateProductMax(e: any) {
 }
 
 async function setProductMaxToDb() {
+  isShowMask.value = true;
   let promises: any[] = [];
 
   for (let key in store.state.allProducts) {
     let docRef = doc(getFirestore(), `products/${key}`);
     promises.push(
       updateDoc(docRef, {
-        max: store.state.allProducts[key].max,
+        max: parseFloat(store.state.allProducts[key].max.toFixed(2)),
       })
     );
   }
@@ -42,6 +45,7 @@ async function setProductMaxToDb() {
     console.log(e);
     alert("設定失敗");
   }
+  isShowMask.value = false;
 }
 
 function clickLeft(key: string) {
@@ -113,26 +117,20 @@ function clickRight(key: string) {
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                  <tr
-                    v-for="(item, key, index) in store.state.allProducts"
-                    :key="index"
-                  >
+                  <tr v-for="(item, key, index) in allProducts" :key="index">
                     <td
                       class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                     >
-                      {{ store.state.allProducts[key].displayName }}
+                      {{ allProducts[key].displayName }}
                     </td>
                     <td
                       class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap"
                     >
-                      {{ store.state.allProducts[key].price }}
+                      {{ allProducts[key].price }}
                     </td>
                     <td class="py-4 text-sm text-gray-500 whitespace-nowrap">
                       {{
-                        Math.ceil(
-                          store.state.allProducts[key].price *
-                            store.state.allProducts[key].max
-                        )
+                        Math.ceil(allProducts[key].price * allProducts[key].max)
                       }}
                     </td>
                     <td
@@ -149,16 +147,14 @@ function clickRight(key: string) {
                           max="100"
                           :id="key.toString()"
                           @input="updateProductMax"
-                          :value="store.state.allProducts[key].max * 100"
+                          :value="allProducts[key].max * 100"
                         />
                         <ChevronDoubleRightIcon
                           class="w-4 h-4"
                           @click="clickRight(key.toString())"
                         />
                         <div class="ml-5">
-                          {{
-                            Math.ceil(store.state.allProducts[key].max * 100)
-                          }}
+                          {{ Math.ceil(allProducts[key].max * 100) }}
                           %
                         </div>
                       </div>

@@ -1,3 +1,4 @@
+import QRCode from "qrcode";
 import "firebase/firestore";
 import "firebase/auth";
 import axios from "axios";
@@ -5,18 +6,13 @@ import axios from "axios";
 import {
   getFirestore,
   collection,
-  // addDoc,
   getDocs,
   query,
   where,
-  onSnapshot,
   getDoc,
   doc,
 } from "firebase/firestore";
 import store from ".";
-
-// import moment from "moment";
-// import ShortUniqueId from "short-unique-id";
 
 interface IProduct {
   default: number;
@@ -26,7 +22,27 @@ interface IProduct {
   vid: string;
 }
 
-// const uid = new ShortUniqueId({ length: 10 });
+export async function getMemberInfo(email: string, password: string) {
+  let db = getFirestore();
+  const memberQuery = query(
+    collection(db, "members"),
+    where("account", "==", email),
+    where("password", "==", password)
+  );
+
+  const memberSnapshot = await getDocs(memberQuery);
+  if (memberSnapshot.empty) return null;
+  var memberInfo;
+  memberSnapshot.forEach(async (doc) => {
+    memberInfo = doc.data();
+    let qrcode = await QRCode.toDataURL(
+      `https://cz8888.tw?k=${memberInfo.urlsuffix}`
+    );
+    memberInfo["docId"] = doc.id;
+    memberInfo["qrcode"] = qrcode;
+  });
+  return memberInfo;
+}
 
 //======================管理者操作==========================
 //取得下面層數的下線,depth=-1代表全部
@@ -62,10 +78,11 @@ export async function getAllProducts() {
   var products: any = {};
 
   let currentSystems = store.state.systems;
+  console.log("currentSystems:", currentSystems);
   let remotesystemsProducts = (
     await getDoc(doc(db, "systems", "products"))
   ).data() as any;
-  if (currentSystems.products == remotesystemsProducts.lastUpdateDatetime) {
+  if (currentSystems.products == remotesystemsProducts.lastUpdatedDatetime) {
     console.log("產品狀態為最新");
     products = store.state.allProducts;
   } else {
@@ -75,7 +92,7 @@ export async function getAllProducts() {
       products[doc.id] = doc.data() as IProduct;
     });
 
-    currentSystems.products = remotesystemsProducts.lastUpdateDatetime;
+    currentSystems.products = remotesystemsProducts.lastUpdatedDatetime;
     store.commit("setSystems", currentSystems);
   }
 
@@ -107,4 +124,18 @@ export async function getOrdersByDateRange(
   }
 
   return orders;
+}
+
+export async function getAllMembers() {
+  let db = getFirestore();
+  let allMembers: any = {};
+  var allMemebersSnapshot: any = await getDocs(
+    query(collection(db, "members"), where("verifiedStatus", "==", 1))
+  );
+  allMemebersSnapshot.forEach((member: any) => {
+    allMembers[member.data().urlsuffix] = {
+      id: member.id,
+      ...member.data(),
+    };
+  });
 }

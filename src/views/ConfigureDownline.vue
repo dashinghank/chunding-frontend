@@ -1,42 +1,35 @@
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
+import { inject, onMounted, Ref, ref } from "vue";
 import { useStore } from "vuex";
-import moment from "moment";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
+import { getFirestore, updateDoc, doc } from "firebase/firestore";
 
 let store = useStore();
 
 // ===== data ref =====
+const isShowMask = inject("isShowMask") as Ref<boolean>;
 let allDownlinesRef = ref();
 let currentSelectSuffix = ref("");
-// ===== input ref =====
-let selectDownlineRef = ref();
 let ancestorsRef = ref();
 let nicknameRef = ref();
 let commissionPercentageRef = ref();
+// ===== input ref =====
+let selectDownlineRef = ref();
 
 onMounted(() => {
   allDownlinesRef.value = Object.values(store.state.downlines).filter(
     (d: any) => d.depth == store.state.userInfo.depth + 1
   );
-
-  console.log(selectDownlineRef.value.value);
 });
 
 function queryDownline() {
-  console.log(selectDownlineRef.value.value);
   if (selectDownlineRef.value.value == "none") {
     alert("尚未選擇");
     return;
   }
   currentSelectSuffix.value = selectDownlineRef.value.value;
+
   let currentDownline = store.state.downlines[currentSelectSuffix.value];
+
   nicknameRef.value = currentDownline.nickname;
   ancestorsRef.value = currentDownline.ancestors;
   commissionPercentageRef.value = currentDownline.commissionPercentage * 100;
@@ -48,14 +41,18 @@ async function configureDownline() {
 
   let db = getFirestore();
   try {
+    isShowMask.value = true;
     await updateDoc(doc(db, `members/${currentDownline.docId}`), {
       nickname: nicknameRef.value,
       commissionPercentage: commissionPercentageRef.value / 100,
     });
   } catch (e: any) {
     alert("修改失敗:" + e.message);
+    isShowMask.value = false;
+
     return;
   }
+  isShowMask.value = false;
   alert("修改成功");
 }
 </script>

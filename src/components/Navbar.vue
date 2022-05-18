@@ -11,10 +11,11 @@ import {
 } from "@headlessui/vue";
 import { MenuIcon, XIcon, CogIcon } from "@heroicons/vue/outline";
 import { useRoute, useRouter } from "vue-router";
-import { onMounted } from "vue";
-import Carousel from "./Carousel.vue";
+// import Carousel from "./Carousel.vue";
+
 const route = useRoute();
 const router = useRouter();
+
 const store = useStore();
 const navigation =
   store.state.userInfo.role == "admin"
@@ -35,9 +36,7 @@ const navigation =
       ];
 
 function signout() {
-  console.log("signout");
   store.commit("setClear");
-  localStorage.clear();
   router.push("/");
 }
 

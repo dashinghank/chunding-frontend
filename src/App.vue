@@ -4,26 +4,36 @@ import Mask from "@/components/Mask.vue";
 import { useStore } from "vuex";
 import { onMounted, provide, ref } from "vue";
 import { getAllProducts, getAllDownlines } from "@/store/firebaseControl";
-import { useRouter, useRoute } from "vue-router";
+import { useRoute } from "vue-router";
 import axios from "axios";
+
 const store = useStore();
 const route = useRoute();
+
+// ----data ref----
 const isShowMask = ref(false);
-provide("isShowMask", isShowMask);
-const qrCodeUrl = ref("");
-provide("qrCodeUrl", qrCodeUrl);
 const shorterUrl = ref("");
+const qrCodeUrl = ref("");
+
+provide("isShowMask", isShowMask);
+provide("qrCodeUrl", qrCodeUrl);
 provide("shorterUrl", shorterUrl);
+
 onMounted(async () => {
   try {
     isShowMask.value = true;
+    //將 shopify 的訂單資料 update 到 firebase
     await axios.post(
       "https://shopify-api-nine.vercel.app/api/updateAllOrders",
       {
         withoutdelay: false,
       }
     );
-    if (store.state.userInfo.urlsuffix != "" && route.name != "Login") {
+
+    let currentUser = store.state.userInfo;
+
+    // 現在已有使用者登入且不再登入頁面，重新整理時更新資料
+    if (currentUser.urlsuffix != "" && route.name != "Login") {
       var allProducts = await getAllProducts();
       store.commit("setAllProducts", allProducts);
 
@@ -31,12 +41,14 @@ onMounted(async () => {
         [{ urlsuffix: store.state.userInfo.urlsuffix }],
         store.state.userInfo.role == "admin" ? -1 : 2
       );
+
       if (downlines.length > 0) {
         downlines.forEach((downline: any) => {
-          store.commit("setDownlines", downline);
+          store.commit("setDownline", downline);
         });
       }
     }
+
     isShowMask.value = false;
   } catch (e) {
     console.log(e);

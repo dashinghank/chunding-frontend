@@ -3,10 +3,14 @@ import { onMounted, ref, nextTick } from "vue";
 import gsap from "gsap";
 import { getFirestore, getDocs, collection } from "firebase/firestore";
 
+const db = getFirestore();
+
+//----data ref----
+const carousels = ref([]);
+
+//----element ref----
 const carouselRoot = ref();
 const carouselItem = ref();
-const carousels = ref([]);
-const db = getFirestore();
 
 onMounted(async () => {
   let carouselsQuery = await getDocs(collection(db, "carousels"));
@@ -15,12 +19,12 @@ onMounted(async () => {
   });
 
   nextTick(() => {
-    console.log(carouselItem.value.clientWidth);
     let tl = gsap.timeline({ repeat: -1, repeatDelay: 40 });
 
     tl.set(carouselItem.value, {
       x: carouselItem.value.clientWidth,
     });
+
     tl.to(carouselRoot.value, { opacity: 100, duration: 1 });
 
     tl.to(carouselItem.value, {

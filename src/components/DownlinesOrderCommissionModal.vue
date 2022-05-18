@@ -1,31 +1,21 @@
 <script setup lang="ts">
-import { onMounted, Ref, ref } from "vue";
-import { Chart, registerables } from "chart.js";
-import { useStore } from "vuex";
-
+import { Ref } from "vue";
 import {
   Dialog,
   DialogPanel,
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-
 import { inject } from "vue";
-Chart.register(...registerables);
-const store = useStore();
 
 const commissionDetail = inject("commissionDetail") as Ref<any>;
-const open = inject("dsIsOpen") as Ref<boolean>;
-const allMembers = inject("allMembers") as Ref<any>;
-onMounted(() => {
-  console.log("donwlineCOM in");
-  console.log(store.state.downlines);
-  console.log(allMembers.value);
-});
+const isDetailOpen = inject("isDetailOpen") as Ref<boolean>;
+//自己所有的下線加上自己
+const allFamilyMembers = inject("allFamilyMembers") as Ref<any>;
 </script>
 <template>
-  <TransitionRoot as="template" :show="open">
-    <Dialog as="div" class="relative z-10" @close="open = false">
+  <TransitionRoot as="template" :show="isDetailOpen">
+    <Dialog as="div" class="relative z-10" @close="isDetailOpen = false">
       <TransitionChild
         as="template"
         enter="ease-out duration-300"
@@ -63,13 +53,15 @@ onMounted(() => {
               class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6"
             >
               <div v-for="(com, key, index) in commissionDetail" :key="index">
-                <div class="p-1">{{ allMembers[key].nickname }}:{{ com }}</div>
+                <div class="p-1">
+                  {{ allFamilyMembers[key].nickname }}:{{ com }}
+                </div>
               </div>
               <div class="mt-5 sm:mt-6">
                 <button
                   type="button"
                   class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
-                  @click="open = false"
+                  @click="isDetailOpen = false"
                 >
                   關閉
                 </button>

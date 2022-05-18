@@ -1,15 +1,7 @@
 <script setup lang="ts">
-import { onMounted, Ref, ref } from "vue";
+import { Ref, ref } from "vue";
 import { Chart, registerables } from "chart.js";
-import { useStore } from "vuex";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  updateDoc,
-  doc,
-  query,
-} from "firebase/firestore";
+import { getFirestore, updateDoc, doc } from "firebase/firestore";
 import {
   Dialog,
   DialogPanel,
@@ -18,28 +10,22 @@ import {
 } from "@headlessui/vue";
 
 import { inject } from "vue";
-import { tryStatement } from "@babel/types";
 Chart.register(...registerables);
-const store = useStore();
 const db = getFirestore();
+
+//---- data ref ----
+const currentMember = inject("currentMember") as any;
+const isVeriflyInfoFormOpen = inject("isVeriflyInfoFormOpen") as Ref<boolean>;
+
+//---- input ref ----
 const phonenumber = ref();
 const lineid = ref();
 const kolname = ref();
 const instaId = ref();
 const isInGroup = ref();
 const isAgentProduct = ref();
-const myMemberDocId = inject("myMemberDocId") as any;
-const open = inject("nvIsOpen") as Ref<boolean>;
-onMounted(() => {
-  console.log("donwlineCOM in");
-  console.log(store.state);
-});
+
 async function setKolVeriflyData() {
-  console.log("setKolVeriflyData");
-  console.log("lineid:", lineid.value.value);
-  console.log("phonenumber:", phonenumber.value.value);
-  console.log("kolname:", kolname.value.value);
-  console.log("myMemberDocId:", myMemberDocId.value);
   if (
     lineid.value.value == "" ||
     phonenumber.value.value == "" ||
@@ -49,7 +35,9 @@ async function setKolVeriflyData() {
     return;
   }
   try {
-    await updateDoc(doc(db, `members/${Object.keys(myMemberDocId.value)[0]}`), {
+    await updateDoc(doc(db, `members/${currentMember.value.docId}`), {
+      // 2為驗證中
+      verifiedStatus: 2,
       instaId: instaId.value.value,
       lineid: lineid.value.value,
       phonenumber: phonenumber.value.value,
@@ -57,17 +45,21 @@ async function setKolVeriflyData() {
       isAgentProduct: isAgentProduct.value.checked,
       isInGroup: isInGroup.value.checked,
     });
-    open.value = false;
     alert("送出資料成功");
   } catch (error) {
     console.log("error:", error);
     alert("送出資料失敗");
   }
+  isVeriflyInfoFormOpen.value = false;
 }
 </script>
 <template>
-  <TransitionRoot as="template" :show="open">
-    <Dialog as="div" class="relative z-10" @close="open = false">
+  <TransitionRoot as="template" :show="isVeriflyInfoFormOpen">
+    <Dialog
+      as="div"
+      class="relative z-10"
+      @close="isVeriflyInfoFormOpen = false"
+    >
       <TransitionChild
         as="template"
         enter="ease-out duration-300"

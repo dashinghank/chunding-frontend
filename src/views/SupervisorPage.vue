@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, Ref } from "vue";
+import { inject, onMounted, ref, Ref } from "vue";
 import { getDoughnut, destroyChart } from "../store/doughnut";
 import {
   addDoc,
@@ -14,11 +14,15 @@ import {
 } from "firebase/firestore";
 import { useStore } from "vuex";
 
-// ===== db refs =====
 var db = getFirestore();
 const store = useStore();
+// ===== data refs =====
 const allMembersRef: Ref<any> = ref({});
 const currentSuffix: Ref<string> = ref("");
+const currentDownlinesRef = ref<any[]>([]);
+const allCarousels: any = ref({});
+const carouselContent = ref("");
+const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
 //分成公式, 詳細列出每家可分成的%數
 const commissionFormulaRef: Ref<any[]> = ref([]);
 const maxCommissionRef: Ref<number> = ref(0);
@@ -31,7 +35,6 @@ const urlsuffix = ref("");
 const commissionPercentage = ref(0);
 const role = ref("");
 const depth = ref(-1);
-const downlinesRef = ref<any[]>([]);
 const downlineSelectRef = ref();
 
 // ===== canvas refs =====
@@ -40,13 +43,12 @@ const doughnutCanvas = ref();
 // ===== example refs =====
 const exampleSuffixs = ref();
 
-const allCarousels: any = ref({});
-const carouselContext = ref("");
 onMounted(async () => {
   if (Object.values(allMembersRef.value).length == 0) {
     var allMemebersSnapshot: any = await getDocs(
-      query(collection(db, "members"), where("isVerified", "==", true))
+      query(collection(db, "members"), where("verifiedStatus", "==", 1))
     );
+
     allMemebersSnapshot.forEach((member: any) => {
       allMembersRef.value[member.data().urlsuffix] = {
         id: member.id,
@@ -60,7 +62,6 @@ onMounted(async () => {
 
 // 取得所有跑馬燈
 async function getAllCarousels() {
-  console.log("getAllCarousels");
   allCarousels.value = {};
   var allCarouselsSnapshot = await getDocs(collection(db, "carousels"));
   allCarouselsSnapshot.forEach((d) => {
@@ -71,15 +72,15 @@ async function getAllCarousels() {
 
 //新增跑馬燈
 async function addCarousel() {
-  if (carouselContext.value == "") {
+  if (carouselContent.value == "") {
     alert("請輸入跑馬燈內容");
   } else {
-    console.log(carouselContext.value);
+    console.log(carouselContent.value);
     try {
       await addDoc(collection(db, "carousels"), {
         startDatetime: 0,
         endDatetime: 1,
-        msg: carouselContext.value,
+        msg: carouselContent.value,
       });
 
       await getAllCarousels();
@@ -108,16 +109,17 @@ async function deleteCarousel(docId: string) {
 
 //做到選擇上線後還要設定下線的人選
 function onUplineChange(e: any) {
-  downlinesRef.value = [];
+  currentDownlinesRef.value = [];
+  downlineSelectRef.value.value = "none";
   destroyChart();
   Object.values(allMembersRef.value).forEach((member: any) => {
     if (member.parent == e.target.value) {
-      downlinesRef.value.push(member);
+      currentDownlinesRef.value.push(member);
     }
   });
 
-  downlinesRef.value.push(allMembersRef.value[e.target.value]);
-  downlineSelectRef.value.value = "none";
+  //把自己也當成下線
+  currentDownlinesRef.value.push(allMembersRef.value[e.target.value]);
   clearAllInputs();
 }
 
@@ -129,7 +131,6 @@ function onDownlineChangeClick(e: any) {
 function onDownlineChange(suffix: string) {
   let member = allMembersRef.value[suffix];
 
-  console.log("change", member);
   nickname.value = member.nickname;
   password.value = member.password;
   urlsuffix.value = member.urlsuffix;
@@ -145,6 +146,7 @@ function onDownlineChange(suffix: string) {
       allMembersRef.value[member.ancestors[i]].commissionPercentage
     );
   }
+
   //把自己加進去
   commissionFormulaRef.value.push(member.commissionPercentage);
 
@@ -175,7 +177,6 @@ function onDownlineChange(suffix: string) {
     commissionFormulaRef.value
   );
 
-  console.log("commissionFormulaRef", commissionFormulaRef.value);
   //取得目前會員可取得最大分成, 即自己父親的分成
   if (store.state.userInfo.urlsuffix != currentSuffix.value) {
     maxCommissionRef.value =
@@ -197,6 +198,7 @@ function onDownlineChange(suffix: string) {
 
 async function onSubmit() {
   try {
+    isShowMask.value = true;
     await updateDoc(
       doc(db, `members/${allMembersRef.value[currentSuffix.value].id}`),
       {
@@ -207,8 +209,12 @@ async function onSubmit() {
     );
   } catch (e: any) {
     alert("修改失敗:" + e.message);
+    isShowMask.value = false;
+
     return;
   }
+  isShowMask.value = false;
+
   alert("修改成功");
   destroyChart();
   allMembersRef.value[currentSuffix.value].nickname = nickname.value;
@@ -260,7 +266,7 @@ function onCommissionPercentageChange(e: any) {
         </template>
       </select>
     </div>
-    <div class="w-1/4 mt-5" v-show="downlinesRef.length > 0">
+    <div class="w-1/4 mt-5" v-show="currentDownlinesRef.length > 0">
       <label for="location" class="block text-sm font-medium text-gray-700"
         >選擇下線 (或自己)</label
       >
@@ -270,7 +276,10 @@ function onCommissionPercentageChange(e: any) {
         ref="downlineSelectRef"
       >
         <option disabled selected hidden value="none">尚未選擇</option>
-        <template v-for="(member, key, index) in downlinesRef" :key="index">
+        <template
+          v-for="(member, key, index) in currentDownlinesRef"
+          :key="index"
+        >
           <option :value="member.urlsuffix">
             {{ member.nickname }}
           </option>
@@ -457,7 +466,7 @@ function onCommissionPercentageChange(e: any) {
           <div class="mt-1">
             <textarea
               rows="5"
-              v-model="carouselContext"
+              v-model="carouselContent"
               class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
             />
           </div>

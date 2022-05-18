@@ -6,21 +6,17 @@ import {
   getDocs,
   query,
   where,
-  updateDoc,
-  doc,
 } from "firebase/firestore";
 import {
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
 } from "@heroicons/vue/solid";
-import ShortUniqueId from "short-unique-id";
-import { onMounted, ref, Ref, inject } from "vue";
+import { ref, Ref, inject } from "vue";
 import { useStore } from "vuex";
 import moment from "moment";
 
 const store = useStore();
 var db = getFirestore();
-const uid = new ShortUniqueId({ length: 10 });
 
 //==== input ref ====
 const account = ref("");
@@ -31,28 +27,17 @@ const commissionPercentage = ref(0);
 //==== data ref ====
 var isShowMask = inject("isShowMask") as Ref<boolean>;
 
-onMounted(async () => {
-  console.log(store.state);
-  await addVerified();
-});
-
-async function addVerified() {
-  console.log("member");
-  let memberQuery = query(collection(db, "members"));
-  let memberDocs = await getDocs(memberQuery);
-  memberDocs.forEach(async (d) => {
-    console.log(d.id);
-  });
-}
-
 async function createDownline() {
+  isShowMask.value = true;
   if (await checkDuplicateAccount()) {
     alert("帳號重複");
+    isShowMask.value = false;
     return;
   }
 
   if (hasEmptyInput()) {
     alert("請輸入完整資料");
+    isShowMask.value = false;
     return;
   }
 
@@ -66,11 +51,12 @@ async function createDownline() {
     ),
     depth: store.state.userInfo.depth + 1,
     islocked: false,
-    isVerified: false,
+    // -1: 驗證失敗, 0: 未驗證, 1: 驗證成功, 2: 驗證中
+    verifiedStatus: 0,
     kolname: "",
     lineid: "",
     phonenumber: "",
-    lastloginDatetime: currentDatetime,
+    lastLoginDatetime: currentDatetime,
     registerDatetime: currentDatetime,
     role: "kol",
     urlsuffix: account.value,
@@ -82,16 +68,16 @@ async function createDownline() {
   };
 
   try {
-    isShowMask.value = true;
     await addDoc(collection(db, "members"), newDownline);
   } catch (e) {
     alert("新增失敗");
+    isShowMask.value = false;
     return;
   }
 
   alert("新增成功");
   isShowMask.value = false;
-  store.commit("setDownlines", newDownline);
+  store.commit("setDownline", newDownline);
   // store.state.downlines[newDownline.urlsuffix] = newDownline;
 }
 

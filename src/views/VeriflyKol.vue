@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, Ref } from "vue";
-import { getDoughnut, destroyChart } from "../store/doughnut";
+import { inject, onMounted, ref, Ref } from "vue";
 import {
   getFirestore,
   collection,
@@ -11,7 +10,12 @@ import {
   query,
 } from "firebase/firestore";
 var db = getFirestore();
+
 const allNotVerifiedMember: Ref<any> = ref({});
+
+const isShowMask = inject("isShowMask") as Ref<boolean>;
+
+//----input ref----
 const name = ref("");
 const line = ref("");
 const insta = ref("");
@@ -34,10 +38,11 @@ function onKolChange(e: any) {
   selectedUrlsuffix.value = e.target.value;
 }
 async function getAllNotVerifiedMember() {
-  var allMemebersSnapshot: any = await getDocs(
-    query(collection(db, "members"), where("isVerified", "==", false))
+  //verifiedStatus 2 為驗證中
+  var allNotVerifiedMembersSnapshot: any = await getDocs(
+    query(collection(db, "members"), where("verifiedStatus", "==", 2))
   );
-  allMemebersSnapshot.forEach((member: any) => {
+  allNotVerifiedMembersSnapshot.forEach((member: any) => {
     allNotVerifiedMember.value[member.data().urlsuffix] = {
       id: member.id,
       ...member.data(),
@@ -45,24 +50,46 @@ async function getAllNotVerifiedMember() {
   });
 }
 async function verifly() {
-  console.log("verifly");
   if (confirm("是否確定通過驗證?")) {
+    isShowMask.value = true;
     try {
-      await updateDoc(
-        doc(
-          db,
-          `members/${allNotVerifiedMember.value[selectedUrlsuffix.value].id}`
-        ),
-        {
-          isVerified: true,
-        }
-      );
+      let selectedMember = allNotVerifiedMember.value[selectedUrlsuffix.value];
+      await updateDoc(doc(db, `members/${selectedMember.id}`), {
+        // 1 代表通過驗證
+        verifiedStatus: 1,
+      });
     } catch (e: any) {
       alert("修改失敗:" + e.message);
+      isShowMask.value = false;
+
       return;
     }
     await getAllNotVerifiedMember();
+    isShowMask.value = false;
     alert("修改成功");
+  }
+}
+
+async function rejectApplication() {
+  if (confirm("是否確定拒絕驗證?")) {
+    isShowMask.value = true;
+
+    let selectedMember = allNotVerifiedMember.value[selectedUrlsuffix.value];
+
+    try {
+      await updateDoc(doc(db, `members/${selectedMember.id}`), {
+        //-1代表拒絕審核通過
+        verifiedStatus: -1,
+      });
+    } catch (e: any) {
+      alert("資料傳送失敗:" + e.message);
+      isShowMask.value = false;
+
+      return;
+    }
+    await getAllNotVerifiedMember();
+    isShowMask.value = false;
+    alert("已拒絕審核通過");
   }
 }
 </script>
@@ -84,7 +111,7 @@ async function verifly() {
           <option
             v-for="(member, key, index) in allNotVerifiedMember"
             :value="key"
-            :key="key"
+            :key="index"
           >
             {{ member.nickname }}
           </option>
@@ -191,14 +218,23 @@ async function verifly() {
         </fieldset>
       </div>
     </div>
-    <div class="mt-4">
-      <button
-        type="button"
-        @click="verifly"
-        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-      >
-        驗證
-      </button>
+    <div class="mt-4 flex gap-5">
+      <template v-if="selectedUrlsuffix != ''">
+        <button
+          type="button"
+          @click="verifly"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          驗證
+        </button>
+        <button
+          type="button"
+          @click="rejectApplication"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+        >
+          審核不予通過
+        </button>
+      </template>
     </div>
   </div>
 </template>

@@ -1,142 +1,116 @@
 <script setup lang="ts">
-import QRCode from "qrcode";
 import { LockClosedIcon } from "@heroicons/vue/solid";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import "firebase/firestore";
 import "firebase/auth";
 import { ref, Ref, inject, onMounted, provide } from "vue";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
 import NotVerified from "@/components/NotVerified.vue";
-import { getAllProducts, getAllDownlines } from "@/store/firebaseControl";
-const nvIsOpen = ref(false);
-provide("nvIsOpen", nvIsOpen);
-const myMemberDocId: any = ref({});
-provide("myMemberDocId", myMemberDocId);
+import {
+  getAllProducts,
+  getAllDownlines,
+  getMemberInfo,
+} from "@/store/firebaseControl";
+
 const router = useRouter();
 const store = useStore();
+
+//----data ref ----
+const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
+const isVeriflyInfoFormOpen = ref(false);
+const currentMember: any = ref({});
 const email = ref("");
 const password = ref("");
-const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
-const db = getFirestore();
+
+provide("isVeriflyInfoFormOpen", isVeriflyInfoFormOpen);
+provide("currentMember", currentMember);
 
 onMounted(async () => {
   store.commit("setClear");
-  console.log("login in");
-  console.log(store.state);
 });
 
 async function login() {
-  console.log("login");
-
-  isShowMask.value = true;
-
-  localStorage.clear();
-  let userInfo: any = {};
   if (email.value == "" || password.value == "") {
     alert("請輸入帳號、密碼");
     return;
   }
+  isShowMask.value = true;
 
-  const queryIsVerified = query(
-    collection(db, "members"),
-    where("isVerified", "==", false),
-    where("account", "==", email.value),
-    where("password", "==", password.value)
-  );
-  //檢查是否為開通
-  const isVerifiedRef = await getDocs(queryIsVerified);
-  if (!isVerifiedRef.empty) {
-    console.log("帳號未開通");
-    console.log("myMemberDocId.value:", myMemberDocId.value);
-    isVerifiedRef.forEach((doc) => {
-      myMemberDocId.value[doc.id] = doc.data();
-    });
-    // alert("帳號未開通");
-    if ((Object.values(myMemberDocId.value) as any)[0].lineid == "") {
-      nvIsOpen.value = true;
-    } else {
-      console.log("veriflyData is exist");
-      alert("管理員審核中 請耐心等待");
-    }
-  } else {
-    const queryUser = query(
-      collection(db, "members"),
-      where("isVerified", "==", true),
-      where("account", "==", email.value),
-      where("password", "==", password.value)
-    );
+  currentMember.value = (await getMemberInfo(
+    email.value,
+    password.value
+  )) as any;
 
-    //取得使用者資訊並存取
-    const userRef = await getDocs(queryUser);
-    if (!userRef.empty) {
-      userRef.forEach(async (doc) => {
-        userInfo = doc.data();
-        let tempQrcode = await QRCode.toDataURL(
-          `https://chyuinding.myshopify.com/?kolsuffix=${userInfo.urlsuffix}`
-        );
-
-        store.commit("setUserInfo", {
-          docId: doc.id,
-          ancestors: userInfo.ancestors,
-          nickname: userInfo.nickname,
-          urlsuffix: userInfo.urlsuffix,
-          commissionPercentage: userInfo.commissionPercentage,
-          registerDatetime: userInfo.registerDatetime,
-          depth: userInfo.depth,
-          parent: userInfo.parent,
-          role: userInfo.role,
-          qrCodeUrl: tempQrcode,
-        });
-      });
-
-      var allProducts = await getAllProducts();
-      store.commit("setAllProducts", allProducts);
-
-      var downlines: any = await getAllDownlines(
-        [{ urlsuffix: store.state.userInfo.urlsuffix }],
-        store.state.userInfo.role == "admin" ? -1 : 2
-      );
-
-      if (downlines.length > 0) {
-        downlines.forEach((downline: any) => {
-          store.commit("setDownlines", downline);
-        });
-      }
-
-      // console.log("vuex:", store.state);
-      router.push("/home");
-    } else {
-      alert("帳號密碼錯誤");
-    }
+  let isValid = await checkMemberValid();
+  if (!isValid) {
+    isShowMask.value = false;
+    return;
   }
+
+  store.commit("setUserInfo", {
+    docId: currentMember.value.id,
+    ancestors: currentMember.value.ancestors,
+    nickname: currentMember.value.nickname,
+    urlsuffix: currentMember.value.urlsuffix,
+    commissionPercentage: currentMember.value.commissionPercentage,
+    registerDatetime: currentMember.value.registerDatetime,
+    depth: currentMember.value.depth,
+    parent: currentMember.value.parent,
+    role: currentMember.value.role,
+    qrCodeUrl: currentMember.value.qrcode,
+  });
+
+  //取得使用者資訊並存取
+  var allProducts = await getAllProducts();
+  store.commit("setAllProducts", allProducts);
+
+  //取得下面層數的下線,depth=-1代表全部 2代表幾層
+  var downlines: any = await getAllDownlines(
+    [{ urlsuffix: store.state.userInfo.urlsuffix }],
+    -1
+  );
+  // var downlines: any = await getAllDownlines(
+  //   [{ urlsuffix: store.state.userInfo.urlsuffix }],
+  //   store.state.userInfo.role == "admin" ? -1 : 2
+  // );
+  if (downlines.length > 0) {
+    console.log("downlines", downlines);
+    downlines.forEach((downline: any) => {
+      store.commit("setDownline", downline);
+    });
+  }
+  router.push("/home");
   isShowMask.value = false;
 }
 
-async function generateQR(text: any) {
-  try {
-    console.log(await QRCode.toDataURL(text));
-  } catch (err) {
-    console.error(err);
+async function checkMemberValid() {
+  if (currentMember.value == null) {
+    alert("帳號或密碼錯誤");
+    return false;
+  }
+
+  switch (currentMember.value.verifiedStatus) {
+    case -1:
+      alert("帳號驗證失敗，請聯繫客服人員");
+      return false;
+
+    case 0:
+      // alert("帳號尚未驗證");
+      isVeriflyInfoFormOpen.value = true;
+      return false;
+
+    case 1:
+      // alert("帳號驗證成功");
+      return true;
+
+    case 2:
+      alert("帳號驗證中");
+      return false;
   }
 }
 </script>
 
 <template>
-  <!--
-    This example requires updating your template:
-
-    ```
-    <html class="h-full bg-gray-50">
-    <body class="h-full">
-    ```
-  -->
   <div class="items-center justify-center w-full h-screen">
     <NotVerified />
     <div
@@ -152,23 +126,13 @@ async function generateQR(text: any) {
           <h2 class="mt-6 text-3xl font-extrabold text-center text-gray-900">
             登入頁面
           </h2>
-
-          <!-- <p class="mt-2 text-sm text-center text-gray-600">
-          Or
-          {{ " " }}
-          <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
-            start your 14-day free trial
-          </a>
-        </p> -->
         </div>
         <form class="mt-8 space-y-6" action="#" method="POST">
           <input type="hidden" name="remember" value="true" />
           <div class="-space-y-px rounded-md shadow-sm">
             <div>
-              <label for="email-address" class="sr-only">Email address</label>
+              <label class="sr-only">Email address</label>
               <input
-                id="email-address"
-                name="email"
                 type="email"
                 autocomplete="email"
                 required
@@ -178,10 +142,8 @@ async function generateQR(text: any) {
               />
             </div>
             <div>
-              <label for="password" class="sr-only">Password</label>
+              <label class="sr-only">Password</label>
               <input
-                id="password"
-                name="password"
                 type="password"
                 autocomplete="current-password"
                 required

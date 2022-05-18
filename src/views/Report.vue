@@ -3,7 +3,6 @@ import { ref, provide, onMounted, inject, Ref } from "vue";
 import { getOrdersByDateRange } from "@/store/firebaseControl";
 import { useStore } from "vuex";
 import moment from "moment";
-import { getFirestore } from "firebase/firestore";
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import DownlinesOrderCommissionModal from "@/components/DownlinesOrderCommissionModal.vue";
@@ -11,7 +10,7 @@ import { Chart, registerables } from "chart.js";
 import _, { parseInt } from "lodash";
 
 Chart.register(...registerables);
-
+//----input ref----
 const startDate: any = ref(
   new Date(
     parseInt(moment().format("YYYY")),
@@ -19,41 +18,39 @@ const startDate: any = ref(
     1
   )
 );
-const dsIsOpen = ref(false);
-const commissionDetail: any = ref({});
 const endDate: any = ref(new Date());
-const db = getFirestore();
-const store = useStore();
 const queryOrderTarget: any = ref();
-const orders: any = ref([]);
-const allMembers = ref();
+
+//---- data ref ----
+const commissionDetail: any = ref({});
 const isShowMask = inject("isShowMask") as Ref<boolean>;
-provide("dsIsOpen", dsIsOpen);
+//自己所有的下線加上自己
+const allFamilyMembers = ref();
+const currentOrders: any = ref([]);
+const isDetailOpen = ref(false);
+
+const store = useStore();
+
+provide("isDetailOpen", isDetailOpen);
 provide("commissionDetail", commissionDetail);
-provide("allMembers", allMembers);
+provide("allFamilyMembers", allFamilyMembers);
+
 onMounted(() => {
-  allMembers.value = { ...store.state.downlines };
-  allMembers.value[store.state.userInfo.urlsuffix] = store.state.userInfo;
-  console.log(allMembers.value);
+  allFamilyMembers.value = { ...store.state.downlines };
+  allFamilyMembers.value[store.state.userInfo.urlsuffix] = store.state.userInfo;
 });
+
 function checkDownlineCommission(order: any) {
-  console.log("order:", order);
   let interSectionUrlsuffixs = _.intersection(
-    Object.keys(allMembers.value),
+    Object.keys(allFamilyMembers.value),
     Object.keys(order.totalCommissions)
   );
 
-  console.log("=================================");
-  console.log(order.totalCommissions);
-  console.log("=================================");
-  console.log(interSectionUrlsuffixs);
-  console.log("=================================");
   interSectionUrlsuffixs.forEach((suffix) => {
     commissionDetail.value[suffix] = order.totalCommissions[suffix];
   });
 
-  console.log("commissionDetail.value :", commissionDetail.value);
-  dsIsOpen.value = !dsIsOpen.value;
+  isDetailOpen.value = !isDetailOpen.value;
 }
 
 async function queryOrder() {
@@ -63,35 +60,45 @@ async function queryOrder() {
   }
 
   isShowMask.value = true;
-  console.log(queryOrderTarget.value.value);
-  orders.value = [];
+  currentOrders.value = [];
+  //查詢對象
   let targets = [];
 
   if (queryOrderTarget.value.value == "all") {
-    targets = Object.keys(allMembers.value);
+    targets = Object.keys(allFamilyMembers.value);
     if (store.state.userInfo.role == "admin") {
+      //urlsuffix為 none時，代表客戶不是透過kol推廣網址來購買的
       targets.push("none");
     }
   } else {
     targets.push(queryOrderTarget.value.value);
   }
 
-  let tempOrders = await getOrdersByDateRange(
+  let tempAllMembersOrders = await getOrdersByDateRange(
     targets,
     moment(startDate.value).valueOf(),
     moment(endDate.value).valueOf()
   );
-  tempOrders = Object.values(tempOrders);
-  tempOrders.forEach((o: any) => {
-    orders.value = [...orders.value, ...o];
+
+  /*tempAllMembersOrders 的 example :
+  {
+    test001: [{ ...order1 }, { ...order2 }],
+    test002: [{ ...order3 }],
+  };
+  */
+  //這裡的是為了把 tempAllMembersOrders 變成 [order1,order2,order3],再將這個值存入 currentOrders;
+  let tempAllOrders = Object.values(tempAllMembersOrders);
+  tempAllOrders.forEach((orders: any) => {
+    currentOrders.value = [...currentOrders.value, ...orders];
   });
 
-  if (orders.value.length < 1) {
+  if (currentOrders.value.length < 1) {
     alert("查無訂單");
   }
 
   if (store.state.userInfo.role == "admin") {
-    orders.value.forEach((o: any, i: number) => {
+    currentOrders.value.forEach((o: any, i: number) => {
+      //此訂單所有下線可取得的最高分成
       let commissionMax: number = 0;
       let orderItems = Object.values(o.items);
       let totalProfit = 0;
@@ -99,33 +106,29 @@ async function queryOrder() {
       orderItems.forEach((item: any) => {
         commissionMax += item.price * item.max * item.quantity;
       });
-      console.log("max:", commissionMax);
-      console.log("mine:", o.totalCommissions[store.state.userInfo.urlsuffix]);
-
+      //公司獲利 = 訂單金額 - 此訂單所有下線可取得的最高分成 + ADMIN 的分成
       totalProfit =
         parseInt(o.amount) -
         commissionMax +
         o.totalCommissions[store.state.userInfo.urlsuffix];
-      console.log("訂單盈餘:", totalProfit);
-      orders.value[i]["totalProfit"] = totalProfit;
+
+      currentOrders.value[i]["totalProfit"] = totalProfit;
     });
   }
-  Object.keys(allMembers.value).forEach((member) => {
-    var memberCommission = 0;
-    orders.value.forEach((order: any) => {
-      if (order.totalCommissions[member]) {
-        console.log(member, ":", order.totalCommissions[member]);
-        memberCommission += parseInt(order.totalCommissions[member]);
-      }
+  //如果是 KOL 登入
+  else {
+    Object.keys(allFamilyMembers.value).forEach((member) => {
+      //特定 kol 可在此單下得到的分成
+      let memberCommission = 0;
+      currentOrders.value.forEach((order: any) => {
+        if (order.totalCommissions[member]) {
+          memberCommission += parseInt(order.totalCommissions[member]);
+        }
+      });
+      allFamilyMembers.value[member]["commission"] = memberCommission;
     });
-    console.log("現在會員:", member, ":", memberCommission);
-    allMembers.value[member]["commission"] = memberCommission;
-  });
-  console.log("order:", orders.value);
-  console.log("allMembers:", allMembers.value);
-
-  console.log("orders:", orders.value);
-  orders.value = _.orderBy(orders.value, "createdAt", "desc");
+  }
+  currentOrders.value = _.orderBy(currentOrders.value, "createdAt", "desc");
   isShowMask.value = false;
 }
 </script>
@@ -152,7 +155,7 @@ async function queryOrder() {
             <option value="all">查詢全部</option>
 
             <option
-              v-for="(member, key) in allMembers"
+              v-for="(member, key) in allFamilyMembers"
               :value="member.urlsuffix"
               :key="key"
             >
@@ -252,7 +255,7 @@ async function queryOrder() {
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200">
-                    <tr v-for="(order, index) in orders" :key="index">
+                    <tr v-for="(order, index) in currentOrders" :key="index">
                       <td
                         class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                       >
@@ -264,7 +267,7 @@ async function queryOrder() {
                         {{
                           order.urlsuffix == "none"
                             ? "自然流量"
-                            : allMembers[order.urlsuffix].nickname
+                            : allFamilyMembers[order.urlsuffix].nickname
                         }}
                       </td>
                       <td
@@ -301,7 +304,7 @@ async function queryOrder() {
         </div>
       </div>
 
-      <div class="mt-12" v-show="orders.length > 0">
+      <div class="mt-12" v-show="currentOrders.length > 0">
         <div class="sm:flex sm:items-center">
           <div class="sm:flex-auto">
             <h1 class="text-xl font-semibold text-gray-900">會員資訊</h1>
@@ -343,7 +346,10 @@ async function queryOrder() {
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200">
-                    <tr v-for="(member, index) in allMembers" :key="index">
+                    <tr
+                      v-for="(member, index) in allFamilyMembers"
+                      :key="index"
+                    >
                       <td
                         class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6"
                       >
