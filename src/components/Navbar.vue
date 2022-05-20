@@ -17,23 +17,63 @@ const route = useRoute();
 const router = useRouter();
 
 const store = useStore();
-const navigation =
-  store.state.userInfo.role == "admin"
-    ? [
-        // { name: "個人資訊", href: "/home" },
-        { name: "管理者頁面", href: "/supervisorPage" },
-        { name: "建立下線", href: "/createDownline" },
-        // { name: "調整下線", href: "/ConfigureDownline" },
-        { name: "商品調整頁", href: "/products" },
-        { name: "訂單頁面", href: "/report" },
-        { name: "驗證KOL", href: "/veriflyKol" },
-      ]
-    : [
-        // { name: "個人資訊", href: "/home" },
-        { name: "建立下線", href: "/createDownline" },
-        { name: "調整下線", href: "/ConfigureDownline" },
-        { name: "訂單頁面", href: "/report" },
-      ];
+var navigation: any;
+switch (store.state.userInfo.role) {
+  case "admin":
+    navigation = [
+      { name: "管理者頁面", href: "/supervisorPage" },
+      { name: "建立下線", href: "/createDownline" },
+      { name: "商品調整頁", href: "/products" },
+      { name: "訂單頁面", href: "/report" },
+      { name: "驗證KOL", href: "/veriflyKol" },
+      { name: "公告頁面", href: "/announcementPage" },
+      { name: "跑馬燈管理頁面", href: "/carousel" },
+    ];
+    break;
+  case "sub":
+    navigation = [
+      { name: "建立下線", href: "/createDownline" },
+      { name: "訂單頁面", href: "/report" },
+      { name: "驗證KOL", href: "/veriflyKol" },
+      { name: "公告頁面", href: "/announcementPage" },
+      { name: "跑馬燈管理頁面", href: "/carousel" },
+    ];
+    break;
+  case "kol":
+    navigation = [
+      { name: "建立下線", href: "/createDownline" },
+      { name: "調整下線", href: "/ConfigureDownline" },
+      { name: "訂單頁面", href: "/report" },
+      { name: "公告頁面", href: "/announcementPage" },
+    ];
+
+    break;
+
+  default:
+    break;
+}
+console.log(navigation);
+// const navigation =
+//   store.state.userInfo.role == "admin"
+//     ? [
+//         // { name: "個人資訊", href: "/home" },
+//         { name: "管理者頁面", href: "/supervisorPage" },
+//         { name: "建立下線", href: "/createDownline" },
+//         // { name: "調整下線", href: "/ConfigureDownline" },
+//         { name: "商品調整頁", href: "/products" },
+//         { name: "訂單頁面", href: "/report" },
+//         { name: "驗證KOL", href: "/veriflyKol" },
+//         { name: "公告頁面", href: "/announcementPage" },
+
+//         { name: "跑馬燈管理頁面", href: "/carousel" },
+//       ]
+//     : [
+//         // { name: "個人資訊", href: "/home" },
+//         { name: "建立下線", href: "/createDownline" },
+//         { name: "調整下線", href: "/ConfigureDownline" },
+//         { name: "訂單頁面", href: "/report" },
+//         { name: "公告頁面", href: "/announcementPage" },
+//       ];
 
 function signout() {
   store.commit("setClear");

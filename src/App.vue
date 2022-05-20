@@ -19,6 +19,7 @@ provide("isShowMask", isShowMask);
 provide("qrCodeUrl", qrCodeUrl);
 provide("shorterUrl", shorterUrl);
 
+const open = ref(false);
 onMounted(async () => {
   try {
     isShowMask.value = true;
@@ -58,9 +59,16 @@ onMounted(async () => {
 
 <template>
   <!-- <HelloWorld /> -->
-  <Mask />
-  <Navbar class="w-full" v-if="store.state.userInfo.urlsuffix != ''" />
-  <router-view />
+  <div class="relative min-w-full min-h-screen">
+    <Mask />
+    <Navbar class="w-full" v-if="store.state.userInfo.urlsuffix != ''" />
+
+    <div class="fixed right-5 bottom-5">
+      <div v-if="open">客服 Line ID</div>
+      <div @click="open = !open">點擊查看客服資訊</div>
+    </div>
+    <router-view />
+  </div>
 </template>
 
 <style></style>

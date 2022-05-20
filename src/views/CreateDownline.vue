@@ -50,7 +50,7 @@ async function createDownline() {
       (commissionPercentage.value / 100).toFixed(2)
     ),
     depth: store.state.userInfo.depth + 1,
-    islocked: false,
+    isLocked: false,
     // -1: 驗證失敗, 0: 未驗證, 1: 驗證成功, 2: 驗證中
     verifiedStatus: 0,
     kolname: "",

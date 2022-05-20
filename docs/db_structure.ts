@@ -25,7 +25,7 @@ interface members {
     instaId: string;
     isAgentProduct: boolean;
     isInGroup: boolean;
-    islocked: boolean;
+    isLocked: boolean;
     kolname: string;
     lastLoginDatetime: number;
     lineid: string;

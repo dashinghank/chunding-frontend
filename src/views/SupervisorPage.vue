@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { inject, onMounted, ref, Ref } from "vue";
 import { getDoughnut, destroyChart } from "../store/doughnut";
+import moment from "moment";
 import {
-  addDoc,
-  deleteDoc,
   getFirestore,
   collection,
   getDocs,
@@ -11,6 +10,7 @@ import {
   doc,
   where,
   query,
+  addDoc,
 } from "firebase/firestore";
 import { useStore } from "vuex";
 
@@ -18,10 +18,10 @@ var db = getFirestore();
 const store = useStore();
 // ===== data refs =====
 const allMembersRef: Ref<any> = ref({});
+
 const currentSuffix: Ref<string> = ref("");
 const currentDownlinesRef = ref<any[]>([]);
-const allCarousels: any = ref({});
-const carouselContent = ref("");
+
 const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
 //分成公式, 詳細列出每家可分成的%數
 const commissionFormulaRef: Ref<any[]> = ref([]);
@@ -29,6 +29,9 @@ const maxCommissionRef: Ref<number> = ref(0);
 const minCommissionRef: Ref<number> = ref(0);
 
 // ===== input refs =====
+const subAccount = ref("");
+const subPassword = ref("");
+const subNickname = ref("");
 const nickname = ref("");
 const password = ref("");
 const urlsuffix = ref("");
@@ -36,7 +39,10 @@ const commissionPercentage = ref(0);
 const role = ref("");
 const depth = ref(-1);
 const downlineSelectRef = ref();
-
+const instaId = ref("");
+const lineId = ref("");
+const kolName = ref("");
+const phoneNumber = ref("");
 // ===== canvas refs =====
 const doughnutCanvas = ref();
 
@@ -56,56 +62,7 @@ onMounted(async () => {
       };
     });
   }
-
-  await getAllCarousels();
 });
-
-// 取得所有跑馬燈
-async function getAllCarousels() {
-  allCarousels.value = {};
-  var allCarouselsSnapshot = await getDocs(collection(db, "carousels"));
-  allCarouselsSnapshot.forEach((d) => {
-    console.log("data():", d.data());
-    allCarousels.value[d.id] = d.data();
-  });
-}
-
-//新增跑馬燈
-async function addCarousel() {
-  if (carouselContent.value == "") {
-    alert("請輸入跑馬燈內容");
-  } else {
-    console.log(carouselContent.value);
-    try {
-      await addDoc(collection(db, "carousels"), {
-        startDatetime: 0,
-        endDatetime: 1,
-        msg: carouselContent.value,
-      });
-
-      await getAllCarousels();
-    } catch (error) {
-      alert("新增跑馬燈失敗");
-      console.log("error:", error);
-    }
-  }
-}
-
-//刪除跑馬燈
-async function deleteCarousel(docId: string) {
-  console.log("deleteCarousel");
-  console.log(docId);
-  if (confirm("是否要刪除這筆跑馬燈?")) {
-    try {
-      await deleteDoc(doc(db, "carousels", docId));
-      alert("刪除跑馬燈成功");
-      await getAllCarousels();
-    } catch (error) {
-      alert("刪除跑馬燈失敗");
-      console.log(error);
-    }
-  }
-}
 
 //做到選擇上線後還要設定下線的人選
 function onUplineChange(e: any) {
@@ -138,7 +95,10 @@ function onDownlineChange(suffix: string) {
   commissionPercentage.value = Math.floor(member.commissionPercentage * 100);
   role.value = member.role;
   depth.value = member.depth;
-
+  instaId.value = member.instaId;
+  lineId.value = member.lineid;
+  kolName.value = member.kolname;
+  phoneNumber.value = member.phonenumber;
   //計算分成公式
   commissionFormulaRef.value = [];
   for (let i in member.ancestors) {
@@ -196,6 +156,34 @@ function onDownlineChange(suffix: string) {
         ) * 100;
 }
 
+async function onToggleMember(lockStatus: boolean) {
+  try {
+    isShowMask.value = true;
+    await updateDoc(
+      doc(db, `members/${allMembersRef.value[currentSuffix.value].id}`),
+      {
+        isLocked: lockStatus,
+      }
+    );
+    allMembersRef.value[currentSuffix.value].isLocked = lockStatus;
+  } catch (e: any) {
+    alert("修改失敗:" + e.message);
+    isShowMask.value = false;
+
+    return;
+  }
+  isShowMask.value = false;
+
+  alert("修改成功");
+  destroyChart();
+  allMembersRef.value[currentSuffix.value].nickname = nickname.value;
+  allMembersRef.value[currentSuffix.value].password = password.value;
+  allMembersRef.value[currentSuffix.value].commissionPercentage =
+    commissionPercentage.value / 100;
+
+  onDownlineChange(currentSuffix.value);
+}
+
 async function onSubmit() {
   try {
     isShowMask.value = true;
@@ -245,6 +233,75 @@ function onCommissionPercentageChange(e: any) {
   }
 
   e.target.value = commissionPercentage.value;
+}
+
+async function checkDuplicateAccount() {
+  let tempQuery = query(
+    collection(db, "members"),
+    where("account", "==", subAccount.value)
+  );
+  let tempDocs = await getDocs(tempQuery);
+  return tempDocs.docs.length > 0;
+}
+
+function hasEmptyInput() {
+  if (subAccount.value == "") return true;
+  if (subPassword.value == "") return true;
+  if (subNickname.value == "") return true;
+  return false;
+}
+async function createSubAccount() {
+  isShowMask.value = true;
+  if (await checkDuplicateAccount()) {
+    alert("帳號重複");
+    isShowMask.value = false;
+    return;
+  }
+
+  if (hasEmptyInput()) {
+    alert("請輸入完整資料");
+    isShowMask.value = false;
+    return;
+  }
+
+  let currentDatetime = moment().valueOf();
+  let newDownline = {
+    account: subAccount.value,
+    password: subPassword.value,
+    nickname: subNickname.value,
+    commissionPercentage: parseFloat(
+      (commissionPercentage.value / 100).toFixed(2)
+    ),
+    depth: store.state.userInfo.depth + 1,
+    isLocked: false,
+    // -1: 驗證失敗, 0: 未驗證, 1: 驗證成功, 2: 驗證中
+    verifiedStatus: 1,
+    kolname: "",
+    lineid: "",
+    phonenumber: "",
+    lastLoginDatetime: currentDatetime,
+    registerDatetime: currentDatetime,
+    role: "sub",
+    urlsuffix: subAccount.value,
+    ancestors:
+      store.state.userInfo.ancestors.length == 0
+        ? [store.state.userInfo.urlsuffix]
+        : [...store.state.userInfo.ancestors, store.state.userInfo.urlsuffix],
+    parent: store.state.userInfo.urlsuffix,
+  };
+
+  try {
+    await addDoc(collection(db, "members"), newDownline);
+  } catch (e) {
+    alert("新增失敗");
+    isShowMask.value = false;
+    return;
+  }
+
+  alert("新增成功");
+  isShowMask.value = false;
+  store.commit("setDownline", newDownline);
+  // store.state.downlines[newDownline.urlsuffix] = newDownline;
 }
 </script>
 
@@ -420,6 +477,78 @@ function onCommissionPercentageChange(e: any) {
             </div>
           </div>
         </div>
+        <!-- instaId -->
+        <div class="mt-5">
+          <div>
+            <div class="max-w-[300px]">
+              <label for="email" class="block text-sm font-medium text-gray-700"
+                >Instagram ID</label
+              >
+              <div class="mt-1">
+                <input
+                  type="text"
+                  disabled
+                  v-model="instaId"
+                  class="block w-full bg-gray-200 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- lineId -->
+        <div class="mt-5">
+          <div>
+            <div class="max-w-[300px]">
+              <label for="email" class="block text-sm font-medium text-gray-700"
+                >Line ID</label
+              >
+              <div class="mt-1">
+                <input
+                  type="text"
+                  disabled
+                  v-model="lineId"
+                  class="block w-full bg-gray-200 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 姓名 -->
+        <div class="mt-5">
+          <div>
+            <div class="max-w-[300px]">
+              <label for="email" class="block text-sm font-medium text-gray-700"
+                >KOL 姓名</label
+              >
+              <div class="mt-1">
+                <input
+                  type="text"
+                  disabled
+                  v-model="kolName"
+                  class="block w-full bg-gray-200 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 電話 -->
+        <div class="mt-5">
+          <div>
+            <div class="max-w-[300px]">
+              <label for="email" class="block text-sm font-medium text-gray-700"
+                >KOL 電話</label
+              >
+              <div class="mt-1">
+                <input
+                  type="text"
+                  disabled
+                  v-model="phoneNumber"
+                  class="block w-full bg-gray-200 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- 第三列 -->
         <div class="mt-5">
           <div>
@@ -450,61 +579,46 @@ function onCommissionPercentageChange(e: any) {
         </div>
       </div>
     </div>
-    <div class="mt-5">
-      <button
-        type="button"
-        @click="onSubmit"
-        class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-      >
-        修改
-      </button>
-    </div>
-    <div>
-      <div class="mt-12 text-3xl font-bold py-3">跑馬燈設定</div>
-      <div class="flex gap-5 py-5">
-        <div class="w-7/12">
-          <div class="mt-1">
-            <textarea
-              rows="5"
-              v-model="carouselContent"
-              class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-            />
-          </div>
-        </div>
-        <div class="self-end">
-          <button
-            type="button"
-            @click="addCarousel"
-            class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            新增一條跑馬燈
-          </button>
-        </div>
+    <div class="mt-5 flex gap-4" v-if="currentSuffix != ''">
+      <div>
+        <button
+          type="button"
+          @click="onSubmit"
+          class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          修改
+        </button>
       </div>
-      <div
-        v-for="(carousels, docId) in allCarousels"
-        :key="docId"
-        class="flex gap-5 py-5"
-      >
-        <div class="w-7/12">
-          <div class="mt-1">
-            <textarea
-              rows="5"
-              :value="carousels.msg"
-              class="shadow-sm focus:ring-red-500 focus:border-red-500 block w-full sm:text-sm border-gray-300 rounded-md"
-            />
-          </div>
-        </div>
-        <div class="self-end">
+
+      <div>
+        <template v-if="!allMembersRef[currentSuffix].isLocked">
           <button
             type="button"
-            @click="deleteCarousel(docId.toString())"
+            @click="onToggleMember(true)"
             class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
-            刪除這條跑馬燈
+            鎖定
           </button>
-        </div>
+        </template>
+        <template v-else>
+          <button
+            type="button"
+            @click="onToggleMember(false)"
+            class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            解鎖
+          </button></template
+        >
       </div>
+    </div>
+    <div class="mt-10">
+      <div>新建子帳號</div>
+      <div>
+        <div>帳號:<input type="text" v-model="subAccount" /></div>
+        <div class="mt-4">密碼:<input type="text" v-model="subPassword" /></div>
+        <div class="mt-4">暱稱:<input type="text" v-model="subNickname" /></div>
+      </div>
+      <div><button @click="createSubAccount">建立</button></div>
     </div>
   </div>
 </template>

@@ -40,6 +40,10 @@ async function updatePassword() {
       <div class="bg-gray-200">
         https://cz8888.tw/?k={{ store.state.userInfo.urlsuffix }}
       </div>
+      <div class="font-bold text-xl mt-5">範例產品推廣網址:</div>
+      <div class="bg-gray-200">
+        https://cz8888.tw/products/乾帝?k={{ store.state.userInfo.urlsuffix }}
+      </div>
       <div class="mt-12">
         <label class="font-bold text-xl">暱稱:</label>
         <div>{{ store.state.userInfo.nickname }}</div>

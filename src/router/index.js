@@ -52,6 +52,16 @@ const routes = [
     name: "CustomerService",
     component: () => import("@/views/CustomerService.vue"),
   },
+  {
+    path: "/announcementPage",
+    name: "AnnouncementPage",
+    component: () => import("@/views/AnnouncementPage.vue"),
+  },
+  {
+    path: "/carousel",
+    name: "Carousel",
+    component: () => import("@/views/Carousel.vue"),
+  },
 ];
 const router = createRouter({
   history: createWebHistory(),

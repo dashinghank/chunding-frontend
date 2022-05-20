@@ -88,6 +88,10 @@ async function checkMemberValid() {
     alert("帳號或密碼錯誤");
     return false;
   }
+  if (currentMember.value.isLocked) {
+    alert("帳號鎖定中，請聯繫客服人員");
+    return false;
+  }
 
   switch (currentMember.value.verifiedStatus) {
     case -1:
