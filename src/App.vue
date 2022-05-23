@@ -3,7 +3,11 @@ import Navbar from "@/components/Navbar.vue";
 import Mask from "@/components/Mask.vue";
 import { useStore } from "vuex";
 import { onMounted, provide, ref } from "vue";
-import { getAllProducts, getAllDownlines } from "@/store/firebaseControl";
+import {
+  getAllProducts,
+  getAllDownlines,
+  getAllCarousels,
+} from "@/store/firebaseControl";
 import { useRoute } from "vue-router";
 import axios from "axios";
 
@@ -49,7 +53,8 @@ onMounted(async () => {
         });
       }
     }
-
+    let allCarousels = await getAllCarousels();
+    store.commit("setAllCarousels", allCarousels);
     isShowMask.value = false;
   } catch (e) {
     console.log(e);
@@ -61,13 +66,18 @@ onMounted(async () => {
   <!-- <HelloWorld /> -->
   <div class="relative min-w-full min-h-screen">
     <Mask />
-    <Navbar class="w-full" v-if="store.state.userInfo.urlsuffix != ''" />
+    <Navbar
+      class="w-full fixed top-0"
+      v-if="store.state.userInfo.urlsuffix != ''"
+    />
 
     <div class="fixed right-5 bottom-5">
       <div v-if="open">客服 Line ID</div>
       <div @click="open = !open">點擊查看客服資訊</div>
     </div>
-    <router-view />
+    <div class="pt-[15vh]">
+      <router-view />
+    </div>
   </div>
 </template>
 

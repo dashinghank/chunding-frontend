@@ -11,11 +11,13 @@ import {
 } from "@headlessui/vue";
 import { MenuIcon, XIcon, CogIcon } from "@heroicons/vue/outline";
 import { useRoute, useRouter } from "vue-router";
+import { Vue3Marquee } from "vue3-marquee";
+import "vue3-marquee/dist/style.css";
+
 // import Carousel from "./Carousel.vue";
 
 const route = useRoute();
 const router = useRouter();
-
 const store = useStore();
 var navigation: any;
 switch (store.state.userInfo.role) {
@@ -52,7 +54,7 @@ switch (store.state.userInfo.role) {
   default:
     break;
 }
-console.log(navigation);
+
 // const navigation =
 //   store.state.userInfo.role == "admin"
 //     ? [
@@ -88,6 +90,18 @@ function showStore() {
 </script>
 <template>
   <div>
+    <div>
+      <Vue3Marquee>
+        <div class="flex gap-72">
+          <div
+            v-for="(carousel, index) in store.state.allCarousels"
+            :key="index"
+          >
+            {{ carousel.msg }}
+          </div>
+        </div>
+      </Vue3Marquee>
+    </div>
     <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
       <!-- <Carousel /> -->
       <div class="px-2 mx-auto sm:px-6 lg:px-8">

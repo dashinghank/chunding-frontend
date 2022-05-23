@@ -1,34 +1,24 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import {
   getFirestore,
   addDoc,
   deleteDoc,
   collection,
-  getDocs,
   doc,
 } from "firebase/firestore";
-const allCarousels: any = ref({});
+import { useStore } from "vuex";
+import { getAllCarousels } from "@/store/firebaseControl";
+const store = useStore();
+
 const carouselContent = ref("");
 var db = getFirestore();
 
-onMounted(async () => {
-  await getAllCarousels();
-});
-
 // 取得所有跑馬燈
-async function getAllCarousels() {
-  allCarousels.value = {};
-  var allCarouselsSnapshot = await getDocs(collection(db, "carousels"));
-  allCarouselsSnapshot.forEach((d) => {
-    console.log("data():", d.data());
-    allCarousels.value[d.id] = d.data();
-  });
-}
 
 //新增跑馬燈
 async function addCarousel() {
-  if (carouselContent.value == "") {
+  if (carouselContent.value.trim() == "") {
     alert("請輸入跑馬燈內容");
   } else {
     console.log(carouselContent.value);
@@ -39,7 +29,8 @@ async function addCarousel() {
         msg: carouselContent.value,
       });
 
-      await getAllCarousels();
+      let allCarousels = await getAllCarousels();
+      store.commit("setAllCarousels", allCarousels);
     } catch (error) {
       alert("新增跑馬燈失敗");
       console.log("error:", error);
@@ -54,8 +45,9 @@ async function deleteCarousel(docId: string) {
   if (confirm("是否要刪除這筆跑馬燈?")) {
     try {
       await deleteDoc(doc(db, "carousels", docId));
+      let allCarousels = await getAllCarousels();
+      store.commit("setAllCarousels", allCarousels);
       alert("刪除跑馬燈成功");
-      await getAllCarousels();
     } catch (error) {
       alert("刪除跑馬燈失敗");
       console.log(error);
@@ -90,8 +82,8 @@ async function deleteCarousel(docId: string) {
         </div>
       </div>
       <div
-        v-for="(carousels, docId) in allCarousels"
-        :key="docId"
+        v-for="carousels in store.state.allCarousels"
+        :key="carousels.docId"
         class="flex gap-5 py-5"
       >
         <div class="w-7/12">
@@ -106,7 +98,7 @@ async function deleteCarousel(docId: string) {
         <div class="self-end">
           <button
             type="button"
-            @click="deleteCarousel(docId.toString())"
+            @click="deleteCarousel(carousels.docId.toString())"
             class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
             刪除這條跑馬燈

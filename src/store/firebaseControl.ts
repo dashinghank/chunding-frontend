@@ -22,6 +22,17 @@ interface IProduct {
   vid: string;
 }
 
+export async function getAllCarousels() {
+  let db = getFirestore();
+  let carouselsQuery = await getDocs(collection(db, "carousels"));
+  let carousels: any = [];
+  carouselsQuery.forEach((d) => {
+    carousels.push({ ...d.data(), docId: d.id });
+  });
+  console.log(carousels);
+  return carousels;
+}
+
 export async function getMemberInfo(email: string, password: string) {
   let db = getFirestore();
   const memberQuery = query(

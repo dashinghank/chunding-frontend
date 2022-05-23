@@ -4,6 +4,7 @@ import moment from "moment";
 
 export default new Vuex.Store({
   state: {
+    allCarousels: [],
     userInfo: {
       docId: "",
       nickname: "",
@@ -26,6 +27,9 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    setAllCarousels(state, payload) {
+      state.allCarousels = payload;
+    },
     setClear(state) {
       state.userInfo = {
         docId: "",

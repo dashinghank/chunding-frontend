@@ -5,6 +5,8 @@ import router from "./router";
 import store from "@/store";
 import { initializeApp } from "firebase/app";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
+import Vue3Marquee from "vue3-marquee";
+import "vue3-marquee/dist/style.css";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCjsZH1rviLKTHvI3TWfHAl7s2uoaOYg3E",
@@ -22,6 +24,7 @@ initializeApp(firebaseConfig);
 //   console.log = function () {};
 // }
 const app = createApp(App);
+app.use(Vue3Marquee);
 app.use(store);
 app.use(router);
 app.mount("#app");
