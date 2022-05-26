@@ -137,9 +137,9 @@ async function queryOrder() {
   <div class="container mx-auto mt-[10vh]">
     <DownlinesOrderCommissionModal />
     <div>
-      <div>report{{ store.state.userInfo.urlsuffix }}</div>
-      <div class="flex gap-12">
-        <div>
+      <div>現在登入帳號 : {{ store.state.userInfo.urlsuffix }}</div>
+      <div class="md:flex gap-12">
+        <div class="py-5 md:py-0">
           <label for="location" class="block text-sm font-medium text-gray-700"
             >選擇查詢對象</label
           >
@@ -168,7 +168,7 @@ async function queryOrder() {
           </select>
         </div>
 
-        <div class="flex gap-5">
+        <div class="md:flex gap-5">
           <div>
             <div>搜尋起始時間</div>
             <Datepicker
@@ -177,7 +177,7 @@ async function queryOrder() {
             ></Datepicker>
           </div>
 
-          <div>
+          <div class="py-5 md:py-0">
             <div>搜尋結束時間</div>
             <Datepicker
               placeholder="Select Date"
@@ -185,14 +185,15 @@ async function queryOrder() {
             ></Datepicker>
           </div>
         </div>
-
-        <button
-          @click="queryOrder"
-          type="button"
-          class="inline-flex items-center self-center px-5 py-3 text-sm font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm h-fit hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          查詢
-        </button>
+        <div class="flex justify-center text-center">
+          <button
+            @click="queryOrder"
+            type="button"
+            class="w-5/12 md:w-full first-letter:inline-flex md:self-end self-center px-5 py-3 text-lg md:text-sm font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm h-fit hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            查詢
+          </button>
+        </div>
       </div>
       <div class="mt-12">
         <div class="sm:flex sm:items-center">

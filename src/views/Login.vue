@@ -124,7 +124,7 @@ async function checkMemberValid() {
         <div>
           <img
             class="w-auto h-12 mx-auto"
-            src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+            src="https://cdn.shopify.com/s/files/1/0567/7393/5146/files/0fb0db42c116c08666f42cebc91e4524_ee2e4e41-4068-465e-b618-e829553d8153.png?v=1652952172"
             alt="Workflow"
           />
           <h2 class="mt-6 text-3xl font-extrabold text-center text-gray-900">

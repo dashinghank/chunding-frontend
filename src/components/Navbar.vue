@@ -123,12 +123,12 @@ function showStore() {
               <div class="flex items-center flex-shrink-0">
                 <img
                   class="block w-auto h-8 lg:hidden"
-                  src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg"
+                  src="https://cdn.shopify.com/s/files/1/0567/7393/5146/files/0fb0db42c116c08666f42cebc91e4524_ee2e4e41-4068-465e-b618-e829553d8153.png?v=1652952172"
                   alt="Workflow"
                 />
                 <img
                   class="hidden w-auto h-8 lg:block"
-                  src="https://tailwindui.com/img/logos/workflow-logo-indigo-500-mark-white-text.svg"
+                  src="https://cdn.shopify.com/s/files/1/0567/7393/5146/files/0fb0db42c116c08666f42cebc91e4524_ee2e4e41-4068-465e-b618-e829553d8153.png?v=1652952172"
                   alt="Workflow"
                 />
               </div>

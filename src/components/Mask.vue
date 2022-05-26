@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { inject } from "vue";
-let isShowMask = inject("isShowMask");
+import { inject, Ref } from "vue";
+let isShowMask = inject("isShowMask") as Ref<boolean>;
 </script>
 <template>
   <div
     v-if="isShowMask"
-    class="fixed top-0 z-50 flex items-center justify-center w-screen h-screen"
+    class="fixed top-0 left-0 z-50 flex items-center justify-center w-screen h-screen"
   >
-    <div class="absolute w-full h-full bg-gray-600 opacity-70"></div>
+    <div class="absolute w-full h-[200vh] bg-gray-600 opacity-70"></div>
     <svg
       class="w-20 h-20 mr-3 -ml-1 text-white animate-spin"
       xmlns="http://www.w3.org/2000/svg"

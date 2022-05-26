@@ -37,12 +37,18 @@ async function updatePassword() {
   <div class="container flex mx-auto mt-20">
     <div>
       <div class="font-bold text-xl">這是你的推廣網址:</div>
-      <div class="bg-gray-200">
-        https://cz8888.tw/?k={{ store.state.userInfo.urlsuffix }}
+      <div>
+        <a :href="`https://cz8888.tw/?k=${store.state.userInfo.urlsuffix}`">
+          https://cz8888.tw/?k={{ store.state.userInfo.urlsuffix }}
+        </a>
       </div>
       <div class="font-bold text-xl mt-5">範例產品推廣網址:</div>
-      <div class="bg-gray-200">
-        https://cz8888.tw/products/乾帝?k={{ store.state.userInfo.urlsuffix }}
+      <div>
+        <a
+          :href="`https://cz8888.tw/products/乾帝?k=${store.state.userInfo.urlsuffix}`"
+        >
+          https://cz8888.tw/products/乾帝?k={{ store.state.userInfo.urlsuffix }}
+        </a>
       </div>
       <div class="mt-12">
         <label class="font-bold text-xl">暱稱:</label>
@@ -86,4 +92,8 @@ async function updatePassword() {
   </div>
 </template>
 
-<style></style>
+<style scoped>
+a {
+  @apply underline text-blue-600 hover:text-blue-800 visited:text-purple-600;
+}
+</style>
