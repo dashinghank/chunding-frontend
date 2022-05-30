@@ -41,18 +41,17 @@ onMounted(async () => {
     if (currentUser.urlsuffix != "" && route.name != "Login") {
       var allProducts = await getAllProducts();
       store.commit("setAllProducts", allProducts);
-
       var downlines: any = await getAllDownlines(
-        [{ urlsuffix: store.state.userInfo.urlsuffix }],
-        store.state.userInfo.role == "admin" ? -1 : 2
+        store.state.userInfo.urlsuffix
       );
-
+      console.log("downlines,downlines", downlines);
       if (downlines.length > 0) {
         downlines.forEach((downline: any) => {
           store.commit("setDownline", downline);
         });
       }
     }
+
     let allCarousels = await getAllCarousels();
     store.commit("setAllCarousels", allCarousels);
     isShowMask.value = false;
@@ -67,11 +66,11 @@ onMounted(async () => {
   <div class="relative min-w-full min-h-screen">
     <Mask />
     <Navbar
-      class="w-full fixed top-0"
+      class="fixed top-0 w-full"
       v-if="store.state.userInfo.urlsuffix != ''"
     />
 
-    <div class="fixed right-5 bottom-5 w-16 z-10">
+    <div class="fixed z-10 w-16 right-5 bottom-5">
       <div
         class="absolute top-[-375px] border border-black rounded-lg p-2 py-5 w-40 h-fit right-0 bg-white"
         v-if="open"
@@ -88,7 +87,7 @@ onMounted(async () => {
           <div class="py-3">
             Line :
             <a
-              class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              class="text-blue-600 underline hover:text-blue-800 visited:text-purple-600"
               href="https://lin.ee/napnbUF"
               >https://lin.ee/napnbUF</a
             >
@@ -96,7 +95,7 @@ onMounted(async () => {
           <div>
             Mail :
             <a
-              class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+              class="text-blue-600 underline hover:text-blue-800 visited:text-purple-600"
               href="mailto:tingjia11@gmail.com"
               >tingjia11@gmail.com</a
             >
@@ -104,7 +103,7 @@ onMounted(async () => {
         </div>
       </div>
       <div
-        class="w-full bg-yellow-200 rounded-full p-3 cursor-pointer"
+        class="w-full p-3 bg-yellow-200 rounded-full cursor-pointer"
         @click="open = !open"
       >
         <!-- Generator: Adobe Illustrator 18.1.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->

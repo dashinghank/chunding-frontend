@@ -7,10 +7,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import {
-  ChevronDoubleLeftIcon,
-  ChevronDoubleRightIcon,
-} from "@heroicons/vue/solid";
+
 import { ref, Ref, inject } from "vue";
 import { useStore } from "vuex";
 import moment from "moment";
@@ -98,7 +95,15 @@ function hasEmptyInput() {
 }
 
 function changeCommissionPercentage(e: any) {
-  commissionPercentage.value = parseInt(e.target.value);
+  let tempPercentage = parseInt(e.target.value);
+  if (tempPercentage > store.state.userInfo.commissionPercentage * 100) {
+    commissionPercentage.value =
+      store.state.userInfo.commissionPercentage * 100;
+  } else if (tempPercentage < 0) {
+    commissionPercentage.value = 0;
+  } else {
+    commissionPercentage.value = tempPercentage;
+  }
 }
 </script>
 
@@ -171,36 +176,14 @@ function changeCommissionPercentage(e: any) {
                     >
                   </div>
                   <div class="flex items-center gap-5 mt-5">
-                    <ChevronDoubleLeftIcon
-                      class="w-5 h-5"
-                      @click="
-                        commissionPercentage =
-                          commissionPercentage - 1 < 0
-                            ? (commissionPercentage = 0)
-                            : commissionPercentage - 1
-                      "
-                    />
                     <input
-                      type="range"
-                      :max="store.state.userInfo.commissionPercentage * 100"
-                      value="0"
-                      @input="changeCommissionPercentage"
+                      type="number"
+                      v-model="commissionPercentage"
+                      @change="changeCommissionPercentage"
                       class="block w-1/2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
-                    <ChevronDoubleRightIcon
-                      class="w-5 h-5"
-                      @click="
-                        commissionPercentage =
-                          commissionPercentage + 1 >
-                          store.state.userInfo.commissionPercentage * 100
-                            ? Math.round(
-                                store.state.userInfo.commissionPercentage *
-                                  10000
-                              ) / 100
-                            : commissionPercentage + 1
-                      "
-                    />
-                    <div>{{ commissionPercentage }} %</div>
+
+                    <div>%</div>
                   </div>
                 </div>
               </div>

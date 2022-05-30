@@ -12,13 +12,13 @@ let currentSelectSuffix = ref("");
 let ancestorsRef = ref();
 let nicknameRef = ref();
 let commissionPercentageRef = ref();
+const maxCommissionRef: Ref<number> = ref(0);
+const minCommissionRef: Ref<number> = ref(0);
 // ===== input ref =====
 let selectDownlineRef = ref();
 
 onMounted(() => {
-  allDownlinesRef.value = Object.values(store.state.downlines).filter(
-    (d: any) => d.depth == store.state.userInfo.depth + 1
-  );
+  allDownlinesRef.value = Object.values(store.state.downlines);
 });
 
 function queryDownline() {
@@ -33,6 +33,25 @@ function queryDownline() {
   nicknameRef.value = currentDownline.nickname;
   ancestorsRef.value = currentDownline.ancestors;
   commissionPercentageRef.value = currentDownline.commissionPercentage * 100;
+
+  if (currentDownline.parent == store.state.userInfo.urlsuffix) {
+    maxCommissionRef.value = store.state.userInfo.commissionPercentage * 100;
+  } else {
+    maxCommissionRef.value =
+      store.state.downlines[currentDownline.parent].commissionPercentage * 100;
+  }
+
+  let AllDirectChildrenCommistionPercentages = allDownlinesRef.value
+    .filter(
+      (item: any) =>
+        item.ancestors[item.ancestors.length - 1] == currentSelectSuffix.value
+    )
+    .map((item: any) => item.commissionPercentage);
+
+  minCommissionRef.value =
+    Math.max(AllDirectChildrenCommistionPercentages) * 100;
+  console.log(minCommissionRef.value);
+
   // console.log(currentSelectSuffix);
 }
 
@@ -54,6 +73,15 @@ async function configureDownline() {
   }
   isShowMask.value = false;
   alert("修改成功");
+}
+
+function onCommissionPercentageChange() {
+  if (commissionPercentageRef.value > maxCommissionRef.value) {
+    commissionPercentageRef.value = maxCommissionRef.value;
+  }
+  if (commissionPercentageRef.value < minCommissionRef.value) {
+    commissionPercentageRef.value = minCommissionRef.value;
+  }
 }
 </script>
 
@@ -97,19 +125,21 @@ async function configureDownline() {
         <div class="mt-5">
           <div class="max-w-[300px]">
             <label for="email" class="block text-sm font-medium text-gray-700"
-              >給予產品分潤%數 (可分配產品%數:{{
-                store.state.userInfo.commissionPercentage * 100
-              }}%)</label
-            >
-            <div class="flex gap-3 mt-1">
+              >給予產品分潤%數 <br />可分配最高產品%數:{{ maxCommissionRef }}%
+              <br />
+              可分配最低產品%數:{{ minCommissionRef }}%
+            </label>
+            <div class="flex items-center gap-3 mt-1">
               <input
                 v-model="commissionPercentageRef"
-                type="range"
-                min="0"
-                :max="store.state.userInfo.commissionPercentage * 100"
+                type="number"
+                min="minCommissionRef"
+                :max="maxCommissionRef"
+                @change="onCommissionPercentageChange"
                 class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
-              <div>{{ commissionPercentageRef }}%</div>
+
+              <div>%</div>
             </div>
           </div>
         </div>

@@ -65,14 +65,8 @@ async function login() {
   store.commit("setAllProducts", allProducts);
 
   //取得下面層數的下線,depth=-1代表全部 2代表幾層
-  var downlines: any = await getAllDownlines(
-    [{ urlsuffix: store.state.userInfo.urlsuffix }],
-    -1
-  );
-  // var downlines: any = await getAllDownlines(
-  //   [{ urlsuffix: store.state.userInfo.urlsuffix }],
-  //   store.state.userInfo.role == "admin" ? -1 : 2
-  // );
+  var downlines: any = await getAllDownlines(store.state.userInfo.urlsuffix);
+
   if (downlines.length > 0) {
     console.log("downlines", downlines);
     downlines.forEach((downline: any) => {

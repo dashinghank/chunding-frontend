@@ -18,17 +18,10 @@ var db = getFirestore();
 const store = useStore();
 // ===== data refs =====
 
-const depthOneSelected = ref("none");
-const downlinesDepthSelected = ref("none");
-const downlinesSelected = ref("none");
-
 const allMembersRef: Ref<any> = ref({});
 const allDepthOneMembersRef: Ref<any> = ref({});
 
 const currentSuffix: Ref<string> = ref("");
-const allDownlinesRef = ref<any[]>([]);
-const currentDownlinesRef = ref<any[]>([]);
-const currentDownlinesDepthsRef = ref<number>(1);
 
 const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
 //分成公式, 詳細列出每家可分成的%數
@@ -46,7 +39,6 @@ const urlsuffix = ref("");
 const commissionPercentage = ref(0);
 const role = ref("");
 const depth = ref(-1);
-const downlineSelectRef = ref();
 const instaId = ref("");
 const lineId = ref("");
 const kolName = ref("");
@@ -70,69 +62,17 @@ onMounted(async () => {
       };
     });
   }
-  if (Object.values(allDepthOneMembersRef.value).length == 0) {
-    var allDepthOneMembersSnapshot: any = await getDocs(
-      query(
-        collection(db, "members"),
-        where("verifiedStatus", "==", 1),
-        where("depth", "==", 1)
-      )
-    );
 
-    allDepthOneMembersSnapshot.forEach((member: any) => {
-      allDepthOneMembersRef.value[member.data().urlsuffix] = {
-        id: member.id,
-        ...member.data(),
-      };
-    });
-  }
+  allDepthOneMembersRef.value = Object.values(allMembersRef.value).filter(
+    (member: any) => member.depth == 1
+  );
 
   console.log("all member :", allMembersRef.value);
   console.log("depth one :", allDepthOneMembersRef.value);
 });
 
-//選擇下線層級還要設定下線的人選
-function onDepthChange(e: any) {
-  console.log("onDepthChange");
-  downlinesSelected.value = "none";
-  currentDownlinesRef.value = [];
-  currentDownlinesRef.value = allDownlinesRef.value.filter(
-    (d) => d.depth == e.target.value
-  );
-  clearAllInputs();
-}
-
-function onUplineChange(e: any) {}
-//做到選擇上線後還要設定下線的人選
-function onUplineChangeCopy(e: any) {
-  allDownlinesRef.value = [];
-  currentDownlinesDepthsRef.value = 1;
-  currentDownlinesRef.value = [];
-  downlinesDepthSelected.value = "none";
-  downlinesSelected.value = "none";
-  // downlineSelectRef.value.value = "none";
-  destroyChart();
-  console.log("allMembersRef:", allMembersRef.value);
-
-  Object.values(allMembersRef.value).forEach((member: any) => {
-    if (member.parent == e.target.value) {
-      console.log(e.target.value);
-      console.log("這是我的全部下線:", member);
-      allDownlinesRef.value.push(member);
-      currentDownlinesDepthsRef.value =
-        currentDownlinesDepthsRef.value < member.depth
-          ? member.depth
-          : currentDownlinesDepthsRef.value;
-    }
-  });
-  console.log("currentDownlinesDepthsRef:", currentDownlinesDepthsRef.value);
-
-  //把自己也當成下線
-  allDownlinesRef.value.push(allMembersRef.value[e.target.value]);
-  clearAllInputs();
-}
-
 function onDownlineChangeClick(e: any) {
+  clearAllInputs();
   destroyChart();
   onDownlineChange(e.target.value);
 }
@@ -365,64 +305,21 @@ async function createSubAccount() {
   <div class="container mx-auto">
     <div class="w-1/4">
       <label for="location" class="block text-sm font-medium text-gray-700"
-        >選擇第一層上線</label
+        >選擇會員</label
       >
       <select
-        v-model="depthOneSelected"
-        @change="onUplineChangeCopy"
-        class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-      >
-        <option disabled selected hidden value="none">尚未選擇</option>
-        <template
-          v-for="(member, key, index) in allDepthOneMembersRef"
-          :key="index"
-        >
-          <option :value="member.urlsuffix">
-            {{ member.nickname }}
-          </option>
-        </template>
-      </select>
-    </div>
-
-    <div class="w-1/4 mt-5" v-show="depthOneSelected != 'none'">
-      <label for="location" class="block text-sm font-medium text-gray-700"
-        >選擇下線的層級</label
-      >
-      <select
-        v-model="downlinesDepthSelected"
-        @change="onDepthChange"
-        class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-      >
-        <option disabled selected hidden value="none">尚未選擇</option>
-        <template v-for="(n, index) in currentDownlinesDepthsRef" :key="index">
-          <option>
-            {{ n }}
-          </option>
-        </template>
-      </select>
-    </div>
-
-    <div class="w-1/4 mt-5" v-show="downlinesDepthSelected != 'none'">
-      <label for="location" class="block text-sm font-medium text-gray-700"
-        >選擇下線 (或自己)</label
-      >
-      <select
-        v-model="downlinesSelected"
-        class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         @change="onDownlineChangeClick"
-        ref="downlineSelectRef"
+        class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       >
         <option disabled selected hidden value="none">尚未選擇</option>
-        <template
-          v-for="(member, key, index) in currentDownlinesRef"
-          :key="index"
-        >
+        <template v-for="(member, key, index) in allMembersRef" :key="index">
           <option :value="member.urlsuffix">
             {{ member.nickname }}
           </option>
         </template>
       </select>
     </div>
+
     <div class="grid grid-cols-2">
       <div>
         <!-- 第一列 -->
@@ -659,7 +556,7 @@ async function createSubAccount() {
         </div>
       </div>
     </div>
-    <div class="mt-5 flex gap-4" v-if="currentSuffix != ''">
+    <div class="flex gap-4 mt-5" v-if="currentSuffix != ''">
       <div>
         <button
           type="button"

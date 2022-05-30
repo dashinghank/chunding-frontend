@@ -58,28 +58,14 @@ export async function getMemberInfo(email: string, password: string) {
 //======================管理者操作==========================
 //取得下面層數的下線,depth=-1代表全部
 // [{urlsuffix:"MY_UID"}] 取自己的下線
-export async function getAllDownlines(downline: any[], depth: number) {
-  let db = getFirestore();
-  if (depth > 0) depth--;
-  let children: any[] = [];
-  for (let i = 0; i < downline.length; ++i) {
-    let myQuery = query(
-      collection(db, "members"),
-      where("parent", "==", downline[i].urlsuffix)
-    );
-    var usersRef = await getDocs(myQuery);
-    usersRef.forEach((doc) => {
-      let downline = { docId: doc.id, ...doc.data() };
-      children.push(downline);
-    });
-
-    let result: any[] = [];
-    if (children.length > 0 && (depth > 0 || depth == -1)) {
-      result = (await getAllDownlines(children, depth)) as any[];
-      children = [...children, ...result];
+export async function getAllDownlines(parentSuffix: string) {
+  let allDownlines = await axios.post(
+    "https://shopify-api-nine.vercel.app/api/getAllDownlines",
+    {
+      parentSuffix: parentSuffix,
     }
-  }
-  return children;
+  );
+  return allDownlines.data;
 }
 
 //======================通用操作==========================
