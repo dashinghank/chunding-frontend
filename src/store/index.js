@@ -17,6 +17,7 @@ export default new Vuex.Store({
       role: "",
       qrCodeUrl: "",
     },
+    commissionInfo: {},
     allProducts: {},
     downlines: {},
     lastLoginDatetime: 0,
@@ -43,6 +44,7 @@ export default new Vuex.Store({
         role: "",
         qrCodeUrl: "",
       };
+      state.commissionInfo = {};
       state.systems = {};
       state.allProducts = {};
       state.downlines = {};
@@ -80,6 +82,9 @@ export default new Vuex.Store({
       state.userInfo.role = userInfo.role;
       state.userInfo.qrCodeUrl = userInfo.qrCodeUrl;
       state.lastLoginDatetime = moment().valueOf();
+    },
+    setCommissionInfo(state, commissionInfo) {
+      state.commissionInfo = commissionInfo;
     },
   },
   plugins: [createPersistedState()],

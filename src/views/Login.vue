@@ -10,6 +10,8 @@ import {
   getAllProducts,
   getAllDownlines,
   getMemberInfo,
+  getAllCarousels,
+  getCommissionInfo,
 } from "@/store/firebaseControl";
 
 const router = useRouter();
@@ -19,8 +21,8 @@ const store = useStore();
 const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
 const isVeriflyInfoFormOpen = ref(false);
 const currentMember: any = ref({});
-const email = ref("");
-const password = ref("");
+const email = ref("admin001");
+const password = ref("123456");
 
 provide("isVeriflyInfoFormOpen", isVeriflyInfoFormOpen);
 provide("currentMember", currentMember);
@@ -41,14 +43,13 @@ async function login() {
     password.value
   )) as any;
 
-  let isValid = await checkMemberValid();
-  if (!isValid) {
+  if (!checkMemberValid()) {
     isShowMask.value = false;
     return;
   }
 
   store.commit("setUserInfo", {
-    docId: currentMember.value.id,
+    docId: currentMember.value.docId,
     ancestors: currentMember.value.ancestors,
     nickname: currentMember.value.nickname,
     urlsuffix: currentMember.value.urlsuffix,
@@ -60,12 +61,16 @@ async function login() {
     qrCodeUrl: currentMember.value.qrcode,
   });
 
-  //取得使用者資訊並存取
-  var allProducts = await getAllProducts();
+  let results = await Promise.all([
+    getAllProducts(),
+    getAllDownlines(store.state.userInfo.urlsuffix),
+    getAllCarousels(),
+    getCommissionInfo(),
+  ]);
+  var allProducts = await results[0];
   store.commit("setAllProducts", allProducts);
-
   //取得下面層數的下線,depth=-1代表全部 2代表幾層
-  var downlines: any = await getAllDownlines(store.state.userInfo.urlsuffix);
+  var downlines: any = await results[1];
 
   if (downlines.length > 0) {
     console.log("downlines", downlines);
@@ -73,11 +78,19 @@ async function login() {
       store.commit("setDownline", downline);
     });
   }
+
+  let allCarousels = results[2];
+  console.log(results);
+  store.commit("setAllCarousels", allCarousels);
+
+  let commissionInfo = results[3];
+  store.commit("setCommissionInfo", commissionInfo);
+
   router.push("/home");
   isShowMask.value = false;
 }
 
-async function checkMemberValid() {
+function checkMemberValid() {
   if (currentMember.value == null) {
     alert("帳號或密碼錯誤");
     return false;

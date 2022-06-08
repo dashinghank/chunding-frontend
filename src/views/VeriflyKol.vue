@@ -9,6 +9,7 @@ import {
   where,
   query,
 } from "firebase/firestore";
+import axios from "axios";
 var db = getFirestore();
 
 const allNotVerifiedMember: Ref<any> = ref({});
@@ -54,10 +55,29 @@ async function verifly() {
     isShowMask.value = true;
     try {
       let selectedMember = allNotVerifiedMember.value[selectedUrlsuffix.value];
-      await updateDoc(doc(db, `members/${selectedMember.id}`), {
-        // 1 代表通過驗證
-        verifiedStatus: 1,
-      });
+
+      let result = await axios.post(
+        "https://shopify-api-nine.vercel.app/api/updateMember",
+        {
+          docId: `members/${selectedMember.id}`,
+          // 1 代表通過驗證
+          verifiedStatus: 1,
+        }
+      );
+
+      if (result.data.status == "000") {
+        alert("驗證成功");
+      } else {
+        alert("驗證失敗");
+        isShowMask.value = false;
+
+        return;
+      }
+
+      // await updateDoc(doc(db, `members/${selectedMember.id}`), {
+      //   // 1 代表通過驗證
+      //   verifiedStatus: 1,
+      // });
     } catch (e: any) {
       alert("修改失敗:" + e.message);
       isShowMask.value = false;
@@ -66,7 +86,6 @@ async function verifly() {
     }
     await getAllNotVerifiedMember();
     isShowMask.value = false;
-    alert("修改成功");
   }
 }
 
@@ -77,10 +96,28 @@ async function rejectApplication() {
     let selectedMember = allNotVerifiedMember.value[selectedUrlsuffix.value];
 
     try {
-      await updateDoc(doc(db, `members/${selectedMember.id}`), {
-        //-1代表拒絕審核通過
-        verifiedStatus: -1,
-      });
+      let result = await axios.post(
+        "https://shopify-api-nine.vercel.app/api/updateMember",
+        {
+          docId: `members/${selectedMember.id}`,
+          // 1 代表通過驗證
+          vverifiedStatus: -1,
+        }
+      );
+
+      if (result.data.status == "000") {
+        alert("拒絕成功");
+      } else {
+        alert("拒絕失敗");
+        isShowMask.value = false;
+
+        return;
+      }
+
+      // await updateDoc(doc(db, `members/${selectedMember.id}`), {
+      //   //-1代表拒絕審核通過
+      //   verifiedStatus: -1,
+      // });
     } catch (e: any) {
       alert("資料傳送失敗:" + e.message);
       isShowMask.value = false;
@@ -101,7 +138,7 @@ async function rejectApplication() {
       >
       <select
         @change="onKolChange"
-        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+        class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       >
         <template v-if="Object.keys(allNotVerifiedMember).length == 0">
           <option selected disabled>目前沒有需要驗證的KOL</option>
@@ -129,7 +166,7 @@ async function rejectApplication() {
             name="vInstaId"
             id="vInstaId"
             v-model="insta"
-            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+            class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
         </div>
       </div>
@@ -143,7 +180,7 @@ async function rejectApplication() {
             name="vLineId"
             id="vLineId"
             v-model="line"
-            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+            class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
         </div>
       </div>
@@ -157,7 +194,7 @@ async function rejectApplication() {
             name="vName"
             id="vName"
             v-model="name"
-            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+            class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
         </div>
       </div>
@@ -173,7 +210,7 @@ async function rejectApplication() {
             name="vPhoneNumber"
             id="vPhoneNumber"
             v-model="phonenumber"
-            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+            class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
         </div>
       </div>
@@ -188,7 +225,7 @@ async function rejectApplication() {
                 name="visInGroup"
                 type="checkbox"
                 :checked="visInGroup"
-                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
               />
             </div>
             <div class="ml-3 text-sm">
@@ -206,7 +243,7 @@ async function rejectApplication() {
                 name="visAgentProduct"
                 type="checkbox"
                 :checked="visAgentProduct"
-                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
               />
             </div>
             <div class="ml-3 text-sm">
@@ -218,19 +255,19 @@ async function rejectApplication() {
         </fieldset>
       </div>
     </div>
-    <div class="mt-4 flex gap-5">
+    <div class="flex gap-5 mt-4">
       <template v-if="selectedUrlsuffix != ''">
         <button
           type="button"
           @click="verifly"
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           驗證
         </button>
         <button
           type="button"
           @click="rejectApplication"
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
         >
           審核不予通過
         </button>

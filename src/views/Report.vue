@@ -5,6 +5,7 @@ import { useStore } from "vuex";
 import moment from "moment";
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
+// vetur
 import DownlinesOrderCommissionModal from "@/components/DownlinesOrderCommissionModal.vue";
 import { Chart, registerables } from "chart.js";
 import _, { parseInt } from "lodash";
@@ -38,6 +39,8 @@ provide("allFamilyMembers", allFamilyMembers);
 onMounted(() => {
   allFamilyMembers.value = { ...store.state.downlines };
   allFamilyMembers.value[store.state.userInfo.urlsuffix] = store.state.userInfo;
+
+  console.log(allFamilyMembers.value);
 });
 
 function checkDownlineCommission(order: any) {
@@ -96,40 +99,41 @@ async function queryOrder() {
     alert("查無訂單");
   }
 
-  if (store.state.userInfo.role == "admin") {
-    currentOrders.value.forEach((o: any, i: number) => {
-      //此訂單所有下線可取得的最高分成
-      let commissionMax: number = 0;
-      let orderItems = Object.values(o.items);
-      let totalProfit = 0;
+  // if (store.state.userInfo.role == "admin") {}
+  currentOrders.value.forEach((o: any, i: number) => {
+    //此訂單所有下線可取得的最高分成
+    let commissionMax: number = 0;
+    let orderItems = Object.values(o.items);
+    let totalProfit = 0;
 
-      orderItems.forEach((item: any) => {
-        commissionMax += item.price * item.max * item.quantity;
-      });
-      //公司獲利 = 訂單金額 - 此訂單所有下線可取得的最高分成 + ADMIN 的分成
-      totalProfit =
-        parseInt(o.amount) -
-        commissionMax +
-        o.totalCommissions[store.state.userInfo.urlsuffix];
+    orderItems.forEach((item: any) => {
+      commissionMax += item.price * item.max * item.quantity;
+    });
+    //公司獲利 = 訂單金額 - 此訂單所有下線可取得的最高分成 + ADMIN 的分成
+    totalProfit =
+      parseInt(o.amount) -
+      commissionMax +
+      o.totalCommissions[store.state.userInfo.urlsuffix];
 
-      currentOrders.value[i]["totalProfit"] = totalProfit;
+    currentOrders.value[i]["totalProfit"] = totalProfit;
+  });
+  // }
+  // //如果是 KOL 登入
+  // else {
+  Object.keys(allFamilyMembers.value).forEach((member) => {
+    //特定 kol 可在此單下得到的分成
+    let memberCommission = 0;
+    currentOrders.value.forEach((order: any) => {
+      if (order.totalCommissions[member]) {
+        memberCommission += parseInt(order.totalCommissions[member]);
+      }
     });
-  }
-  //如果是 KOL 登入
-  else {
-    Object.keys(allFamilyMembers.value).forEach((member) => {
-      //特定 kol 可在此單下得到的分成
-      let memberCommission = 0;
-      currentOrders.value.forEach((order: any) => {
-        if (order.totalCommissions[member]) {
-          memberCommission += parseInt(order.totalCommissions[member]);
-        }
-      });
-      allFamilyMembers.value[member]["commission"] = memberCommission;
-    });
-  }
+    allFamilyMembers.value[member]["commission"] = memberCommission;
+  });
+
   currentOrders.value = _.orderBy(currentOrders.value, "createdAt", "desc");
   isShowMask.value = false;
+  console.log(allFamilyMembers.value);
 }
 </script>
 
@@ -138,7 +142,7 @@ async function queryOrder() {
     <DownlinesOrderCommissionModal />
     <div>
       <div>現在登入帳號 : {{ store.state.userInfo.urlsuffix }}</div>
-      <div class="md:flex gap-12">
+      <div class="gap-12 md:flex">
         <div class="py-5 md:py-0">
           <label for="location" class="block text-sm font-medium text-gray-700"
             >選擇查詢對象</label
@@ -168,7 +172,7 @@ async function queryOrder() {
           </select>
         </div>
 
-        <div class="md:flex gap-5">
+        <div class="gap-5 md:flex">
           <div>
             <div>搜尋起始時間</div>
             <Datepicker
@@ -189,7 +193,7 @@ async function queryOrder() {
           <button
             @click="queryOrder"
             type="button"
-            class="w-5/12 md:w-full first-letter:inline-flex md:self-end self-center px-5 py-3 text-lg md:text-sm font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm h-fit hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            class="self-center w-5/12 px-5 py-3 text-lg font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm md:w-full first-letter:inline-flex md:self-end md:text-sm h-fit hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             查詢
           </button>
@@ -226,7 +230,7 @@ async function queryOrder() {
                         scope="col"
                         class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                       >
-                        暱稱
+                        暱稱 / 帳號
                       </th>
                       <th
                         scope="col"
@@ -268,7 +272,9 @@ async function queryOrder() {
                         {{
                           order.urlsuffix == "none"
                             ? "自然流量"
-                            : allFamilyMembers[order.urlsuffix].nickname
+                            : allFamilyMembers[order.urlsuffix].nickname +
+                              " / " +
+                              allFamilyMembers[order.urlsuffix].urlsuffix
                         }}
                       </td>
                       <td
@@ -292,7 +298,7 @@ async function queryOrder() {
                       </td>
                       <td
                         @click="checkDownlineCommission(order)"
-                        class="cursor-pointer py-4 pl-4 pr-3 text-sm font-medium text-blue-500 whitespace-nowrap sm:pl-6"
+                        class="py-4 pl-4 pr-3 text-sm font-medium text-blue-500 cursor-pointer whitespace-nowrap sm:pl-6"
                       >
                         點擊查看詳細
                       </td>

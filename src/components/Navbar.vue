@@ -151,7 +151,7 @@ function showStore() {
             </div>
           </div>
           <div
-            class="text-white border hidden border-white py-2 px-4 cursor-pointer rounded-lg"
+            class="hidden px-4 py-2 text-white border border-white rounded-lg cursor-pointer"
             t
           >
             <router-link to="/customerService">聯絡客服</router-link>

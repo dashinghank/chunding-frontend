@@ -7,6 +7,7 @@ import {
 
 import { useStore } from "vuex";
 import { inject, onMounted, ref, Ref } from "@vue/runtime-core";
+import { getAllProducts } from "@/store/firebaseControl";
 
 const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
 const store = useStore();
@@ -67,6 +68,13 @@ function clickRight(key: string) {
 
   store.state.allProducts[key].max = tempMax;
 }
+
+async function onProductRefresh() {
+  isShowMask.value = true;
+  var allProducts = await getAllProducts();
+  store.commit("setAllProducts", allProducts);
+  isShowMask.value = false;
+}
 </script>
 
 <template>
@@ -74,6 +82,9 @@ function clickRight(key: string) {
     <div class="text-xl text-red-500">
       <div>* 此頁為調整產品基本分潤%數，與給予下線的分潤%數並不相同。</div>
       <div>* 此%數於調整後12小時後開始計算，已進行結帳的訂單不會列入計算</div>
+    </div>
+    <div>
+      <button @click="onProductRefresh">產品刷新</button>
     </div>
     <div class="px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col mt-8">

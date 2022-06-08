@@ -2,6 +2,7 @@
 import { inject, onMounted, Ref, ref } from "vue";
 import { useStore } from "vuex";
 import { getFirestore, updateDoc, doc } from "firebase/firestore";
+import axios from "axios";
 
 let store = useStore();
 
@@ -58,13 +59,29 @@ function queryDownline() {
 async function configureDownline() {
   let currentDownline = store.state.downlines[currentSelectSuffix.value];
 
-  let db = getFirestore();
+  // let db = getFirestore();
   try {
     isShowMask.value = true;
-    await updateDoc(doc(db, `members/${currentDownline.docId}`), {
-      nickname: nicknameRef.value,
-      commissionPercentage: commissionPercentageRef.value / 100,
-    });
+
+    let result = await axios.post(
+      "https://shopify-api-nine.vercel.app/api/updateMember",
+      {
+        docId: `members/${currentDownline.docId}`,
+        nickname: nicknameRef.value,
+        commissionPercentage: commissionPercentageRef.value / 100,
+      }
+    );
+
+    if (result.data.status == "000") {
+      alert("修改成功");
+    } else {
+      alert("修改失敗:");
+    }
+
+    // await updateDoc(doc(db, `members/${currentDownline.docId}`), {
+    //   nickname: nicknameRef.value,
+    //   commissionPercentage: commissionPercentageRef.value / 100,
+    // });
   } catch (e: any) {
     alert("修改失敗:" + e.message);
     isShowMask.value = false;
@@ -72,7 +89,6 @@ async function configureDownline() {
     return;
   }
   isShowMask.value = false;
-  alert("修改成功");
 }
 
 function onCommissionPercentageChange() {

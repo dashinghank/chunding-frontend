@@ -136,3 +136,14 @@ export async function getAllMembers() {
     };
   });
 }
+
+export async function getCommissionInfo() {
+  return (
+    await axios.post(
+      "https://shopify-api-nine.vercel.app/api/updateTotalCommission",
+      {
+        urlsuffix: store.state.userInfo.urlsuffix,
+      }
+    )
+  ).data;
+}

@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { inject, onMounted, ref, Ref } from "vue";
+import { inject, onMounted, provide, ref, Ref } from "vue";
 import { getDoughnut, destroyChart } from "../store/doughnut";
+import _ from "lodash";
+import axios from "axios";
+
 import moment from "moment";
 import {
   getFirestore,
@@ -13,13 +16,16 @@ import {
   addDoc,
 } from "firebase/firestore";
 import { useStore } from "vuex";
+import MemberTreeView from "@/components/MemberTreeView.vue";
 
 var db = getFirestore();
 const store = useStore();
 // ===== data refs =====
+const treeDataRef = ref([]) as Ref<any[]>;
+const currentSelectMember = ref() as Ref<string>;
+const allMembersRef: Ref<any> = ref({}) as Ref<any>;
 
-const allMembersRef: Ref<any> = ref({});
-const allDepthOneMembersRef: Ref<any> = ref({});
+//==== element refs ====
 
 const currentSuffix: Ref<string> = ref("");
 
@@ -49,6 +55,9 @@ const doughnutCanvas = ref();
 // ===== example refs =====
 const exampleSuffixs = ref();
 
+provide("currentSelectMember", currentSelectMember);
+provide("onDownlineChangeClick", onDownlineChangeClick);
+
 onMounted(async () => {
   if (Object.values(allMembersRef.value).length == 0) {
     var allMemebersSnapshot: any = await getDocs(
@@ -63,23 +72,59 @@ onMounted(async () => {
     });
   }
 
-  allDepthOneMembersRef.value = Object.values(allMembersRef.value).filter(
-    (member: any) => member.depth == 1
-  );
-
-  console.log("all member :", allMembersRef.value);
-  console.log("depth one :", allDepthOneMembersRef.value);
+  //建立樹狀圖
+  treeDataRef.value = createTree();
+  console.log(treeDataRef.value);
 });
 
-function onDownlineChangeClick(e: any) {
+function createTree() {
+  let tempMemberNodes: any[] = [];
+
+  Object.values(allMembersRef.value).forEach((member: any) => {
+    tempMemberNodes.push({
+      id: member.urlsuffix,
+      text: member.urlsuffix,
+      parentId: member.parent,
+      level: member.depth,
+      children: [],
+    });
+  });
+
+  tempMemberNodes = _.sortBy(tempMemberNodes, "level");
+  return list_to_tree(tempMemberNodes);
+}
+
+function list_to_tree(list: any) {
+  var map: any = {},
+    node,
+    roots: any[] = [],
+    i;
+
+  for (i = 0; i < list.length; i += 1) {
+    map[list[i].id] = i; // initialize the map
+    list[i].children = []; // initialize the children
+  }
+
+  for (i = 0; i < list.length; i += 1) {
+    node = list[i];
+    if (node.parentId !== "") {
+      // if you have dangling branches check that map[node.parentId] exists
+      list[map[node.parentId]].children.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+  return roots;
+}
+
+function onDownlineChangeClick() {
   clearAllInputs();
   destroyChart();
-  onDownlineChange(e.target.value);
+  onDownlineChange(currentSelectMember.value);
 }
 
 function onDownlineChange(suffix: string) {
   let member = allMembersRef.value[suffix];
-
   nickname.value = member.nickname;
   password.value = member.password;
   urlsuffix.value = member.urlsuffix;
@@ -151,13 +196,21 @@ function onDownlineChange(suffix: string) {
 async function onToggleMember(lockStatus: boolean) {
   try {
     isShowMask.value = true;
-    await updateDoc(
-      doc(db, `members/${allMembersRef.value[currentSuffix.value].id}`),
+
+    let result = await axios.post(
+      "https://shopify-api-nine.vercel.app/api/updateMember",
       {
+        docId: `members/${allMembersRef.value[currentSuffix.value].id}`,
         isLocked: lockStatus,
       }
     );
-    allMembersRef.value[currentSuffix.value].isLocked = lockStatus;
+
+    if (result.data.status == "000") {
+      allMembersRef.value[currentSuffix.value].isLocked = lockStatus;
+      alert("修改成功");
+    } else {
+      alert("修改失敗");
+    }
   } catch (e: any) {
     alert("修改失敗:" + e.message);
     isShowMask.value = false;
@@ -166,7 +219,6 @@ async function onToggleMember(lockStatus: boolean) {
   }
   isShowMask.value = false;
 
-  alert("修改成功");
   destroyChart();
   allMembersRef.value[currentSuffix.value].nickname = nickname.value;
   allMembersRef.value[currentSuffix.value].password = password.value;
@@ -179,14 +231,26 @@ async function onToggleMember(lockStatus: boolean) {
 async function onSubmit() {
   try {
     isShowMask.value = true;
-    await updateDoc(
-      doc(db, `members/${allMembersRef.value[currentSuffix.value].id}`),
+
+    let result = await axios.post(
+      "https://shopify-api-nine.vercel.app/api/updateMember",
       {
+        docId: `members/${allMembersRef.value[currentSuffix.value].id}`,
         nickname: nickname.value,
         password: password.value,
         commissionPercentage: commissionPercentage.value / 100,
       }
     );
+
+    if (result.data.status == "000") {
+      allMembersRef.value[currentSuffix.value].nickname = nickname.value;
+      allMembersRef.value[currentSuffix.value].password = password.value;
+      allMembersRef.value[currentSuffix.value].commissionPercentage =
+        commissionPercentage.value / 100;
+      alert("修改成功");
+    } else {
+      alert("修改失敗");
+    }
   } catch (e: any) {
     alert("修改失敗:" + e.message);
     isShowMask.value = false;
@@ -195,12 +259,7 @@ async function onSubmit() {
   }
   isShowMask.value = false;
 
-  alert("修改成功");
   destroyChart();
-  allMembersRef.value[currentSuffix.value].nickname = nickname.value;
-  allMembersRef.value[currentSuffix.value].password = password.value;
-  allMembersRef.value[currentSuffix.value].commissionPercentage =
-    commissionPercentage.value / 100;
 
   onDownlineChange(currentSuffix.value);
 }
@@ -303,7 +362,14 @@ async function createSubAccount() {
 
 <template>
   <div class="container mx-auto">
-    <div class="w-1/4">
+    <!-- 測試區 -->
+    {{ currentSelectMember }}
+    <div id="treeRoot" v-if="treeDataRef.length > 0">
+      <MemberTreeView :data="treeDataRef[0]" />
+    </div>
+
+    <!-- 測試區 -->
+    <!-- <div class="w-1/4">
       <label for="location" class="block text-sm font-medium text-gray-700"
         >選擇會員</label
       >
@@ -318,7 +384,7 @@ async function createSubAccount() {
           </option>
         </template>
       </select>
-    </div>
+    </div> -->
 
     <div class="grid grid-cols-2">
       <div>
@@ -599,3 +665,5 @@ async function createSubAccount() {
     </div>
   </div>
 </template>
+
+<style scoped></style>

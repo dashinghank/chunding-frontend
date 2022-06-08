@@ -1,21 +1,31 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref, Ref, inject } from "vue";
 import {
   getFirestore,
   addDoc,
   deleteDoc,
   collection,
   doc,
+  updateDoc,
 } from "firebase/firestore";
 import { useStore } from "vuex";
 import { getAllCarousels } from "@/store/firebaseControl";
+import moment from "moment";
+
 const store = useStore();
+const isShowMask = inject("isShowMask") as Ref<boolean>;
 
 const carouselContent = ref("");
+const allCarousels = ref([]) as Ref<any[]>;
+
 var db = getFirestore();
 
 // 取得所有跑馬燈
-
+onMounted(async () => {
+  isShowMask.value = true;
+  allCarousels.value = await getAllCarousels();
+  isShowMask.value = false;
+});
 //新增跑馬燈
 async function addCarousel() {
   if (carouselContent.value.trim() == "") {
@@ -23,35 +33,44 @@ async function addCarousel() {
   } else {
     console.log(carouselContent.value);
     try {
-      await addDoc(collection(db, "carousels"), {
+      isShowMask.value = true;
+      let newCarousel: any = {
         startDatetime: 0,
         endDatetime: 1,
         msg: carouselContent.value,
+      };
+      await addDoc(collection(db, "carousels"), newCarousel);
+      await updateDoc(doc(db, "systems/carousels"), {
+        lastUpdatedDatetime: moment().valueOf(),
       });
-
-      let allCarousels = await getAllCarousels();
-      store.commit("setAllCarousels", allCarousels);
+      alert("新增成功");
+      allCarousels.value.push(newCarousel);
     } catch (error) {
       alert("新增跑馬燈失敗");
       console.log("error:", error);
     }
+    isShowMask.value = false;
+    store.commit("setAllCarousels", allCarousels);
   }
 }
 
 //刪除跑馬燈
 async function deleteCarousel(docId: string) {
   console.log("deleteCarousel");
-  console.log(docId);
   if (confirm("是否要刪除這筆跑馬燈?")) {
     try {
+      isShowMask.value = true;
       await deleteDoc(doc(db, "carousels", docId));
-      let allCarousels = await getAllCarousels();
-      store.commit("setAllCarousels", allCarousels);
       alert("刪除跑馬燈成功");
+      allCarousels.value = allCarousels.value.filter(
+        (carousel) => carousel.id != docId
+      );
     } catch (error) {
       alert("刪除跑馬燈失敗");
       console.log(error);
     }
+    isShowMask.value = false;
+    store.commit("setAllCarousels", allCarousels);
   }
 }
 </script>
@@ -60,14 +79,14 @@ async function deleteCarousel(docId: string) {
     <div>跑馬燈修正頁面</div>
 
     <div>
-      <div class="mt-12 text-3xl font-bold py-3">跑馬燈設定</div>
+      <div class="py-3 mt-12 text-3xl font-bold">跑馬燈設定</div>
       <div class="flex gap-5 py-5">
         <div class="w-7/12">
           <div class="mt-1">
             <textarea
               rows="5"
               v-model="carouselContent"
-              class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
         </div>
@@ -91,7 +110,7 @@ async function deleteCarousel(docId: string) {
             <textarea
               rows="5"
               :value="carousels.msg"
-              class="shadow-sm focus:ring-red-500 focus:border-red-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
             />
           </div>
         </div>

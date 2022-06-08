@@ -1876,6 +1876,11 @@ js-stringify@^1.0.2:
   resolved "https://registry.yarnpkg.com/js-stringify/-/js-stringify-1.0.2.tgz#1736fddfd9724f28a3682adc6230ae7e4e9679db"
   integrity sha1-Fzb939lyTyijaCrcYjCufk6Weds=
 
+js-treeview@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/js-treeview/-/js-treeview-1.1.5.tgz#adf4191e18a3a24c89ec56e3b71c798ad8a06fe8"
+  integrity sha512-PtOfvElB7KZL4O0aO3z7UY38G7ReMN74Y1iRSZPsOfyS+YGtVrHVTst+rwIy96PGoWQ2/7wEUOjjpSeYUj7+mg==
+
 js-yaml@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-4.1.0.tgz#c1fb65f8f5017901cdd2c951864ba18458a10602"

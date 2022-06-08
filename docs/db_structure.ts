@@ -40,6 +40,11 @@ interface members {
       [productDocId: string]: number;
     };
     verifiedStatus: number;
+    //==== 以下為傭金相關欄位 ====
+    lastCommissionDatetime: number;
+    totalCommission: number;
+    fetchedCommissionAmount: number;
+    //==== ====
   };
 }
 
@@ -75,5 +80,15 @@ interface orders {
 interface systems {
   [documentId: string]: {
     lastUpdatedDatetime: number;
+  };
+}
+
+interface records {
+  [documentId: string]: {
+    type: string; //目前只有派放抽傭
+    account: string;
+    amount: number;
+    datetime: number;
+    dispatcherId: string;
   };
 }

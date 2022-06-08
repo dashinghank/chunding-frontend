@@ -7,6 +7,7 @@ import {
   getAllProducts,
   getAllDownlines,
   getAllCarousels,
+  getCommissionInfo,
 } from "@/store/firebaseControl";
 import { useRoute } from "vue-router";
 import axios from "axios";
@@ -27,33 +28,37 @@ const open = ref(false);
 onMounted(async () => {
   try {
     isShowMask.value = true;
-    //將 shopify 的訂單資料 update 到 firebase
-    await axios.post(
-      "https://shopify-api-nine.vercel.app/api/updateAllOrders",
-      {
-        withoutdelay: false,
-      }
-    );
+    //將 shopify 的訂單資料 update 到 firebase, 使用者無須等候
+    axios.post("https://shopify-api-nine.vercel.app/api/updateAllOrders", {
+      //true的話就是無論如何都會更新
+      withoutdelay: true,
+    });
 
     let currentUser = store.state.userInfo;
 
     // 現在已有使用者登入且不再登入頁面，重新整理時更新資料
     if (currentUser.urlsuffix != "" && route.name != "Login") {
-      var allProducts = await getAllProducts();
-      store.commit("setAllProducts", allProducts);
-      var downlines: any = await getAllDownlines(
-        store.state.userInfo.urlsuffix
-      );
-      console.log("downlines,downlines", downlines);
+      let allPromises = [
+        getAllDownlines(store.state.userInfo.urlsuffix),
+        getAllCarousels(),
+        getCommissionInfo(),
+      ];
+
+      let results = await Promise.all(allPromises);
+      var downlines = results[0];
       if (downlines.length > 0) {
         downlines.forEach((downline: any) => {
           store.commit("setDownline", downline);
         });
       }
+
+      let allCarousels = results[1];
+      store.commit("setAllCarousels", allCarousels);
+
+      let commissionInfo = results[2];
+      store.commit("setCommissionInfo", commissionInfo);
     }
 
-    let allCarousels = await getAllCarousels();
-    store.commit("setAllCarousels", allCarousels);
     isShowMask.value = false;
   } catch (e) {
     console.log(e);
@@ -67,12 +72,12 @@ onMounted(async () => {
     <Mask />
     <Navbar
       class="fixed top-0 w-full"
-      v-if="store.state.userInfo.urlsuffix != ''"
+      v-if="store.state.userInfo.urlsuffix != '' && route.name != 'Login'"
     />
 
     <div class="fixed z-10 w-16 right-5 bottom-5">
       <div
-        class="absolute top-[-375px] border border-black rounded-lg p-2 py-5 w-40 h-fit right-0 bg-white"
+        class="absolute top-[-325px] border border-black rounded-lg p-2 py-5 w-40 h-fit right-0 bg-white"
         v-if="open"
       >
         <div class="text-xs">
@@ -97,7 +102,7 @@ onMounted(async () => {
             <a
               class="text-blue-600 underline hover:text-blue-800 visited:text-purple-600"
               href="mailto:tingjia11@gmail.com"
-              >tingjia11@gmail.com</a
+              >chindingbio@gmail.com</a
             >
           </div>
         </div>
@@ -141,6 +146,7 @@ onMounted(async () => {
     <div class="pt-[15vh]">
       <router-view />
     </div>
+    <div class="fixed bottom-0 left-0 text-xs">v2022.0601.1202</div>
   </div>
 </template>
 
