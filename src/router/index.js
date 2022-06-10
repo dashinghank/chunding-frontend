@@ -62,6 +62,11 @@ const routes = [
     name: "Carousel",
     component: () => import("@/views/Carousel.vue"),
   },
+  {
+    path: "/commissionManagement",
+    name: "CommissionManagement",
+    component: () => import("@/views/CommissionManagement.vue"),
+  },
 ];
 const router = createRouter({
   history: createWebHistory(),

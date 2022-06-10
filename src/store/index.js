@@ -7,6 +7,7 @@ export default new Vuex.Store({
     allCarousels: [],
     userInfo: {
       docId: "",
+      account: "",
       nickname: "",
       urlsuffix: "",
       commissionPercentage: 0,
@@ -33,6 +34,7 @@ export default new Vuex.Store({
     },
     setClear(state) {
       state.userInfo = {
+        account: "",
         docId: "",
         nickname: "",
         urlsuffix: "",
@@ -70,6 +72,7 @@ export default new Vuex.Store({
     },
 
     setUserInfo(state, userInfo) {
+      state.userInfo.account = userInfo.account;
       state.userInfo.docId = userInfo.docId;
       state.userInfo.urlsuffix = userInfo.urlsuffix;
       state.userInfo.role = userInfo.role;

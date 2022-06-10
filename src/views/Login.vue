@@ -47,8 +47,9 @@ async function login() {
     isShowMask.value = false;
     return;
   }
-
+  console.log("currentMember.value.account:", currentMember.value.account);
   store.commit("setUserInfo", {
+    account: currentMember.value.account,
     docId: currentMember.value.docId,
     ancestors: currentMember.value.ancestors,
     nickname: currentMember.value.nickname,

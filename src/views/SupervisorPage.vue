@@ -337,7 +337,7 @@ async function createSubAccount() {
     lastLoginDatetime: currentDatetime,
     registerDatetime: currentDatetime,
     role: "sub",
-    urlsuffix: subAccount.value,
+    urlsuffix: "ADMIN_URL",
     ancestors:
       store.state.userInfo.ancestors.length == 0
         ? [store.state.userInfo.urlsuffix]

@@ -176,7 +176,7 @@ async function updatePassword() {
                     <div class="text-lg font-medium text-gray-900">
                       {{
                         store.state.commissionInfo.totalCommission -
-                        store.state.commissionInfo.recievedCommission
+                        store.state.commissionInfo.receivedCommission
                       }}
                     </div>
                   </dd>

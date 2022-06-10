@@ -30,6 +30,7 @@ switch (store.state.userInfo.role) {
       { name: "驗證KOL", href: "/veriflyKol" },
       { name: "公告頁面", href: "/announcementPage" },
       { name: "跑馬燈管理頁面", href: "/carousel" },
+      { name: "紅利管理頁面", href: "/commissionManagement" },
     ];
     break;
   case "sub":
@@ -39,6 +40,7 @@ switch (store.state.userInfo.role) {
       { name: "驗證KOL", href: "/veriflyKol" },
       { name: "公告頁面", href: "/announcementPage" },
       { name: "跑馬燈管理頁面", href: "/carousel" },
+      { name: "紅利管理頁面", href: "/commissionManagement" },
     ];
     break;
   case "kol":

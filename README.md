@@ -1,16 +1,76 @@
-# Vue 3 + Typescript + Vite
+# 專案名稱 Nuxt + Pixi JS
 
-This template should help get you started developing with Vue 3 and Typescript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+# 簡介
 
-## Recommended IDE Setup
+### 語言 : TypeScript
 
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
+### 主旨 :
 
-## Type Support For `.vue` Imports in TS
+- 在 Nuxt 中加入 Pixi JS
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates. However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can enable Volar's Take Over mode by following these steps:
+# 快速開始
 
-1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette, look for `TypeScript and JavaScript Language Features`, then right click and select `Disable (Workspace)`. By default, Take Over mode will enable itself if the default TypeScript extension is disabled.
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+## 環境建立
 
-You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).
+- VS Code
+- Yarn
+
+## Nuxt 專案建置步驟
+
+1. npx nuxi init <專案名稱>
+
+2. yarn install
+
+3. 安裝 nuxtjs/tailwindcss
+   ```powershell
+   yarn add --dev @nuxtjs/tailwindcss
+   ```
+4. 修改 nuxt.config.ts
+
+5.
+
+## 加入 Tailwind
+
+1. ```powershell
+   yarn add -D tailwindcss@latest postcss@latest autoprefixer@latest
+   ```
+
+2. ```powershell
+   yarn tailwindcss init -p
+   ```
+
+3. 修改 tailwind.config.js
+
+   ```javascript
+   module.exports = {
+     mode: "jit",
+     content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
+     theme: {
+       extend: {},
+     },
+     variants: {
+       extend: {},
+     },
+     plugins: [require("daisyui")],
+   };
+   ```
+
+4. 建立 src/css/index.css 並加入
+
+   ```css
+   @tailwind base;
+   @tailwind components;
+   @tailwind utilities;
+   ```
+
+5. main.js 中加入
+
+   ```javascript
+   import "./css/index.css";
+   ```
+
+## 觀念
+
+- 注意 vite scaffold 沒有內建 router 和 vuex，並且 vite 沒有 CLI 偵錯, 可考慮使用 typescript 編輯
+
+- mode:”jit”，可以大幅減少建立後 css 的容量
