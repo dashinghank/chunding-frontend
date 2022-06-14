@@ -44,7 +44,8 @@ async function addCarousel() {
         lastUpdatedDatetime: moment().valueOf(),
       });
       alert("新增成功");
-      allCarousels.value.push(newCarousel);
+      // allCarousels.value.push(newCarousel);
+      allCarousels.value = await getAllCarousels();
     } catch (error) {
       alert("新增跑馬燈失敗");
       console.log("error:", error);
@@ -62,9 +63,10 @@ async function deleteCarousel(docId: string) {
       isShowMask.value = true;
       await deleteDoc(doc(db, "carousels", docId));
       alert("刪除跑馬燈成功");
-      allCarousels.value = allCarousels.value.filter(
-        (carousel) => carousel.id != docId
-      );
+      // allCarousels.value = allCarousels.value.filter(
+      //   (carousel) => carousel.id != docId
+      // );
+      allCarousels.value = await getAllCarousels();
     } catch (error) {
       alert("刪除跑馬燈失敗");
       console.log(error);
@@ -75,54 +77,50 @@ async function deleteCarousel(docId: string) {
 }
 </script>
 <template>
-  <div class="p-5">
-    <div>跑馬燈修正頁面</div>
-
-    <div>
-      <div class="py-3 mt-12 text-3xl font-bold">跑馬燈設定</div>
-      <div class="flex gap-5 py-5">
-        <div class="w-7/12">
-          <div class="mt-1">
-            <textarea
-              rows="5"
-              v-model="carouselContent"
-              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-        </div>
-        <div class="self-end">
-          <button
-            type="button"
-            @click="addCarousel"
-            class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            新增一條跑馬燈
-          </button>
+  <div class="container mx-auto">
+    <div class="text-3xl font-bold">跑馬燈設定</div>
+    <div class="flex gap-5 py-5">
+      <div class="w-10/12">
+        <div class="mt-1">
+          <textarea
+            rows="1"
+            v-model="carouselContent"
+            class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
         </div>
       </div>
-      <div
-        v-for="carousels in store.state.allCarousels"
-        :key="carousels.docId"
-        class="flex gap-5 py-5"
-      >
-        <div class="w-7/12">
-          <div class="mt-1">
-            <textarea
-              rows="5"
-              :value="carousels.msg"
-              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
-            />
-          </div>
+      <div class="self-end">
+        <button
+          type="button"
+          @click="addCarousel"
+          class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          新增
+        </button>
+      </div>
+    </div>
+    <div
+      v-for="carousels in store.state.allCarousels"
+      :key="carousels.docId"
+      class="flex gap-5 py-5"
+    >
+      <div class="w-10/12">
+        <div class="mt-1">
+          <textarea
+            rows="1"
+            :value="carousels.msg"
+            class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
+          />
         </div>
-        <div class="self-end">
-          <button
-            type="button"
-            @click="deleteCarousel(carousels.docId.toString())"
-            class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            刪除這條跑馬燈
-          </button>
-        </div>
+      </div>
+      <div class="self-end">
+        <button
+          type="button"
+          @click="deleteCarousel(carousels.docId.toString())"
+          class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+        >
+          刪除
+        </button>
       </div>
     </div>
   </div>

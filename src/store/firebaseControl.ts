@@ -13,6 +13,7 @@ import {
   doc,
 } from "firebase/firestore";
 import store from ".";
+import _ from "lodash";
 
 interface IProduct {
   default: number;
@@ -20,6 +21,20 @@ interface IProduct {
   price: string;
   sku: string;
   vid: string;
+}
+
+export async function getAllAnnouncements() {
+  let db = getFirestore();
+  let announcementsQuery = await getDocs(collection(db, "announcements"));
+  let announcements: any = [];
+  announcementsQuery.forEach((d) => {
+    announcements.push({ ...d.data(), docId: d.id });
+  });
+  console.log("announcements:", announcements);
+  let descAnnouncements = _.orderBy(announcements, ["datetime"], ["desc"]);
+
+  // return _.sortBy(announcements,"datetime");
+  return descAnnouncements;
 }
 
 export async function getAllCarousels() {

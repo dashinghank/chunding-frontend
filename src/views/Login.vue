@@ -21,8 +21,8 @@ const store = useStore();
 const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
 const isVeriflyInfoFormOpen = ref(false);
 const currentMember: any = ref({});
-const email = ref("admin001");
-const password = ref("123456");
+const email = ref("");
+const password = ref("");
 
 provide("isVeriflyInfoFormOpen", isVeriflyInfoFormOpen);
 provide("currentMember", currentMember);

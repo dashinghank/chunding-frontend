@@ -109,6 +109,7 @@ function list_to_tree(list: any) {
     node = list[i];
     if (node.parentId !== "") {
       // if you have dangling branches check that map[node.parentId] exists
+      console.log(node.parentId);
       list[map[node.parentId]].children.push(node);
     } else {
       roots.push(node);
@@ -337,7 +338,7 @@ async function createSubAccount() {
     lastLoginDatetime: currentDatetime,
     registerDatetime: currentDatetime,
     role: "sub",
-    urlsuffix: "ADMIN_URL",
+    urlsuffix: subAccount.value,
     ancestors:
       store.state.userInfo.ancestors.length == 0
         ? [store.state.userInfo.urlsuffix]

@@ -1,16 +1,23 @@
 <script setup lang="ts">
 // import { onMounted } from "vue";
 import { useStore } from "vuex";
-import { inject, onMounted, ref, Ref } from "vue";
+import { inject, onMounted, onUnmounted, ref, Ref } from "vue";
 import { getFirestore } from "firebase/firestore";
 import { CurrencyDollarIcon } from "@heroicons/vue/outline";
 import axios from "axios";
 const db = getFirestore();
 const store = useStore();
 const password = ref("");
+const storeRef: any = ref();
+storeRef.value = store.state;
+console.log(store.state);
+console.log(storeRef.value);
+const selectedProduct = ref(Object.keys(storeRef.value.allProducts)[0]);
 
-const selectedProduct = ref(Object.keys(store.state.allProducts)[0]);
 onMounted(async () => {});
+function refresh() {
+  console.log("refresh");
+}
 
 async function updatePassword() {
   console.log("updatePassword");
@@ -29,7 +36,7 @@ async function updatePassword() {
       let result = await axios.post(
         "https://shopify-api-nine.vercel.app/api/updateMember",
         {
-          docId: `members/${store.state.userInfo.docId}`,
+          docId: `members/${storeRef.value.userInfo.docId}`,
           password: password.value.trim(),
         }
       );
@@ -56,15 +63,15 @@ async function updatePassword() {
     <div>
       <div class="text-xl font-bold">這是你的推廣網址:</div>
       <div>
-        <a :href="`https://cz8888.tw/?k=${store.state.userInfo.urlsuffix}`">
-          https://cz8888.tw/?k={{ store.state.userInfo.urlsuffix }}
+        <a :href="`https://cz8888.tw/?k=${storeRef.userInfo.urlsuffix}`">
+          https://cz8888.tw/?k={{ storeRef.userInfo.urlsuffix }}
         </a>
       </div>
       <div class="mt-5 text-xl font-bold">
         範例產品推廣網址:
         <select class="w-1/4" v-model="selectedProduct">
           <template
-            v-for="(value, key, index) in store.state.allProducts"
+            v-for="(value, key, index) in storeRef.allProducts"
             :key="value.vid"
           >
             <option :value="value.vid">
@@ -75,29 +82,29 @@ async function updatePassword() {
         </select>
       </div>
       <div class="mt-4">
-        <div>
+        <div v-if!="selectedProduct">
           <a
-            :href="`https://cz8888.tw/products/${store.state.allProducts[
+            :href="`https://cz8888.tw/products/${storeRef.allProducts[
               selectedProduct
             ].displayName
               .split(' - ')[0]
-              .trim()}?k=${store.state.userInfo.urlsuffix}`"
+              .trim()}?k=${storeRef.userInfo.urlsuffix}`"
           >
             https://cz8888.tw/products/{{
-              store.state.allProducts[selectedProduct].displayName
+              storeRef.allProducts[selectedProduct].displayName
                 .split(" - ")[0]
                 .trim()
-            }}?k={{ store.state.userInfo.urlsuffix }}
+            }}?k={{ storeRef.userInfo.urlsuffix }}
           </a>
         </div>
       </div>
       <div class="mt-12">
         <label class="text-xl font-bold">暱稱:</label>
-        <div>{{ store.state.userInfo.nickname }}</div>
+        <div>{{ storeRef.userInfo.nickname }}</div>
       </div>
-      <div class="mt-12" v-if="store.state.userInfo.qrCodeUrl != ''">
+      <div class="mt-12" v-if="storeRef.userInfo.qrCodeUrl != ''">
         <div class="text-xl font-bold">QR CODE 網站連結</div>
-        <img :src="store.state.userInfo.qrCodeUrl" />
+        <img :src="storeRef.userInfo.qrCodeUrl" />
       </div>
 
       <div class="mt-12 text-xl font-bold">更改密碼</div>
@@ -129,6 +136,15 @@ async function updatePassword() {
       </div>
     </div>
     <div>
+      <div class="flex justify-end">
+        <button
+          @click="refresh"
+          type="button"
+          class="self-center px-5 py-3 text-lg font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm first-letter:inline-flex md:self-end md:text-sm h-fit hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          刷新
+        </button>
+      </div>
       <div class="overflow-hidden bg-white rounded-lg shadow">
         <div class="p-5">
           <div class="flex items-center">
@@ -146,7 +162,7 @@ async function updatePassword() {
                 </dt>
                 <dd>
                   <div class="text-lg font-medium text-gray-900">
-                    {{ store.state.commissionInfo.totalCommission }}
+                    {{ storeRef.commissionInfo.totalCommission }}
                   </div>
                 </dd>
               </dl>
@@ -175,8 +191,8 @@ async function updatePassword() {
                   <dd>
                     <div class="text-lg font-medium text-gray-900">
                       {{
-                        store.state.commissionInfo.totalCommission -
-                        store.state.commissionInfo.receivedCommission
+                        storeRef.commissionInfo.totalCommission -
+                        storeRef.commissionInfo.receivedCommission
                       }}
                     </div>
                   </dd>

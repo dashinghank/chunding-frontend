@@ -80,7 +80,6 @@ switch (store.state.userInfo.role) {
 //       ];
 
 function signout() {
-  store.commit("setClear");
   router.push("/");
 }
 
@@ -91,7 +90,7 @@ function showStore() {
 }
 </script>
 <template>
-  <div>
+  <div class="bg-white">
     <div>
       <Vue3Marquee>
         <div class="flex gap-72">

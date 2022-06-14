@@ -22,40 +22,26 @@
 2. yarn install
 
 3. 安裝 nuxtjs/tailwindcss
+
    ```powershell
    yarn add --dev @nuxtjs/tailwindcss
    ```
+
 4. 修改 nuxt.config.ts
 
-5.
-
-## 加入 Tailwind
-
-1. ```powershell
-   yarn add -D tailwindcss@latest postcss@latest autoprefixer@latest
+   ```typescript
+   export default defineNuxtConfig({
+     modules: ["@nuxtjs/tailwindcss"],
+   });
    ```
 
-2. ```powershell
-   yarn tailwindcss init -p
+5. 加入 tailwind.config.js
+
+   ```powershell
+   npx tailwindcss init
    ```
 
-3. 修改 tailwind.config.js
-
-   ```javascript
-   module.exports = {
-     mode: "jit",
-     content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
-     theme: {
-       extend: {},
-     },
-     variants: {
-       extend: {},
-     },
-     plugins: [require("daisyui")],
-   };
-   ```
-
-4. 建立 src/css/index.css 並加入
+6. 建立 assets/css/tailwind.css
 
    ```css
    @tailwind base;
@@ -63,14 +49,26 @@
    @tailwind utilities;
    ```
 
-5. main.js 中加入
+7. 建立 pages, 等同於 vue3 router
 
-   ```javascript
-   import "./css/index.css";
+8. 加入 PIXI
+   ```powershell
+   yarn add pixi.js
+   ```
+9. 在 <script> 加入
+   ```typescript
+   import * as PIXI from "pixi.js";
+   ```
+
+## PIXIJS 使用說明
+
+#### Application
+
+1. ```typescript
+   const app = new PIXI.Application({ width: 256, height: 256 });
+   document.body.appendChild(app.view);
    ```
 
 ## 觀念
 
-- 注意 vite scaffold 沒有內建 router 和 vuex，並且 vite 沒有 CLI 偵錯, 可考慮使用 typescript 編輯
-
-- mode:”jit”，可以大幅減少建立後 css 的容量
+- 帶補充

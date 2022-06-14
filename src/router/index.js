@@ -84,9 +84,9 @@ router.beforeEach((to, from, next) => {
   }
 
   if (store.state.userInfo.urlsuffix == "") {
+    console.log("尚未登入");
     if (to.name != "Login") next({ name: "Login" });
     else next();
-
     return;
   }
 

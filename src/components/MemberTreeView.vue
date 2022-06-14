@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ref, Ref, inject } from "vue";
-import MemberTreeView from "@/components/MemberTreeView.vue";
 
 defineProps({
   data: {
