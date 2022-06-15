@@ -8,7 +8,7 @@ import "@vuepic/vue-datepicker/dist/main.css";
 // vetur
 import DownlinesOrderCommissionModal from "@/components/DownlinesOrderCommissionModal.vue";
 import { Chart, registerables } from "chart.js";
-import _, { parseInt } from "lodash";
+import _ from "lodash";
 
 Chart.register(...registerables);
 //----input ref----
@@ -98,7 +98,6 @@ async function queryOrder() {
   if (currentOrders.value.length < 1) {
     alert("查無訂單");
   }
-
   // if (store.state.userInfo.role == "admin") {}
   currentOrders.value.forEach((o: any, i: number) => {
     //此訂單所有下線可取得的最高分成
@@ -138,7 +137,7 @@ async function queryOrder() {
 </script>
 
 <template>
-  <div class="container mx-auto mt-[10vh]">
+  <div class="container mx-auto">
     <DownlinesOrderCommissionModal />
     <div>
       <div>現在登入帳號 : {{ store.state.userInfo.urlsuffix }}</div>
@@ -210,7 +209,7 @@ async function queryOrder() {
           </div>
         </div>
         <div class="flex flex-col mt-8">
-          <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div class="-my-2 overflow-x-auto">
             <div
               class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8"
             >
@@ -321,10 +320,10 @@ async function queryOrder() {
             </p> -->
           </div>
         </div>
-        <div class="flex flex-col mt-8">
-          <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="flex flex-col mt-8 w-full">
+          <div class="overflow-x-auto">
             <div
-              class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8"
+              class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8 tw"
             >
               <div
                 class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg"

@@ -137,9 +137,10 @@ async function deleteAnnouncement(docId: string) {
       <div class="rounded-md border-2 p-5 shadow-lg">
         <div class="flex justify-between items-end">
           <div class="text-3xl font-bold">{{ allAnnouncement.title }}</div>
-          <div class="text-gray-400">
-            公告時間:
-            {{ moment(allAnnouncement.datetime).format("YYYY/MM/DD HH:mm:ss") }}
+        </div>
+        <div class="flex justify-end">
+          <div class="text-gray-400 text-right text-xs">
+            {{ moment(allAnnouncement.datetime).format("YYYY/MM/DD HH:mm") }}
           </div>
         </div>
         <hr class="my-2" />

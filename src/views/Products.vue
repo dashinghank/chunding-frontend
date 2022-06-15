@@ -3,6 +3,7 @@ import { getFirestore, updateDoc, doc } from "firebase/firestore";
 import {
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
+  RefreshIcon,
 } from "@heroicons/vue/solid";
 
 import { useStore } from "vuex";
@@ -79,13 +80,11 @@ async function onProductRefresh() {
 
 <template>
   <div class="my-[10vh] container mx-auto">
-    <div class="text-xl text-red-500">
+    <!-- <div class="text-xl text-red-500">
       <div>* 此頁為調整產品基本分潤%數，與給予下線的分潤%數並不相同。</div>
       <div>* 此%數於調整後12小時後開始計算，已進行結帳的訂單不會列入計算</div>
-    </div>
-    <div>
-      <button @click="onProductRefresh">產品刷新</button>
-    </div>
+    </div> -->
+
     <div class="px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col mt-8">
         <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -123,7 +122,13 @@ async function onProductRefresh() {
                       產品最高分潤%數
                     </th>
                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                      <span class="sr-only">Edit</span>
+                      <div
+                        class="bg-opacity-0 hover:bg-opacity-50 active:bg-gray-400 transition-all bg-gray-300 w-fit rounded-full p-[5px] flex justify-center items-center"
+                      >
+                        <button class="w-4" @click="onProductRefresh">
+                          <RefreshIcon />
+                        </button>
+                      </div>
                     </th>
                   </tr>
                 </thead>
@@ -177,15 +182,15 @@ async function onProductRefresh() {
           </div>
         </div>
       </div>
-    </div>
-    <div>
-      <button
-        type="button"
-        @click="setProductMaxToDb"
-        class="inline-flex items-center px-3 py-2 mt-5 text-sm font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-      >
-        更新
-      </button>
+      <div class="w-full flex justify-end">
+        <button
+          type="button"
+          @click="setProductMaxToDb"
+          class="inline-flex items-center px-3 py-2 mt-5 text-sm font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          修改
+        </button>
+      </div>
     </div>
   </div>
 </template>

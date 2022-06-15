@@ -71,7 +71,7 @@ onMounted(async () => {
   <div class="relative min-w-full min-h-screen">
     <Mask />
     <Navbar
-      class="fixed top-0 w-full"
+      class="fixed top-0 w-full z-50"
       v-if="store.state.userInfo.urlsuffix != '' && route.name != 'Login'"
     />
 
@@ -101,8 +101,8 @@ onMounted(async () => {
             Mail :
             <a
               class="text-blue-600 underline hover:text-blue-800 visited:text-purple-600"
-              href="mailto:tingjia11@gmail.com"
-              >chindingbio@gmail.com</a
+              href="mailto:chundingbio@gmail.com"
+              >chundingbio@gmail.com</a
             >
           </div>
         </div>
@@ -143,9 +143,11 @@ onMounted(async () => {
         </svg>
       </div>
     </div>
-    <div class="pt-[15vh]">
+
+    <div class="pt-[15vh] pb-[10vh]">
       <router-view />
     </div>
+
     <div class="fixed bottom-0 left-0 text-xs">v2022.0601.1202</div>
   </div>
 </template>

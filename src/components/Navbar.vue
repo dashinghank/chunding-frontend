@@ -107,7 +107,7 @@ function showStore() {
       <!-- <Carousel /> -->
       <div class="px-2 mx-auto sm:px-6 lg:px-8">
         <div class="relative flex items-center justify-between h-16">
-          <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+          <div class="absolute inset-y-0 left-0 flex items-center lg:hidden">
             <!-- Mobile menu button-->
             <DisclosureButton
               class="inline-flex items-center justify-center p-2 text-gray-400 rounded-md hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
@@ -117,9 +117,7 @@ function showStore() {
               <XIcon v-else class="block w-6 h-6" aria-hidden="true" />
             </DisclosureButton>
           </div>
-          <div
-            class="flex items-center justify-center flex-1 sm:items-stretch sm:justify-start"
-          >
+          <div class="flex items-center justify-center flex-1 lg:items-stretch">
             <router-link to="/home">
               <div class="flex items-center flex-shrink-0">
                 <img
@@ -134,7 +132,7 @@ function showStore() {
                 />
               </div>
             </router-link>
-            <div class="hidden sm:block sm:ml-6">
+            <div class="hidden lg:block lg:ml-6">
               <div class="flex space-x-4">
                 <router-link
                   v-for="item in navigation"
@@ -143,7 +141,7 @@ function showStore() {
                       ? 'bg-gray-900 text-white'
                       : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                   ]"
-                  class="px-3 py-2 text-sm font-medium rounded-md"
+                  class="px-3 py-2 text-xs font-medium rounded-md"
                   :key="item.name"
                   :to="item.href"
                   >{{ item.name }}</router-link
@@ -158,7 +156,7 @@ function showStore() {
             <router-link to="/customerService">聯絡客服</router-link>
           </div>
           <div
-            class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
+            class="absolute inset-y-0 right-0 flex items-center pr-2 lg:static lg:inset-auto lg:ml-6 lg:pr-0"
           >
             <!-- Profile dropdown -->
             <Menu as="div" class="relative ml-3">
@@ -209,7 +207,7 @@ function showStore() {
         </div>
       </div>
 
-      <DisclosurePanel class="sm:hidden">
+      <DisclosurePanel class="lg:hidden">
         <div class="px-2 pt-2 pb-3 space-y-1">
           <DisclosureButton
             v-for="item in navigation"

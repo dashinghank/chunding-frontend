@@ -131,8 +131,8 @@ async function rejectApplication() {
 }
 </script>
 <template>
-  <div class="container p-5">
-    <div class="w-72">
+  <div class="container mx-auto px-5">
+    <div class="w-full max-w-72">
       <label for="location" class="block text-sm font-medium text-gray-700"
         >請選擇要認證的KOL</label
       >
@@ -155,7 +155,7 @@ async function rejectApplication() {
         </template>
       </select>
     </div>
-    <div class="w-72">
+    <div class="w-full max-w-72">
       <div class="py-3">
         <label for="vInstaId" class="block text-sm font-medium text-gray-700"
           >Instagram ID</label
