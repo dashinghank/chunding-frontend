@@ -82,7 +82,7 @@ async function deleteCarousel(docId: string) {
       class="rounded-md border-2 p-5 shadow-lg bg-gray-100 w-full lg:w-10/12 mx-auto mb-20"
     >
       <div class="flex justify-between items-end">
-        <div class="text-3xl font-bold">管理者新增跑馬燈</div>
+        <div class="text-3xl font-bold">管理跑馬燈</div>
       </div>
       <hr class="" />
       <br />
