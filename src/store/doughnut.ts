@@ -16,8 +16,13 @@ const CHART_COLORS = {
 };
 
 export function getDoughnut(element: any, kols: string[], datas: number[]) {
+  let tempDatas = _.cloneDeep(datas);
+  //mutiply datas 1000 times
+  for (let i = 0; i < datas.length; ++i) {
+    tempDatas[i] = tempDatas[i] * 1000;
+  }
   for (let i = 0; i < kols.length; ++i) {
-    kols[i] = kols[i] + ": " + datas[i] * 100 + "%";
+    kols[i] = kols[i] + ": " + tempDatas[i] + "元";
   }
 
   let data: any = {
@@ -25,15 +30,17 @@ export function getDoughnut(element: any, kols: string[], datas: number[]) {
     datasets: [
       {
         label: "分成比例表",
-        data: datas,
+        data: tempDatas,
         backgroundColor: _.shuffle(Object.values(CHART_COLORS)),
         hoverOffset: 4,
       },
     ],
   };
 
+  console.log(data);
+
   let config: any = {
-    type: "pie",
+    type: "bar",
     data: data,
   };
 

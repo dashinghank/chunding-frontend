@@ -77,51 +77,70 @@ async function deleteCarousel(docId: string) {
 }
 </script>
 <template>
-  <div class="container mx-auto">
-    <div class="text-3xl font-bold">跑馬燈設定</div>
-    <div class="flex gap-5 py-5">
-      <div class="w-10/12">
-        <div class="mt-1">
-          <textarea
-            rows="1"
-            v-model="carouselContent"
-            class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
+  <div class="container mx-auto rounded-lg lg:p-4 lg:bg-white bg-gray-100 p-5">
+    <div
+      class="rounded-md border-2 p-5 shadow-lg bg-gray-100 w-full lg:w-10/12 mx-auto mb-20"
+    >
+      <div class="flex justify-between items-end">
+        <div class="text-3xl font-bold">管理者新增跑馬燈</div>
+      </div>
+      <hr class="" />
+      <br />
+
+      <div class="w-full flex gap-3">
+        <div class="flex gap-3 w-full">
+          <div class="w-full">
+            <label class="block text-sm font-medium text-gray-700"
+              >跑馬燈內文</label
+            >
+            <div class="mt-1">
+              <textarea
+                rows="4"
+                v-model="carouselContent"
+                class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+          </div>
         </div>
       </div>
-      <div class="self-end">
+      <div class="flex justify-end mt-5">
         <button
-          type="button"
           @click="addCarousel"
-          class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          type="button"
+          class="self-center px-5 py-3 text-lg font-medium leading-4 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm first-letter:inline-flex md:self-end md:text-sm h-fit hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           新增
         </button>
       </div>
     </div>
+
     <div
       v-for="carousels in store.state.allCarousels"
       :key="carousels.docId"
-      class="flex gap-5 py-5"
+      class="lg:w-10/12 mx-auto"
     >
-      <div class="w-10/12">
-        <div class="mt-1">
+      <div class="rounded-md border-2 p-5 shadow-lg">
+        <div class="w-full">
           <textarea
-            rows="1"
+            rows="4"
             :value="carousels.msg"
             class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
           />
         </div>
+        <div class="flex justify-end mt-5">
+          <div>
+            <button
+              type="button"
+              @click="deleteCarousel(carousels.docId.toString())"
+              class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              刪除
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="self-end">
-        <button
-          type="button"
-          @click="deleteCarousel(carousels.docId.toString())"
-          class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-        >
-          刪除
-        </button>
-      </div>
+      <br />
+      <br />
     </div>
   </div>
 </template>

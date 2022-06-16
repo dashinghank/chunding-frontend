@@ -95,27 +95,44 @@ async function deleteAnnouncement(docId: string) {
         store.state.userInfo.role == 'sub'
       "
     >
-      <div class="rounded-md border-2 p-5 shadow-lg bg-gray-100">
+      <div
+        class="rounded-md border-2 p-5 shadow-lg bg-gray-100 w-full lg:w-10/12 mx-auto"
+      >
         <div class="flex justify-between items-end">
           <div class="text-3xl font-bold">管理者新增公告</div>
         </div>
         <hr class="my-2" />
         <div class="flex gap-3 w-full">
-          <p class="w-fit whitespace-nowrap">公告標題:</p>
-          <input
-            class="w-1/3 rounded-md"
-            type="text"
-            v-model="announcementTitle"
-          />
+          <div class="w-full">
+            <label class="block text-sm font-medium text-gray-700"
+              >公告標題</label
+            >
+            <div class="mt-1">
+              <input
+                v-model="announcementTitle"
+                type="text"
+                class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+          </div>
         </div>
         <br />
+
         <div class="w-full flex gap-3">
-          <p class="w-fit whitespace-nowrap">公告內文:</p>
-          <textarea
-            rows="5"
-            v-model="announcementContent"
-            class="w-full block border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
+          <div class="flex gap-3 w-full">
+            <div class="w-full">
+              <label class="block text-sm font-medium text-gray-700"
+                >公告內文</label
+              >
+              <div class="mt-1">
+                <textarea
+                  rows="7"
+                  v-model="announcementContent"
+                  class="w-full block border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+            </div>
+          </div>
         </div>
         <div class="flex justify-end mt-5">
           <button
@@ -133,6 +150,7 @@ async function deleteAnnouncement(docId: string) {
     <div
       v-for="allAnnouncement in allAnnouncements"
       :key="allAnnouncement.docId"
+      class="lg:w-10/12 mx-auto"
     >
       <div class="rounded-md border-2 p-5 shadow-lg">
         <div class="flex justify-between items-end">
@@ -144,8 +162,8 @@ async function deleteAnnouncement(docId: string) {
           </div>
         </div>
         <hr class="my-2" />
-        <div>
-          <p>
+        <div class="w-full">
+          <p class="break-words">
             {{ allAnnouncement.content }}
           </p>
         </div>

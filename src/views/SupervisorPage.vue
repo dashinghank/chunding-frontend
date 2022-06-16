@@ -16,6 +16,7 @@ import {
   addDoc,
 } from "firebase/firestore";
 import { useStore } from "vuex";
+import ListComponent from "@/components/ListComponent.vue";
 import MemberTreeView from "@/components/MemberTreeView.vue";
 
 var db = getFirestore();
@@ -26,7 +27,7 @@ const currentSelectMember = ref() as Ref<string>;
 const allMembersRef: Ref<any> = ref({}) as Ref<any>;
 
 //==== element refs ====
-
+const commissionPercentageRef = ref();
 const currentSuffix: Ref<string> = ref("");
 
 const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
@@ -230,6 +231,7 @@ async function onToggleMember(lockStatus: boolean) {
 }
 
 async function onSubmit() {
+  console.log(commissionPercentage.value / 100);
   try {
     isShowMask.value = true;
 
@@ -266,6 +268,7 @@ async function onSubmit() {
 }
 
 function clearAllInputs() {
+  console.log("clearAllInputs");
   commissionPercentage.value = 0;
   phoneNumber.value = "";
   urlsuffix.value = "";
@@ -275,10 +278,14 @@ function clearAllInputs() {
   kolName.value = "";
   lineId.value = "";
   role.value = "";
+  commissionPercentageRef.value.value = "";
   depth.value = -1;
 }
 
 function onCommissionPercentageChange(e: any) {
+  console.log(parseInt(e.target.value));
+  console.log("maxCommissionRef.value:", maxCommissionRef.value);
+
   if (parseInt(e.target.value) > maxCommissionRef.value) {
     console.log("over");
     commissionPercentage.value = maxCommissionRef.value;
@@ -364,305 +371,286 @@ async function createSubAccount() {
 <template>
   <div class="container mx-auto">
     <!-- 測試區 -->
-    {{ currentSelectMember }}
-    <div id="treeRoot" v-if="treeDataRef.length > 0">
+    <!-- <div id="treeRoot" v-if="treeDataRef.length > 0">
       <MemberTreeView :data="treeDataRef[0]" />
-    </div>
-
-    <!-- 測試區 -->
-    <!-- <div class="w-1/4">
-      <label for="location" class="block text-sm font-medium text-gray-700"
-        >選擇會員</label
-      >
-      <select
-        @change="onDownlineChangeClick"
-        class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-      >
-        <option disabled selected hidden value="none">尚未選擇</option>
-        <template v-for="(member, key, index) in allMembersRef" :key="index">
-          <option :value="member.urlsuffix">
-            {{ member.nickname }}
-          </option>
-        </template>
-      </select>
     </div> -->
 
-    <div class="grid grid-cols-2">
-      <div>
-        <!-- 第一列 -->
-        <div class="mt-5">
+    <div class="py-3">
+      <h1 class="text-3xl font-semibold">會員資訊</h1>
+    </div>
+    <div class="flex-col lg:flex-row flex w-full gap-16 justify-center">
+      <ListComponent class="mx-auto" />
+      <div
+        class="mx-auto border-2 border-gray-400 rounded-md w-full max-w-[360px] p-3 h-fit md:h-[600px]"
+      >
+        <div class="py-2">
+          <label for="email" class="block text-sm font-medium text-gray-700"
+            >綽號</label
+          >
+          <div class="mt-1">
+            <input
+              v-model="nickname"
+              type="text"
+              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+        </div>
+        <div>
           <div>
-            <div class="max-w-[300px]">
-              <label for="email" class="block text-sm font-medium text-gray-700"
-                >綽號</label
-              >
-              <div class="mt-1">
-                <input
-                  v-model="nickname"
-                  type="text"
-                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
+            <label for="email" class="block text-sm font-medium text-gray-700"
+              >密碼</label
+            >
+            <div class="mt-1">
+              <input
+                v-model="password"
+                type="text"
+                class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
             </div>
           </div>
         </div>
-        <!-- 第二列 -->
-        <div class="mt-5">
-          <div>
-            <div class="max-w-[300px]">
-              <label for="email" class="block text-sm font-medium text-gray-700"
-                >密碼</label
-              >
-              <div class="mt-1">
-                <input
-                  v-model="password"
-                  type="text"
-                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- 第三列 -->
-        <div class="mt-5">
-          <div>
-            <div class="max-w-[300px]">
-              <label for="email" class="block text-sm font-medium text-gray-700"
-                >網址後綴</label
-              >
-              <div class="mt-1">
-                <input
-                  v-model="urlsuffix"
-                  disabled
-                  type="text"
-                  class="block w-full bg-gray-200 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- 第四列 -->
-        <div class="mt-5">
-          <div>
-            <div class="max-w-[500px]">
-              <label class="block text-sm font-medium text-gray-700"
-                >可給予最高分成: {{ maxCommissionRef }}%</label
-              >
-              <label class="block text-sm font-medium text-gray-700"
-                >可給予最低分成: {{ minCommissionRef }}%</label
-              >
-              <label class="block text-sm font-medium text-gray-700"
-                >上線目前給予此會員的產品分成:
-                {{
-                  currentSuffix != ""
-                    ? allMembersRef[currentSuffix].commissionPercentage * 100
-                    : ""
-                }}%</label
-              >
+        <div class="py-3 mt-3">
+          <div class="font-bold text-xl">分成</div>
+          <hr class="py-1" />
+          <div class="max-w-[500px]">
+            <label class="block text-sm font-medium text-gray-700"
+              >可給予最高分成: {{ maxCommissionRef }}%</label
+            >
+            <label class="block text-sm font-medium text-gray-700"
+              >可給予最低分成: {{ minCommissionRef }}%</label
+            >
+            <label class="block text-sm font-medium text-gray-700"
+              >上線目前給予此會員的產品分成:
+              {{
+                currentSuffix != ""
+                  ? allMembersRef[currentSuffix].commissionPercentage * 100
+                  : ""
+              }}%</label
+            >
 
-              <div class="flex gap-2 mt-1">
-                <input
-                  type="number"
-                  class="w-[200px] block border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  @change="onCommissionPercentageChange"
-                />
-              </div>
-              <label
-                class="block text-sm font-medium text-red-600"
-                v-if="currentSuffix != ''"
-                >此會員給予下線最高產品分成: {{ minCommissionRef }} %</label
-              >
+            <div class="flex gap-2 mt-5">
+              <input
+                ref="commissionPercentageRef"
+                type="number"
+                class="w-full block border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                @change="onCommissionPercentageChange"
+              />
             </div>
+            <label
+              class="block text-sm font-medium text-red-600"
+              v-if="currentSuffix != ''"
+              >此會員給予下線最高產品分成: {{ minCommissionRef }} %</label
+            >
           </div>
-        </div>
-      </div>
-      <div>
-        <!-- 第一列 -->
-        <div class="mt-5">
-          <div>
-            <div class="max-w-[300px]">
-              <label for="email" class="block text-sm font-medium text-gray-700"
-                >身分</label
-              >
-              <div class="mt-1">
-                <input
-                  type="text"
-                  disabled
-                  v-model="role"
-                  class="block w-full bg-gray-200 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- 第二列 -->
-        <div class="mt-5">
-          <div>
-            <div class="max-w-[300px]">
-              <label for="email" class="block text-sm font-medium text-gray-700"
-                >深度</label
-              >
-              <div class="mt-1">
-                <input
-                  v-if="depth == -1"
-                  type="text"
-                  disabled
-                  value=""
-                  class="block w-full bg-gray-200 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-                <input
-                  v-else
-                  type="text"
-                  disabled
-                  v-model="depth"
-                  class="block w-full bg-gray-200 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- instaId -->
-        <div class="mt-5">
-          <div>
-            <div class="max-w-[300px]">
-              <label for="email" class="block text-sm font-medium text-gray-700"
-                >Instagram ID</label
-              >
-              <div class="mt-1">
-                <input
-                  type="text"
-                  disabled
-                  v-model="instaId"
-                  class="block w-full bg-gray-200 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- lineId -->
-        <div class="mt-5">
-          <div>
-            <div class="max-w-[300px]">
-              <label for="email" class="block text-sm font-medium text-gray-700"
-                >Line ID</label
-              >
-              <div class="mt-1">
-                <input
-                  type="text"
-                  disabled
-                  v-model="lineId"
-                  class="block w-full bg-gray-200 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- 姓名 -->
-        <div class="mt-5">
-          <div>
-            <div class="max-w-[300px]">
-              <label for="email" class="block text-sm font-medium text-gray-700"
-                >KOL 姓名</label
-              >
-              <div class="mt-1">
-                <input
-                  type="text"
-                  disabled
-                  v-model="kolName"
-                  class="block w-full bg-gray-200 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- 電話 -->
-        <div class="mt-5">
-          <div>
-            <div class="max-w-[300px]">
-              <label for="email" class="block text-sm font-medium text-gray-700"
-                >KOL 電話</label
-              >
-              <div class="mt-1">
-                <input
-                  type="text"
-                  disabled
-                  v-model="phoneNumber"
-                  class="block w-full bg-gray-200 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- 第三列 -->
-        <div class="mt-5">
-          <div>
+          <div
+            class="flex gap-4 mt-5 justify-center"
+            v-if="currentSuffix != ''"
+          >
             <div>
-              <label
-                for="email"
-                class="block text-sm font-medium text-gray-700"
-              ></label>
-              <div v-show="currentSuffix != ''">
-                <div>當產品賣出後，該會員所有上線的抽成比例：</div>
-                <div class="max-w-[300px]">
-                  <canvas ref="doughnutCanvas"></canvas>
-                </div>
-                <div>範例:</div>
-                <div>產品售價: 2000元 &nbsp;&nbsp; 產品最高分潤金額:1000元</div>
-                <template
-                  v-for="(suffix, index) in exampleSuffixs"
-                  :key="index"
+              <button
+                type="button"
+                @click="onSubmit"
+                class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                修改
+              </button>
+            </div>
+
+            <div>
+              <template v-if="!allMembersRef[currentSuffix].isLocked">
+                <button
+                  type="button"
+                  @click="onToggleMember(true)"
+                  class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
-                  <div class="grid w-64 grid-cols-2">
-                    <div>{{ allMembersRef[suffix].nickname }}:</div>
-                    <div>{{ commissionFormulaRef[index] * 1000 }}元</div>
-                  </div>
-                </template>
+                  鎖定
+                </button>
+              </template>
+              <template v-else>
+                <button
+                  type="button"
+                  @click="onToggleMember(false)"
+                  class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
+                  解鎖
+                </button></template
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="w-full p-3 h-fit md:h-[600px]">
+        <div>
+          <label
+            for="email"
+            class="block text-sm font-medium text-gray-700"
+          ></label>
+          <div v-show="currentSuffix != ''">
+            <div>當產品賣出後，該會員所有上線的抽成比例：</div>
+            <br />
+            <div class="w-full mx-auto">
+              <canvas ref="doughnutCanvas"></canvas>
+            </div>
+            <!-- <div>範例:</div>
+            <div>產品售價: 2000元 &nbsp;&nbsp; 產品最高分潤金額:1000元</div>
+            <template v-for="(suffix, index) in exampleSuffixs" :key="index">
+              <div class="grid w-64 grid-cols-2">
+                <div>{{ allMembersRef[suffix].nickname }}:</div>
+                <div>{{ commissionFormulaRef[index] * 1000 }}元</div>
               </div>
+            </template> -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 表格資訊 -->
+    <div class="mt-16">
+      <div class="mt-8 flex flex-col">
+        <div class="-my-2 overflow-x-auto">
+          <div
+            class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8"
+          >
+            <div
+              class="overflow-hidden shadow ring-1 ring-red-400 ring-opacity-5 md:rounded-lg"
+            >
+              <table class="min-w-full divide-y divide-gray-300">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      姓名
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      電話
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      Line
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      IG
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      身分
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      深度
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      網址後綴
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                  <tr>
+                    <td
+                      class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                    >
+                      {{ kolName }}
+                    </td>
+                    <td
+                      class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                    >
+                      {{ phoneNumber }}
+                    </td>
+                    <td
+                      class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                    >
+                      {{ lineId }}
+                    </td>
+                    <td
+                      class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                    >
+                      {{ instaId }}
+                    </td>
+                    <td
+                      class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                    >
+                      {{ role }}
+                    </td>
+                    <td
+                      class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                    >
+                      {{ depth }}
+                    </td>
+                    <td
+                      class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                    >
+                      {{ urlsuffix }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="flex gap-4 mt-5" v-if="currentSuffix != ''">
-      <div>
-        <button
-          type="button"
-          @click="onSubmit"
-          class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          修改
-        </button>
-      </div>
 
-      <div>
-        <template v-if="!allMembersRef[currentSuffix].isLocked">
-          <button
-            type="button"
-            @click="onToggleMember(true)"
-            class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            鎖定
-          </button>
-        </template>
-        <template v-else>
-          <button
-            type="button"
-            @click="onToggleMember(false)"
-            class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-          >
-            解鎖
-          </button></template
-        >
+    <div class="py-3 mt-12">
+      <h1 class="text-3xl font-semibold">新建子帳號</h1>
+      <div class="mt-10">
+        <div class="mx-auto w-fit sm:ml-0">
+          <div class="max-w-[300px]">
+            <label class="block text-sm font-medium text-gray-700">帳號</label>
+            <div class="mt-1">
+              <input
+                v-model="subAccount"
+                type="text"
+                class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+          </div>
+          <div class="max-w-[300px]">
+            <label class="block text-sm font-medium text-gray-700">密碼</label>
+            <div class="mt-1">
+              <input
+                v-model="subPassword"
+                type="text"
+                class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+          </div>
+          <div class="max-w-[300px]">
+            <label class="block text-sm font-medium text-gray-700">暱稱</label>
+            <div class="mt-1">
+              <input
+                v-model="subNickname"
+                type="text"
+                class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+          </div>
+          <div class="mt-5">
+            <button
+              type="button"
+              @click="createSubAccount"
+              class="inline-flex items-center px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              建立
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="mt-10">
-      <div>新建子帳號</div>
-      <div>
-        <div>帳號:<input type="text" v-model="subAccount" /></div>
-        <div class="mt-4">密碼:<input type="text" v-model="subPassword" /></div>
-        <div class="mt-4">暱稱:<input type="text" v-model="subNickname" /></div>
-      </div>
-      <div><button @click="createSubAccount">建立</button></div>
     </div>
   </div>
 </template>

@@ -90,7 +90,7 @@ function showStore() {
 }
 </script>
 <template>
-  <div class="bg-white">
+  <div class="bg-gray-800 text-gray-200 shadow-md">
     <div>
       <Vue3Marquee>
         <div class="flex gap-72">
@@ -103,14 +103,14 @@ function showStore() {
         </div>
       </Vue3Marquee>
     </div>
-    <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
+    <Disclosure as="nav" class="bg-white" v-slot="{ open }">
       <!-- <Carousel /> -->
       <div class="px-2 mx-auto sm:px-6 lg:px-8">
         <div class="relative flex items-center justify-between h-16">
           <div class="absolute inset-y-0 left-0 flex items-center lg:hidden">
             <!-- Mobile menu button-->
             <DisclosureButton
-              class="inline-flex items-center justify-center p-2 text-gray-400 rounded-md hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+              class="inline-flex items-center justify-center p-2 text-[#244a69] rounded-md hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
             >
               <span class="sr-only">Open main menu</span>
               <MenuIcon v-if="!open" class="block w-6 h-6" aria-hidden="true" />
@@ -139,7 +139,7 @@ function showStore() {
                   :class="[
                     route.path == item.href
                       ? 'bg-gray-900 text-white'
-                      : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                      : 'text-[#244a69] hover:bg-gray-700 hover:text-white',
                   ]"
                   class="px-3 py-2 text-xs font-medium rounded-md"
                   :key="item.name"
@@ -162,7 +162,7 @@ function showStore() {
             <Menu as="div" class="relative ml-3">
               <div>
                 <MenuButton
-                  class="flex text-sm text-gray-400 bg-gray-800 rounded-full focus:outline-none hover:text-white"
+                  class="flex text-sm text-[#244a69] focus:outline-none hover:text-opacity-75 bg-opacity-0 hover:bg-opacity-50 w-fit rounded-full active:bg-gray-400 transition-all bg-gray-300"
                 >
                   <span class="sr-only">Open user menu</span>
                   <CogIcon class="w-6 h-6" aria-hidden="true" />
@@ -216,8 +216,8 @@ function showStore() {
             :href="item.href"
             :class="[
             (item as any).current
-              ? 'bg-gray-900 text-white'
-              : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+              ? 'bg-[#244a69] text-white'
+              : 'text-[#244a69] hover:bg-gray-700 hover:text-white',
             'block px-3 py-2 rounded-md text-base font-medium',
           ]"
             :aria-current="(item as any).current ? 'page' : undefined"
