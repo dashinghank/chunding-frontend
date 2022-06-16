@@ -15,6 +15,7 @@ watch(currentSelectedParent, (newValue) => {
   currentChildren.value = [];
   currentSelectedAncestors.value = [];
   storeStateRef.value = store.state;
+  console.log(storeStateRef.value.downlines);
 
   if (newValue == "ADMIN_URL") {
     currentSelectedAncestors.value = ["ADMIN_URL"];
@@ -42,28 +43,38 @@ function onSelected(urlsuffix: string) {
 </script>
 
 <template>
-  <div class="max-w-[360px] w-full text-sm h-fit md:h-[600px]">
+  <div class="max-w-[500px] w-full text-sm h-fit md:h-[600px]">
     <div class="border-2 border-gray-400 rounded-md w-full mx-auto h-full">
-      <div class="flex overflow-auto py-1.5 px-1">
+      <div class="flex overflow-auto py-5 px-1">
         <template v-if="currentSelectedAncestors.length > 0">
-          <div
-            @click="
-              () => {
-                onSelected(ancestor);
-                currentSelectMember = ancestor;
-                onDownlineChangeClick();
-              }
-            "
-            v-for="(ancestor, i) in currentSelectedAncestors"
-            :key="i"
-            class="flex"
-          >
-            {{ ancestor }}
-            <div>&nbsp;>&nbsp;</div>
+          <div class="flex">
+            <div
+              @click="
+                () => {
+                  onSelected(ancestor);
+                  currentSelectMember = ancestor;
+                  onDownlineChangeClick();
+                }
+              "
+              v-for="(ancestor, i) in currentSelectedAncestors"
+              :key="i"
+              class="flex"
+            >
+              <div v-if="ancestor == 'ADMIN_URL'">
+                {{ ancestor }}
+              </div>
+              <div v-if="ancestor != 'ADMIN_URL'" class="whitespace-nowrap">
+                {{ store.state.downlines[ancestor].nickname }}
+              </div>
+
+              <div>&nbsp;>&nbsp;</div>
+            </div>
+            <template v-if="currentSelectedParent != 'ADMIN_URL'">
+              <div class="whitespace-nowrap">
+                {{ store.state.downlines[currentSelectedParent].nickname }}
+              </div>
+            </template>
           </div>
-          <template v-if="currentSelectedParent != 'ADMIN_URL'">
-            <p>{{ currentSelectedParent }}</p>
-          </template>
         </template>
       </div>
       <div
@@ -82,7 +93,7 @@ function onSelected(urlsuffix: string) {
             }
           "
         >
-          {{ children.urlsuffix }}
+          {{ store.state.downlines[children.urlsuffix].nickname }}
         </div>
         <!-- <div
           v-for="(children, k) in currentChildren"

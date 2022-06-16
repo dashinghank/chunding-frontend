@@ -381,7 +381,7 @@ async function createSubAccount() {
     <div class="flex-col lg:flex-row flex w-full gap-16 justify-center">
       <ListComponent class="mx-auto" />
       <div
-        class="mx-auto border-2 border-gray-400 rounded-md w-full max-w-[360px] p-3 h-fit md:h-[600px]"
+        class="mx-auto border-2 border-gray-400 rounded-md w-full max-w-[400px] p-3 h-fit md:h-[600px]"
       >
         <div class="py-2">
           <label for="email" class="block text-sm font-medium text-gray-700"
