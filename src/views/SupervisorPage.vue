@@ -42,8 +42,8 @@ const subPassword = ref("");
 const subNickname = ref("");
 const nickname = ref("");
 const password = ref("");
-const urlsuffix = ref("");
 const commissionPercentage = ref(0);
+const urlsuffix = ref("");
 const role = ref("");
 const depth = ref(-1);
 const instaId = ref("");
@@ -127,11 +127,12 @@ function onDownlineChangeClick() {
 
 function onDownlineChange(suffix: string) {
   let member = allMembersRef.value[suffix];
+
   nickname.value = member.nickname;
   password.value = member.password;
-  urlsuffix.value = member.urlsuffix;
   currentSuffix.value = member.urlsuffix;
   commissionPercentage.value = Math.floor(member.commissionPercentage * 100);
+  urlsuffix.value = member.urlsuffix;
   role.value = member.role;
   depth.value = member.depth;
   instaId.value = member.instaId;
@@ -202,7 +203,7 @@ async function onToggleMember(lockStatus: boolean) {
     let result = await axios.post(
       "https://shopify-api-nine.vercel.app/api/updateMember",
       {
-        docId: `members/${allMembersRef.value[currentSuffix.value].id}`,
+        docId: `${allMembersRef.value[currentSuffix.value].id}`,
         isLocked: lockStatus,
       }
     );
@@ -238,7 +239,7 @@ async function onSubmit() {
     let result = await axios.post(
       "https://shopify-api-nine.vercel.app/api/updateMember",
       {
-        docId: `members/${allMembersRef.value[currentSuffix.value].id}`,
+        docId: `${allMembersRef.value[currentSuffix.value].id}`,
         nickname: nickname.value,
         password: password.value,
         commissionPercentage: commissionPercentage.value / 100,
@@ -370,18 +371,15 @@ async function createSubAccount() {
 
 <template>
   <div class="container mx-auto">
-    <!-- 測試區 -->
-    <!-- <div id="treeRoot" v-if="treeDataRef.length > 0">
-      <MemberTreeView :data="treeDataRef[0]" />
-    </div> -->
-
     <div class="py-3">
       <h1 class="text-3xl font-semibold">會員資訊</h1>
     </div>
-    <div class="flex-col lg:flex-row flex w-full gap-16 justify-center">
+    <div
+      class="flex-col lg:flex-row flex w-full gap-16 justify-center px-2 lg:px-0"
+    >
       <ListComponent class="mx-auto" />
       <div
-        class="mx-auto border-2 border-gray-400 rounded-md w-full max-w-[400px] p-3 h-fit md:h-[600px]"
+        class="mx-auto border-2 border-gray-400 rounded-md w-full max-w-[500px] lg:max-w-[400px] p-3 h-fit md:h-[600px]"
       >
         <div class="py-2">
           <label for="email" class="block text-sm font-medium text-gray-700"
@@ -414,10 +412,10 @@ async function createSubAccount() {
           <hr class="py-1" />
           <div class="max-w-[500px]">
             <label class="block text-sm font-medium text-gray-700"
-              >可給予最高分成: {{ maxCommissionRef }}%</label
+              >會員分成設定上限: {{ maxCommissionRef }}%</label
             >
             <label class="block text-sm font-medium text-gray-700"
-              >可給予最低分成: {{ minCommissionRef }}%</label
+              >會員分成設定下限: {{ minCommissionRef }}%</label
             >
             <label class="block text-sm font-medium text-gray-700"
               >上線目前給予此會員的產品分成:
@@ -480,36 +478,20 @@ async function createSubAccount() {
         </div>
       </div>
       <div class="w-full p-3 h-fit md:h-[600px]">
-        <div>
-          <label
-            for="email"
-            class="block text-sm font-medium text-gray-700"
-          ></label>
-          <div v-show="currentSuffix != ''">
-            <div>當產品賣出後，該會員所有上線的抽成比例：</div>
-            <br />
-            <div class="w-full mx-auto">
-              <canvas ref="doughnutCanvas"></canvas>
-            </div>
-            <!-- <div>範例:</div>
-            <div>產品售價: 2000元 &nbsp;&nbsp; 產品最高分潤金額:1000元</div>
-            <template v-for="(suffix, index) in exampleSuffixs" :key="index">
-              <div class="grid w-64 grid-cols-2">
-                <div>{{ allMembersRef[suffix].nickname }}:</div>
-                <div>{{ commissionFormulaRef[index] * 1000 }}元</div>
-              </div>
-            </template> -->
+        <div v-show="currentSuffix != ''">
+          <div>當產品賣出後，該會員所有上線的抽成比例：</div>
+          <br />
+          <div class="w-full mx-auto">
+            <canvas ref="doughnutCanvas"></canvas>
           </div>
         </div>
       </div>
     </div>
     <!-- 表格資訊 -->
     <div class="mt-16">
-      <div class="mt-8 flex flex-col">
+      <div class="mt-8 flex flex-col px-2">
         <div class="-my-2 overflow-x-auto">
-          <div
-            class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8"
-          >
+          <div class="inline-block min-w-full py-2 align-middle">
             <div
               class="overflow-hidden shadow ring-1 ring-red-400 ring-opacity-5 md:rounded-lg"
             >

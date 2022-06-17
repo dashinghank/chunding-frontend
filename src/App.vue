@@ -46,7 +46,9 @@ onMounted(async () => {
 
       let results = await Promise.all(allPromises);
       var downlines = results[0];
+
       if (downlines.length > 0) {
+        console.log("downlines::", downlines);
         downlines.forEach((downline: any) => {
           store.commit("setDownline", downline);
         });

@@ -23,6 +23,7 @@ var navigation: any;
 switch (store.state.userInfo.role) {
   case "admin":
     navigation = [
+      { name: "首頁", href: "/home" },
       { name: "管理者頁面", href: "/supervisorPage" },
       { name: "建立下線", href: "/createDownline" },
       { name: "商品調整頁", href: "/products" },
@@ -35,6 +36,7 @@ switch (store.state.userInfo.role) {
     break;
   case "sub":
     navigation = [
+      { name: "首頁", href: "/home" },
       { name: "建立下線", href: "/createDownline" },
       { name: "訂單頁面", href: "/report" },
       { name: "驗證KOL", href: "/veriflyKol" },
@@ -45,6 +47,7 @@ switch (store.state.userInfo.role) {
     break;
   case "kol":
     navigation = [
+      { name: "首頁", href: "/home" },
       { name: "建立下線", href: "/createDownline" },
       { name: "調整下線", href: "/ConfigureDownline" },
       { name: "訂單頁面", href: "/report" },

@@ -59,7 +59,7 @@ async function updatePassword() {
       let result = await axios.post(
         "https://shopify-api-nine.vercel.app/api/updateMember",
         {
-          docId: `members/${storeRef.value.userInfo.docId}`,
+          docId: `${storeRef.value.userInfo.docId}`,
           password: password.value.trim(),
         }
       );

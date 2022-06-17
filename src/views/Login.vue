@@ -29,6 +29,19 @@ provide("currentMember", currentMember);
 
 onMounted(async () => {
   store.commit("setClear");
+
+  var input: any = document.getElementById("login-password");
+
+  // Execute a function when the user presses a key on the keyboard
+  input.addEventListener("keypress", async function (event: any) {
+    // If the user presses the "Enter" key on the keyboard
+    if (event.key === "Enter") {
+      // Cancel the default action, if needed
+      event.preventDefault();
+      // Trigger the button element with a click
+      await login();
+    }
+  });
 });
 
 async function login() {
@@ -47,7 +60,8 @@ async function login() {
     isShowMask.value = false;
     return;
   }
-  console.log("currentMember.value.account:", currentMember.value.account);
+
+  console.log("currentMember.value.account:", currentMember.value);
   store.commit("setUserInfo", {
     account: currentMember.value.account,
     docId: currentMember.value.docId,
@@ -60,6 +74,9 @@ async function login() {
     parent: currentMember.value.parent,
     role: currentMember.value.role,
     qrCodeUrl: currentMember.value.qrcode,
+    lineid: currentMember.value.lineid,
+    instaId: currentMember.value.instaId,
+    phonenumber: currentMember.value.phonenumber,
   });
 
   let results = await Promise.all([
@@ -156,6 +173,7 @@ function checkMemberValid() {
             <div>
               <label class="sr-only">Password</label>
               <input
+                id="login-password"
                 type="password"
                 autocomplete="current-password"
                 required

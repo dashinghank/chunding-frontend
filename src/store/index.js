@@ -61,13 +61,18 @@ export default new Vuex.Store({
     },
     setDownline(state, downline) {
       state.downlines[downline.urlsuffix] = {
-        docId: downline.docId,
+        docId: downline.id,
         urlsuffix: downline.urlsuffix,
         nickname: downline.nickname,
         depth: downline.depth,
         parent: downline.parent,
         ancestors: downline.ancestors,
         commissionPercentage: downline.commissionPercentage,
+        phoneNumber: downline.phonenumber,
+        instaId: downline.instaId,
+
+        lineId: downline.lineid,
+        role: downline.role,
       };
     },
 
@@ -84,6 +89,9 @@ export default new Vuex.Store({
       state.userInfo.parent = userInfo.parent;
       state.userInfo.role = userInfo.role;
       state.userInfo.qrCodeUrl = userInfo.qrCodeUrl;
+      state.userInfo.lineid = userInfo.lineid;
+      state.userInfo.instaId = userInfo.instaId;
+      state.userInfo.phonenumber = userInfo.phonenumber;
       state.lastLoginDatetime = moment().valueOf();
     },
     setCommissionInfo(state, commissionInfo) {

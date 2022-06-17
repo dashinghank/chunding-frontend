@@ -59,7 +59,7 @@ async function verifly() {
       let result = await axios.post(
         "https://shopify-api-nine.vercel.app/api/updateMember",
         {
-          docId: `members/${selectedMember.id}`,
+          docId: `${selectedMember.id}`,
           // 1 代表通過驗證
           verifiedStatus: 1,
         }
@@ -99,7 +99,7 @@ async function rejectApplication() {
       let result = await axios.post(
         "https://shopify-api-nine.vercel.app/api/updateMember",
         {
-          docId: `members/${selectedMember.id}`,
+          docId: `${selectedMember.id}`,
           // 1 代表通過驗證
           vverifiedStatus: -1,
         }

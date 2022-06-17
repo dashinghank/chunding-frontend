@@ -40,7 +40,7 @@ async function setKolVeriflyData() {
       "https://shopify-api-nine.vercel.app/api/updateMember",
       {
         // 2為驗證中
-        docId: `members/${currentMember.value.docId}`,
+        docId: `${currentMember.value.docId}`,
         verifiedStatus: 2,
         instaId: instaId.value.value,
         lineid: lineid.value.value,
