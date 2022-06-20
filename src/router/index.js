@@ -76,6 +76,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   //檢查登入過期
   //超過三天後，自動登出
+  console.log("router in");
   if (
     moment().valueOf() - store.state.lastLoginDatetime >
     1000 * 60 * 60 * 24 * 3
@@ -90,6 +91,43 @@ router.beforeEach((to, from, next) => {
     return;
   }
 
+  console.log("before switch");
+  switch (store.state.userInfo.role) {
+    case "kol":
+      switch (to.name) {
+        case "SupervisorPage":
+          next({ name: "Home" });
+          return;
+
+        case "Products":
+          next({ name: "Home" });
+          return;
+
+        case "VeriflyKol":
+          next({ name: "Home" });
+          return;
+
+        case "Carousel":
+          next({ name: "Home" });
+          return;
+
+        case "CommissionManagement":
+          next({ name: "Home" });
+          return;
+      }
+      break;
+    case "sub":
+      switch (to.name) {
+        case "SupervisorPage":
+          next({ name: "Home" });
+          return;
+
+        case "Products":
+          next({ name: "Home" });
+          return;
+      }
+      break;
+  }
   next();
 });
 

@@ -65,6 +65,8 @@ function onSelected(urlsuffix: string) {
               </div>
               <div v-if="ancestor != 'ADMIN_URL'" class="whitespace-nowrap">
                 {{ store.state.downlines[ancestor].nickname }}
+                <br />
+                ({{ store.state.downlines[ancestor].urlsuffix }})
               </div>
 
               <div>&nbsp;>&nbsp;</div>
@@ -72,6 +74,8 @@ function onSelected(urlsuffix: string) {
             <template v-if="currentSelectedParent != 'ADMIN_URL'">
               <div class="whitespace-nowrap">
                 {{ store.state.downlines[currentSelectedParent].nickname }}
+                <br />
+                ({{ store.state.downlines[currentSelectedParent].urlsuffix }})
               </div>
             </template>
           </div>
@@ -94,6 +98,8 @@ function onSelected(urlsuffix: string) {
           "
         >
           {{ store.state.downlines[children.urlsuffix].nickname }}
+          <br />
+          ({{ store.state.downlines[children.urlsuffix].urlsuffix }})
         </div>
         <!-- <div
           v-for="(children, k) in currentChildren"

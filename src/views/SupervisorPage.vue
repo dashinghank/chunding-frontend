@@ -488,7 +488,7 @@ async function createSubAccount() {
       </div>
     </div>
     <!-- 表格資訊 -->
-    <div class="mt-16">
+    <div class="mt-16" v-show="depth != -1">
       <div class="mt-8 flex flex-col px-2">
         <div class="-my-2 overflow-x-auto">
           <div class="inline-block min-w-full py-2 align-middle">

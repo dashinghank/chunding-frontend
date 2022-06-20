@@ -69,22 +69,28 @@ function onSelected(urlsuffix: string) {
                   class="whitespace-nowrap"
                   v-if="ancestor == store.state.userInfo.urlsuffix"
                 >
-                  {{ store.state.userInfo.nickname }}
+                  <div>
+                    {{ store.state.userInfo.nickname }}
+                  </div>
+                  <div>({{ store.state.userInfo.urlsuffix }})</div>
                 </div>
                 <div class="whitespace-nowrap" v-else>
                   {{ store.state.downlines[ancestor].nickname }}
+                  <br />
+                  ({{ store.state.downlines[ancestor].urlsuffix }})
                 </div>
                 <div>&nbsp;>&nbsp;</div>
               </div>
-              <!-- <div v-if="ancestor != 'ADMIN_URL'" class="whitespace-nowrap">
-                {{ store.state.downlines[ancestor].nickname }}
-              </div> -->
             </div>
             <template
               v-if="currentSelectedParent != store.state.userInfo.urlsuffix"
             >
               <div class="whitespace-nowrap">
                 {{ store.state.downlines[currentSelectedParent].nickname }}
+                <br />
+                <div>
+                  ({{ store.state.downlines[currentSelectedParent].urlsuffix }})
+                </div>
               </div>
             </template>
           </div>
@@ -107,6 +113,8 @@ function onSelected(urlsuffix: string) {
           "
         >
           {{ store.state.downlines[children.urlsuffix].nickname }}
+          <br />
+          ({{ store.state.downlines[children.urlsuffix].urlsuffix }})
         </div>
       </div>
       <div class="border-t-2 border-t-gray-400 min-h-[400px]" v-else>
