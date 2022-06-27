@@ -339,24 +339,7 @@ function onDownlineChange(suffix: string) {
                     >
                       姓名
                     </th>
-                    <th
-                      scope="col"
-                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                    >
-                      電話
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                    >
-                      Line
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                    >
-                      IG
-                    </th>
+
                     <th
                       scope="col"
                       class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
@@ -384,21 +367,7 @@ function onDownlineChange(suffix: string) {
                     >
                       {{ kolName }}
                     </td>
-                    <td
-                      class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
-                    >
-                      {{ phoneNumber }}
-                    </td>
-                    <td
-                      class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
-                    >
-                      {{ lineId }}
-                    </td>
-                    <td
-                      class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
-                    >
-                      {{ instaId }}
-                    </td>
+
                     <td
                       class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
                     >
