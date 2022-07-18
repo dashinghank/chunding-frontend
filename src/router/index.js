@@ -67,6 +67,11 @@ const routes = [
     name: "CommissionManagement",
     component: () => import("@/views/CommissionManagement.vue"),
   },
+  {
+    path: "/productDownline",
+    name: "ProductDownline",
+    component: () => import("@/views/ProductDownline.vue"),
+  },
 ];
 const router = createRouter({
   history: createWebHistory(),

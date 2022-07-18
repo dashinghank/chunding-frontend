@@ -52,6 +52,7 @@ switch (store.state.userInfo.role) {
       { name: "調整下線", href: "/ConfigureDownline" },
       { name: "訂單頁面", href: "/report" },
       { name: "公告頁面", href: "/announcementPage" },
+      { name: "商品頁面", href: "/productDownline" },
     ];
 
     break;

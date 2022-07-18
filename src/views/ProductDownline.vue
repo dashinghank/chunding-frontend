@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { getFirestore, updateDoc, doc } from "firebase/firestore";
-import {
-  ChevronDoubleLeftIcon,
-  ChevronDoubleRightIcon,
-  RefreshIcon,
-} from "@heroicons/vue/solid";
-
+import { RefreshIcon } from "@heroicons/vue/solid";
 import { useStore } from "vuex";
 import { inject, onMounted, ref, Ref } from "@vue/runtime-core";
 import { getAllProducts } from "@/store/firebaseControl";
@@ -15,7 +10,6 @@ const store = useStore();
 const allProducts: Ref<any> = ref({});
 
 onMounted(() => {
-  console.log("store.state.allProducts:", store.state.allProducts);
   allProducts.value = store.state.allProducts;
 });
 
@@ -50,26 +44,6 @@ async function setProductMaxToDb() {
   isShowMask.value = false;
 }
 
-function clickLeft(key: string) {
-  let tempMax: number = store.state.allProducts[key].max;
-  console.log(tempMax)
-  tempMax -= 0.01;
-  if (tempMax < 0) {
-    tempMax = 0;
-  }
-
-  store.state.allProducts[key].max = tempMax;
-}
-
-function clickRight(key: string) {
-  let tempMax: number = store.state.allProducts[key].max;
-  tempMax += 0.01;
-  if (tempMax > 1) {
-    tempMax = 1;
-  }
-
-  store.state.allProducts[key].max = tempMax;
-}
 
 async function onProductRefresh() {
   isShowMask.value = true;
@@ -114,13 +88,7 @@ async function onProductRefresh() {
                       scope="col"
                       class="px-3 py-3.5 text-sm font-semibold text-gray-900"
                     >
-                      產品最高分潤金額
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-3 py-3.5 text-sm font-semibold text-gray-900"
-                    >
-                      產品最高分潤%數
+                      產品成本
                     </th>
                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                       <div
@@ -147,35 +115,10 @@ async function onProductRefresh() {
                     </td>
                     <td class="py-4 text-sm text-gray-500 whitespace-nowrap">
                       {{
-                        Math.ceil(allProducts[key].price * allProducts[key].max)
+                        Math.ceil(
+                          allProducts[key].price *
+                            (1.0 - store.state.userInfo.commissionPercentage))
                       }}
-                    </td>
-                    <td
-                      class="flex justify-center px-3 py-4 text-sm text-gray-500"
-                    >
-                      <div class="flex gap-5 items-center">
-                        <!-- <ChevronDoubleLeftIcon
-                          class="w-4 h-4"
-                          @click="clickLeft(key.toString())"
-                        /> -->
-                        <input
-                          class="text-center"
-                          type="number"
-                          min="0"
-                          max="100"
-                          :id="key.toString()"
-                          @input="updateProductMax"
-                          :value="allProducts[key].max * 100"
-                        />
-                        <!-- <ChevronDoubleRightIcon
-                          class="w-4 h-4"
-                          @click="clickRight(key.toString())"
-                        /> -->
-                        <div class="ml-5">
-                          {{ Math.ceil(allProducts[key].max * 100) }}
-                          %
-                        </div>
-                      </div>
                     </td>
                   </tr>
                 </tbody>
