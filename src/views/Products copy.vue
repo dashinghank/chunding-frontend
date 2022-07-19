@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { getFirestore, updateDoc, doc } from "firebase/firestore";
-import { RefreshIcon } from "@heroicons/vue/solid";
+import {
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
+  RefreshIcon,
+} from "@heroicons/vue/solid";
 
 import { useStore } from "vuex";
 import { inject, onMounted, ref, Ref } from "@vue/runtime-core";
@@ -16,51 +20,55 @@ onMounted(() => {
 });
 
 function updateProductMax(e: any) {
-  console.log("updateProductMax", e.target.value);
-  console.log((document.getElementById(e.target.id) as any).value);
+  allProducts.value[e.target.id].max = parseFloat(
+    (parseInt(e.target.value) / 100).toFixed(2)
+  );
 
-  if (e.target.value > allProducts.value[e.target.id].price) {
-    (document.getElementById(e.target.id) as any).value =
-      allProducts.value[e.target.id].price;
-  } else if (e.target.value < 1) {
-    (document.getElementById(e.target.id) as any).value = 0;
-  } else {
-    (document.getElementById(e.target.id) as any).value = parseInt(
-      e.target.value.toString()
-    );
-  }
-
-  console.log((document.getElementById(e.target.id) as any).value);
-  allProducts.value[e.target.id].max =
-    (document.getElementById(e.target.id) as any).value /
-    allProducts.value[e.target.id].price;
-
-  console.log("max:", allProducts.value[e.target.id].max);
   store.commit("setAllProducts", allProducts);
 }
 
 async function setProductMaxToDb() {
-  console.log("setProductMaxToDb");
-  // isShowMask.value = true;
-  // let promises: any[] = [];
+  isShowMask.value = true;
+  let promises: any[] = [];
 
-  // for (let key in store.state.allProducts) {
-  //   let docRef = doc(getFirestore(), `products/${key}`);
-  //   promises.push(
-  //     updateDoc(docRef, {
-  //       max: parseFloat(store.state.allProducts[key].max.toFixed(2)),
-  //     })
-  //   );
-  // }
+  for (let key in store.state.allProducts) {
+    let docRef = doc(getFirestore(), `products/${key}`);
+    promises.push(
+      updateDoc(docRef, {
+        max: parseFloat(store.state.allProducts[key].max.toFixed(2)),
+      })
+    );
+  }
 
-  // try {
-  //   await Promise.all(promises);
-  //   alert("設定完成");
-  // } catch (e) {
-  //   console.log(e);
-  //   alert("設定失敗");
-  // }
-  // isShowMask.value = false;
+  try {
+    await Promise.all(promises);
+    alert("設定完成");
+  } catch (e) {
+    console.log(e);
+    alert("設定失敗");
+  }
+  isShowMask.value = false;
+}
+
+function clickLeft(key: string) {
+  let tempMax: number = store.state.allProducts[key].max;
+  console.log(tempMax)
+  tempMax -= 0.01;
+  if (tempMax < 0) {
+    tempMax = 0;
+  }
+
+  store.state.allProducts[key].max = tempMax;
+}
+
+function clickRight(key: string) {
+  let tempMax: number = store.state.allProducts[key].max;
+  tempMax += 0.01;
+  if (tempMax > 1) {
+    tempMax = 1;
+  }
+
+  store.state.allProducts[key].max = tempMax;
 }
 
 async function onProductRefresh() {
@@ -138,26 +146,33 @@ async function onProductRefresh() {
                       {{ allProducts[key].price }}
                     </td>
                     <td class="py-4 text-sm text-gray-500 whitespace-nowrap">
-                      <input
-                        class="text-center"
-                        type="number"
-                        min="0"
-                        :max="allProducts[key].price"
-                        :id="key.toString()"
-                        @input="updateProductMax"
-                        :value="
-                          Math.floor(
-                            allProducts[key].price * allProducts[key].max
-                          )
-                        "
-                      />
+                      {{
+                        Math.ceil(allProducts[key].price * allProducts[key].max)
+                      }}
                     </td>
                     <td
                       class="flex justify-center px-3 py-4 text-sm text-gray-500"
                     >
                       <div class="flex gap-5 items-center">
+                        <!-- <ChevronDoubleLeftIcon
+                          class="w-4 h-4"
+                          @click="clickLeft(key.toString())"
+                        /> -->
+                        <input
+                          class="text-center"
+                          type="number"
+                          min="0"
+                          max="100"
+                          :id="key.toString()"
+                          @input="updateProductMax"
+                          :value="allProducts[key].max * 100"
+                        />
+                        <!-- <ChevronDoubleRightIcon
+                          class="w-4 h-4"
+                          @click="clickRight(key.toString())"
+                        /> -->
                         <div class="ml-5">
-                          {{ Math.floor(allProducts[key].max * 100) }}
+                          {{ Math.ceil(allProducts[key].max * 100) }}
                           %
                         </div>
                       </div>

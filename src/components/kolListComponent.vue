@@ -75,9 +75,11 @@ function onSelected(urlsuffix: string) {
                   <div>({{ store.state.userInfo.urlsuffix }})</div>
                 </div>
                 <div class="whitespace-nowrap" v-else>
-                  {{ store.state.downlines[ancestor].nickname }}
-                  <br />
-                  ({{ store.state.downlines[ancestor].urlsuffix }})
+                  <template v-if="store.state.downlines[ancestor]">
+                    {{ store.state.downlines[ancestor].nickname }}
+                    <br />
+                    ({{ store.state.downlines[ancestor].urlsuffix }})
+                  </template>
                 </div>
                 <div>&nbsp;>&nbsp;</div>
               </div>

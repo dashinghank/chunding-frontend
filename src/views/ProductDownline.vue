@@ -4,13 +4,33 @@ import { RefreshIcon } from "@heroicons/vue/solid";
 import { useStore } from "vuex";
 import { inject, onMounted, ref, Ref } from "@vue/runtime-core";
 import { getAllProducts } from "@/store/firebaseControl";
+import axios from "axios";
+
 
 const isShowMask: Ref<boolean> = inject("isShowMask") as Ref<boolean>;
 const store = useStore();
 const allProducts: Ref<any> = ref({});
+const productCost = ref(0);
 
-onMounted(() => {
+
+onMounted(async () => {
   allProducts.value = store.state.allProducts;
+  console.log(store.state.userInfo)
+  // var userInfo = store.state.userInfo;
+  // const allMembers = await axios.post(
+  //   "https://shopify-api-nine.vercel.app/api/test",
+  //   {
+  //     parentSuffix: store.state.userInfo.parent,
+  //   }
+  // );
+  // productCost.value =
+  //   1 -
+  //   getAncestorsCommissionPercentageFormula(
+  //     userInfo.urlsuffix,
+  //     userInfo.ancestors,
+  //     allMembers.data
+  //   )[userInfo.urlsuffix];
+  // console.log("com:", productCost.value);
 });
 
 function updateProductMax(e: any) {
@@ -51,6 +71,41 @@ async function onProductRefresh() {
   store.commit("setAllProducts", allProducts);
   isShowMask.value = false;
 }
+
+
+
+function getAncestorsCommissionPercentageFormula(
+  mySuffix: string,
+  ancestorSuffixs: string[],
+  allMembers: any
+) {
+  let suffixs: string[] = [...ancestorSuffixs, mySuffix];
+  let preprocessedPercentage = [];
+  for (let i = 0; i < suffixs.length; i++) {
+    preprocessedPercentage.push(allMembers[suffixs[i]].commissionPercentage);
+  }
+
+  let preformula = [];
+  for (let i = 0; i < preprocessedPercentage.length; i++) {
+    if (i < preprocessedPercentage.length - 1) {
+      preformula.push(
+        parseFloat(
+          (preprocessedPercentage[i] - preprocessedPercentage[i + 1]).toFixed(2)
+        )
+      );
+    } else {
+      preformula.push(preprocessedPercentage[i]);
+    }
+  }
+
+  let formula: any = {};
+  for (let i = 0; i < preformula.length; i++) {
+    formula[suffixs[i]] = preformula[i];
+  }
+
+  return formula;
+}
+
 </script>
 
 <template>
@@ -117,7 +172,8 @@ async function onProductRefresh() {
                       {{
                         Math.ceil(
                           allProducts[key].price *
-                            (1.0 - store.state.userInfo.commissionPercentage))
+                            (1 - store.state.userInfo.commissionPercentage)
+                        )
                       }}
                     </td>
                   </tr>
