@@ -40,27 +40,33 @@ function updateProductMax(e: any) {
 }
 
 async function setProductMaxToDb() {
-  console.log("setProductMaxToDb");
-  // isShowMask.value = true;
-  // let promises: any[] = [];
+  console.log("setProductMaxToDbsss");
+  isShowMask.value = true;
+  let promises: any[] = [];
 
-  // for (let key in store.state.allProducts) {
-  //   let docRef = doc(getFirestore(), `products/${key}`);
-  //   promises.push(
-  //     updateDoc(docRef, {
-  //       max: parseFloat(store.state.allProducts[key].max.toFixed(2)),
-  //     })
-  //   );
-  // }
+  for (let key in store.state.allProducts) {
+    let docRef = doc(getFirestore(), `products/${key}`);
 
-  // try {
-  //   await Promise.all(promises);
-  //   alert("設定完成");
-  // } catch (e) {
-  //   console.log(e);
-  //   alert("設定失敗");
-  // }
-  // isShowMask.value = false;
+    promises.push(
+      updateDoc(docRef, {
+        max:
+          Math.floor(
+            parseFloat(
+              ((store.state.allProducts[key].max * 10000) / 100).toFixed(2)
+            )
+          ) / 100,
+      })
+    );
+  }
+
+  try {
+    await Promise.all(promises);
+    alert("設定完成");
+  } catch (e) {
+    console.log(e);
+    alert("設定失敗");
+  }
+  isShowMask.value = false;
 }
 
 async function onProductRefresh() {
